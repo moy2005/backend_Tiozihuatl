@@ -124,6 +124,7 @@ export const UserModel = {
           U.matricula,
           U.telefono,
           U.contrasena,
+          U.estado,
           R.nombre_rol,
           C.nombre_carrera AS carrera,
           S.nombre_semestre
