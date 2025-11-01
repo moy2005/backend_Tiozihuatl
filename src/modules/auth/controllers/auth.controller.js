@@ -124,7 +124,12 @@ export const AuthController = {
     }
   },
 
- /**
+  /**
+   * ================================================================
+   * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
+   * ================================================================
+   */
+/**
  * ================================================================
  * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
  * ================================================================
@@ -142,17 +147,20 @@ login: async (req, res) => {
       return res.status(401).json({ error: "Usuario no encontrado." });
 
     // 🔒 Validar estado del usuario
-    if (user.estado !== "Activo") {
-      await AuditService.logEvent({
-        id_usuario: user.id_usuario,
-        tipo_evento: "LOGIN_BLOQUEADO",
-        descripcion: `Intento de acceso con cuenta ${user.estado}`,
-        ip_origen: req.ip,
-      });
-      return res
-        .status(403)
-        .json({ error: "Tu cuenta está inactiva o bloqueada. Contacta al administrador." });
-    }
+// 🔒 Validar estado del usuario
+const estadoUsuario = (user.estado || "").toString().trim().toLowerCase();
+
+if (estadoUsuario !== "activo") {
+  await AuditService.logEvent({
+    id_usuario: user.id_usuario,
+    tipo_evento: "LOGIN_BLOQUEADO",
+    descripcion: `Intento de acceso con cuenta en estado: ${user.estado}`,
+    ip_origen: req.ip,
+  });
+  return res
+    .status(403)
+    .json({ error: "Tu cuenta está inactiva o bloqueada. Contacta al administrador." });
+}
 
     // Validar rol
     if (user.nombre_rol !== rolSeleccionado)
@@ -201,7 +209,6 @@ login: async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor." });
   }
 },
-
 
   /**
    * ================================================================
