@@ -92,27 +92,44 @@ async createByAdmin(data) {
 },
 
 
-  /**
-   * ================================================================
-   * ADMIN: Actualizar usuario completo
-   * ================================================================
-   */
+/**
+ * ================================================================
+ * ADMIN: Actualizar usuario completo
+ * ================================================================
+ */
 async updateByAdmin(id_usuario, data) {
   const pool = await poolPromise;
 
-  // Verificar que el usuario exista
+  // 🔹 1. Verificar que el usuario exista
   const [exist] = await pool.query(`SELECT * FROM usuarios WHERE id_usuario = ?`, [id_usuario]);
   if (!exist.length) throw new Error(`Usuario con ID ${id_usuario} no encontrado.`);
   const usuarioActual = exist[0];
 
-  // Campos que se pueden modificar
+  // 🔹 2. Obtener nombre del rol actual o nuevo
+  let nombreRol = null;
+  if (data.id_rol) {
+    const [rol] = await pool.query(`SELECT nombre_rol FROM roles WHERE id_rol = ?`, [data.id_rol]);
+    if (!rol.length) throw new Error("El rol seleccionado no existe.");
+    nombreRol = rol[0].nombre_rol;
+  } else {
+    // Si no se cambia el rol, usar el actual
+    const [rolActual] = await pool.query(`SELECT R.nombre_rol FROM usuarios U INNER JOIN roles R ON U.id_rol = R.id_rol WHERE U.id_usuario = ?`, [id_usuario]);
+    nombreRol = rolActual[0]?.nombre_rol || '';
+  }
+
+  // 🔹 3. Forzar que los Visitantes no tengan matrícula
+  if (nombreRol === "Visitante") {
+    data.matricula = null;
+  }
+
+  // 🔹 4. Definir campos actualizables
   const campos = [
     "id_rol", "id_carrera", "id_semestre",
     "nombre", "a_paterno", "a_materno",
     "correo", "telefono", "matricula", "estado"
   ];
 
-  // Mantener el valor actual si el campo no viene en el body
+  // 🔹 5. Mantener valor actual si no viene en el body
   const camposActualizar = {};
   for (const campo of campos) {
     if (data[campo] !== undefined) {
@@ -122,24 +139,19 @@ async updateByAdmin(id_usuario, data) {
     }
   }
 
-  // Validar que el rol exista (solo si se intenta cambiar)
-  if (data.id_rol !== undefined) {
-    const [rol] = await pool.query(`SELECT id_rol FROM roles WHERE id_rol = ?`, [camposActualizar.id_rol]);
-    if (!rol.length) throw new Error("El rol seleccionado no existe.");
-  }
-
-  // Construir SET dinámico
+  // 🔹 6. Construir SET dinámico
   const setClause = Object.keys(camposActualizar)
     .map((key) => `${key} = ?`)
     .join(", ");
   const values = Object.values(camposActualizar);
   values.push(id_usuario);
 
-  // Ejecutar actualización
+  // 🔹 7. Ejecutar actualización
   await pool.query(`UPDATE usuarios SET ${setClause} WHERE id_usuario = ?`, values);
 
   return { message: "Usuario actualizado correctamente." };
 },
+
 
   /**
    * ================================================================
