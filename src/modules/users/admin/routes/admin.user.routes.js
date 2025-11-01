@@ -4,6 +4,16 @@ import { authMiddleware } from "../../../../core/middleware/auth.middleware.js";
 import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 import { validateUserFields } from "../../../../core/middleware/validateUserFields.middleware.js";
 
+
+console.log({
+  authMiddleware: typeof authMiddleware,
+  roleMiddleware: typeof roleMiddleware,
+  validateUserFields: typeof validateUserFields,
+  getAll: typeof AdminUserController.getAll,
+  update: typeof AdminUserController.update
+});
+
+
 const router = Router();
 
 // Solo administradores autenticados

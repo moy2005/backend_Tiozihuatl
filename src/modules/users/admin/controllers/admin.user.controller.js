@@ -54,7 +54,7 @@ export const AdminUserController = {
    * Actualizar datos completos de un usuario
    * ================================================================
    */
-  async updateUser(id_usuario, data) {
+ async update(id_usuario, data) {
     const pool = await poolPromise;
 
     if (!id_usuario) throw new Error("Falta el ID del usuario.");
@@ -91,6 +91,7 @@ export const AdminUserController = {
 
     return { message: "Usuario actualizado correctamente." };
   },
+  
 
   /**
    * ================================================================
