@@ -30,7 +30,7 @@ export const PasswordService = {
     const expiracion = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
     // Guardar código en la BD
-    await RecoveryModel.create(poolPromise, { id_usuario, codigo, expiracion });
+    await RecoveryModel.create( { id_usuario, codigo, expiracion });
 
     // HTML con diseño moderno y profesional
     const mailOptions = {
