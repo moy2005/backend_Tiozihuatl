@@ -75,39 +75,49 @@ export const AdminUserModel = {
    * ADMIN: Actualizar usuario completo
    * ================================================================
    */
-  async updateByAdmin(id_usuario, data) {
-    const pool = await poolPromise;
-    await pool.query(
-      `
-      UPDATE usuarios
-      SET 
-        id_rol = ?,
-        id_carrera = ?,
-        id_semestre = ?,
-        nombre = ?,
-        a_paterno = ?,
-        a_materno = ?,
-        correo = ?,
-        telefono = ?,
-        matricula = ?,
-        estado = ?
-      WHERE id_usuario = ?
-      `,
-      [
-        data.id_rol,
-        data.id_carrera || null,
-        data.id_semestre || null,
-        data.nombre,
-        data.a_paterno,
-        data.a_materno,
-        data.correo,
-        data.telefono,
-        data.matricula || null,
-        data.estado,
-        id_usuario,
-      ]
-    );
-  },
+async updateByAdmin(id_usuario, data) {
+  const pool = await poolPromise;
+
+  // Verificar que el usuario exista
+  const [exist] = await pool.query(`SELECT * FROM usuarios WHERE id_usuario = ?`, [id_usuario]);
+  if (!exist.length) throw new Error(`Usuario con ID ${id_usuario} no encontrado.`);
+  const usuarioActual = exist[0];
+
+  // Campos que se pueden modificar
+  const campos = [
+    "id_rol", "id_carrera", "id_semestre",
+    "nombre", "a_paterno", "a_materno",
+    "correo", "telefono", "matricula", "estado"
+  ];
+
+  // Mantener el valor actual si el campo no viene en el body
+  const camposActualizar = {};
+  for (const campo of campos) {
+    if (data[campo] !== undefined) {
+      camposActualizar[campo] = data[campo];
+    } else {
+      camposActualizar[campo] = usuarioActual[campo];
+    }
+  }
+
+  // Validar que el rol exista (solo si se intenta cambiar)
+  if (data.id_rol !== undefined) {
+    const [rol] = await pool.query(`SELECT id_rol FROM roles WHERE id_rol = ?`, [camposActualizar.id_rol]);
+    if (!rol.length) throw new Error("El rol seleccionado no existe.");
+  }
+
+  // Construir SET dinámico
+  const setClause = Object.keys(camposActualizar)
+    .map((key) => `${key} = ?`)
+    .join(", ");
+  const values = Object.values(camposActualizar);
+  values.push(id_usuario);
+
+  // Ejecutar actualización
+  await pool.query(`UPDATE usuarios SET ${setClause} WHERE id_usuario = ?`, values);
+
+  return { message: "Usuario actualizado correctamente." };
+},
 
   /**
    * ================================================================
