@@ -388,7 +388,7 @@ static async authVerify(req, res) {
     // 🔹 Generar AccessToken (igual que en login normal)
     const token = jwt.sign(
       {
-        id_usuario: user.id_usuario,
+        id: user.id_usuario,
         correo: user.correo,
         matricula: user.matricula || null,
         rol: user.nombre_rol,
