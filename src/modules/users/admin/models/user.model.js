@@ -30,45 +30,67 @@ export const AdminUserModel = {
     return rows;
   },
 
-  /**
-   * ================================================================
-   * ADMIN: Crear usuario (para cualquier rol)
-   * ================================================================
-   */
-  async createByAdmin(data) {
-    const pool = await poolPromise;
-    await pool.query(
-      `
-      INSERT INTO usuarios (
-        id_rol,
-        id_carrera,
-        id_semestre,
-        nombre,
-        a_paterno,
-        a_materno,
-        correo,
-        telefono,
-        matricula,
-        contrasena,
-        estado,
-        fecha_registro
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())
-      `,
-      [
-        data.id_rol,
-        data.id_carrera || null,
-        data.id_semestre || null,
-        data.nombre,
-        data.a_paterno,
-        data.a_materno,
-        data.correo,
-        data.telefono,
-        data.matricula || null,
-        data.contrasena,
-      ]
-    );
-  },
+ /**
+ * ================================================================
+ * ADMIN: Crear usuario (para cualquier rol)
+ * ================================================================
+ */
+async createByAdmin(data) {
+  const pool = await poolPromise;
+
+  // 🔹 1. Verificar si el rol existe y obtener su nombre
+  const [rol] = await pool.query(
+    `SELECT nombre_rol FROM roles WHERE id_rol = ?`,
+    [data.id_rol]
+  );
+
+  if (!rol.length) {
+    throw new Error("El rol seleccionado no existe.");
+  }
+
+  const nombreRol = rol[0].nombre_rol;
+
+  // 🔹 2. Solo el VISITANTE no puede tener matrícula
+  if (nombreRol === "Visitante") {
+    data.matricula = null;
+  }
+
+  // 🔹 3. Insertar el usuario
+  await pool.query(
+    `
+    INSERT INTO usuarios (
+      id_rol,
+      id_carrera,
+      id_semestre,
+      nombre,
+      a_paterno,
+      a_materno,
+      correo,
+      telefono,
+      matricula,
+      contrasena,
+      estado,
+      fecha_registro
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())
+    `,
+    [
+      data.id_rol,
+      data.id_carrera || null,
+      data.id_semestre || null,
+      data.nombre,
+      data.a_paterno,
+      data.a_materno,
+      data.correo,
+      data.telefono,
+      data.matricula || null,
+      data.contrasena,
+    ]
+  );
+
+  return { message: "Usuario creado correctamente." };
+},
+
 
   /**
    * ================================================================
