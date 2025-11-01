@@ -70,4 +70,22 @@ export const AdminUserService = {
     const pool = await poolPromise;
     return await RoleModel.findAll(pool);
   },
+
+    /**
+   * ================================================================
+   * Obtener lista de carreras activas
+   * ================================================================
+   */
+  async getCarreras() {
+    return await AdminUserModel.findAllCarreras();
+  },
+
+  /**
+   * ================================================================
+   * Obtener lista de semestres activos
+   * ================================================================
+   */
+  async getSemestres() {
+    return await AdminUserModel.findAllSemestres();
+  },
 };

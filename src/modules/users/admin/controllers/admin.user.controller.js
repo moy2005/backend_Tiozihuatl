@@ -115,4 +115,34 @@ export const AdminUserController = {
       res.status(500).json({ error: "Error interno al consultar roles" });
     }
   },
+ /**
+   * ================================================================
+   * GET /api/admin/catalogos/carreras
+   * ================================================================
+   */
+  async getCarreras(req, res) {
+    try {
+      const carreras = await AdminUserService.getCarreras();
+      res.status(200).json(carreras);
+    } catch (err) {
+      console.error("❌ Error al obtener carreras:", err);
+      res.status(500).json({ error: "Error interno al obtener carreras" });
+    }
+  },
+
+  /**
+   * ================================================================
+   * GET /api/admin/catalogos/semestres
+   * ================================================================
+   */
+  async getSemestres(req, res) {
+    try {
+      const semestres = await AdminUserService.getSemestres();
+      res.status(200).json(semestres);
+    } catch (err) {
+      console.error("❌ Error al obtener semestres:", err);
+      res.status(500).json({ error: "Error interno al obtener semestres" });
+    }
+  },
+  
 };

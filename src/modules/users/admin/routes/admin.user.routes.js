@@ -13,5 +13,19 @@ router.put("/:id", authMiddleware, roleMiddleware(["Administrador"]), validateUs
 router.delete("/:id", authMiddleware, roleMiddleware(["Administrador"]), AdminUserController.delete);
 router.get("/roles/all", authMiddleware, roleMiddleware(["Administrador"]), AdminUserController.getRoles);
 
+router.get(
+  "/carreras",
+  authMiddleware,
+  roleMiddleware(["Administrador"]),
+  AdminUserController.getCarreras
+);
+
+router.get(
+  "/semestres",
+  authMiddleware,
+  roleMiddleware(["Administrador"]),
+  AdminUserController.getSemestres
+);
+
 export default router;
 

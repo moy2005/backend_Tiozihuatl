@@ -125,4 +125,50 @@ export const AdminUserModel = {
       [id_usuario]
     );
   },
+
+  /**
+   * ================================================================
+   * Obtener todas las carreras (filtra por estado si existe)
+   * ================================================================
+   */
+  async findAllCarreras() {
+    const pool = await poolPromise;
+    const [rows] = await pool.query(`
+      SELECT 
+        id_carrera, 
+        nombre_carrera, 
+        descripcion, 
+        duracion_semestres, 
+        estado
+      FROM carreras
+      ${await this._hasEstadoColumn(pool, 'carreras') ? "WHERE estado = 'Activa'" : ""}
+      ORDER BY nombre_carrera ASC
+    `);
+    return rows;
+  },
+
+  /**
+   * ================================================================
+   * Obtener todos los semestres
+   * ================================================================
+   */
+  async findAllSemestres() {
+    const pool = await poolPromise;
+    const [rows] = await pool.query(`
+      SELECT 
+        id_semestre, 
+        nombre_semestre
+      FROM semestres
+      ORDER BY id_semestre ASC
+    `);
+    return rows;
+  },
+
+  /**
+   * 🔎 Verifica si la tabla tiene columna "estado"
+   */
+  async _hasEstadoColumn(pool, tableName) {
+    const [cols] = await pool.query(`SHOW COLUMNS FROM ${tableName} LIKE 'estado'`);
+    return cols.length > 0;
+  },
 };
