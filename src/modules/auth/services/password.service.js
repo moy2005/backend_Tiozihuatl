@@ -173,7 +173,7 @@ export const PasswordService = {
   async resetPassword(codigo, nuevaContrasena) {
     const [rows] = await poolPromise.query(
       `SELECT R.id_usuario, U.nombre
-       FROM recuperacion_contrasena R
+       FROM recuperacion R
        INNER JOIN usuarios U ON R.id_usuario = U.id_usuario
        WHERE R.codigo = ? AND R.fecha_expiracion > NOW()
        ORDER BY R.fecha_emision DESC
