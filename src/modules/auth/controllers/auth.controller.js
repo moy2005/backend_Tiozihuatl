@@ -124,73 +124,84 @@ export const AuthController = {
     }
   },
 
-  /**
-   * ================================================================
-   * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
-   * ================================================================
-   */
-  login: async (req, res) => {
-    try {
-      const { credential, contrasena, rolSeleccionado } = req.body;
+ /**
+ * ================================================================
+ * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
+ * ================================================================
+ */
+login: async (req, res) => {
+  try {
+    const { credential, contrasena, rolSeleccionado } = req.body;
 
-      if (!credential || !contrasena || !rolSeleccionado)
-        return res.status(400).json({ error: "Faltan credenciales o rol." });
+    if (!credential || !contrasena || !rolSeleccionado)
+      return res.status(400).json({ error: "Faltan credenciales o rol." });
 
-      const user = await UserModel.findByCredential(
-        credential,
-        rolSeleccionado
-      );
+    const user = await UserModel.findByCredential(credential, rolSeleccionado);
 
-      if (!user)
-        return res.status(401).json({ error: "Usuario no encontrado." });
+    if (!user)
+      return res.status(401).json({ error: "Usuario no encontrado." });
 
-      // Validar rol
-      if (user.nombre_rol !== rolSeleccionado)
-        return res
-          .status(403)
-          .json({ error: "El rol no coincide con el usuario." });
-
-      // Validar contraseña
-      const validPassword = await bcrypt.compare(contrasena, user.contrasena);
-      if (!validPassword)
-        return res.status(401).json({ error: "Contraseña incorrecta." });
-
-      // Generar tokens
-      const accessToken = JWTService.generateToken(
-        { id: user.id_usuario, rol: user.nombre_rol },
-        "15m"
-      );
-      const refreshToken = uuidv4();
-
-      await RefreshModel.save(user.id_usuario, refreshToken, 7);
-      await SessionModel.save(user.id_usuario, accessToken, req.ip);
-
+    // 🔒 Validar estado del usuario
+    if (user.estado !== "Activo") {
       await AuditService.logEvent({
         id_usuario: user.id_usuario,
-        tipo_evento: "LOGIN_EXITOSO",
-        descripcion: `Inicio de sesión (${rolSeleccionado})`,
+        tipo_evento: "LOGIN_BLOQUEADO",
+        descripcion: `Intento de acceso con cuenta ${user.estado}`,
         ip_origen: req.ip,
       });
-
-      res.status(200).json({
-        message: "Inicio de sesión exitoso.",
-        accessToken,
-        refreshToken,
-        user: {
-          id: user.id_usuario,
-          nombre: user.nombre,
-          rol: user.nombre_rol,
-          correo: user.correo,
-          matricula: user.matricula,
-          carrera: user.carrera || null,
-          semestre: user.nombre_semestre || null,
-        },
-      });
-    } catch (err) {
-      console.error("Error en login:", err.message);
-      res.status(500).json({ error: "Error interno del servidor." });
+      return res
+        .status(403)
+        .json({ error: "Tu cuenta está inactiva o bloqueada. Contacta al administrador." });
     }
-  },
+
+    // Validar rol
+    if (user.nombre_rol !== rolSeleccionado)
+      return res
+        .status(403)
+        .json({ error: "El rol no coincide con el usuario." });
+
+    // Validar contraseña
+    const validPassword = await bcrypt.compare(contrasena, user.contrasena);
+    if (!validPassword)
+      return res.status(401).json({ error: "Contraseña incorrecta." });
+
+    // Generar tokens
+    const accessToken = JWTService.generateToken(
+      { id: user.id_usuario, rol: user.nombre_rol },
+      "15m"
+    );
+    const refreshToken = uuidv4();
+
+    await RefreshModel.save(user.id_usuario, refreshToken, 7);
+    await SessionModel.save(user.id_usuario, accessToken, req.ip);
+
+    await AuditService.logEvent({
+      id_usuario: user.id_usuario,
+      tipo_evento: "LOGIN_EXITOSO",
+      descripcion: `Inicio de sesión (${rolSeleccionado})`,
+      ip_origen: req.ip,
+    });
+
+    res.status(200).json({
+      message: "Inicio de sesión exitoso.",
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id_usuario,
+        nombre: user.nombre,
+        rol: user.nombre_rol,
+        correo: user.correo,
+        matricula: user.matricula,
+        carrera: user.carrera || null,
+        semestre: user.nombre_semestre || null,
+      },
+    });
+  } catch (err) {
+    console.error("Error en login:", err.message);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+},
+
 
   /**
    * ================================================================
