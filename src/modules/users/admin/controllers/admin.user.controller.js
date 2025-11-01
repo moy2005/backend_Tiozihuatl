@@ -54,24 +54,42 @@ export const AdminUserController = {
    * Actualizar datos completos de un usuario
    * ================================================================
    */
-  async update(req, res) {
-    try {
-      const id_usuario = req.params.id;
-      const result = await AdminUserService.updateUser(id_usuario, req.body);
+  async updateUser(id_usuario, data) {
+    const pool = await poolPromise;
 
-      // Auditoría del evento
-      await AuditService.logEvent({
-        id_usuario: req.user?.id || null,
-        tipo_evento: "ACTUALIZACION_USUARIO",
-        descripcion: `El administrador #${req.user?.id || "N/A"} actualizó al usuario #${id_usuario}`,
-        ip_origen: req.ip,
-      });
+    if (!id_usuario) throw new Error("Falta el ID del usuario.");
 
-      res.status(200).json(result);
-    } catch (err) {
-      console.error("❌ Error al actualizar usuario:", err);
-      res.status(400).json({ error: err.message });
+    // Lista de campos permitidos para actualizar
+    const camposPermitidos = [
+      "nombre", "a_paterno", "a_materno", "correo",
+      "telefono", "id_rol", "id_carrera", "id_semestre",
+      "matricula", "estado", "contrasena"
+    ];
+
+    // Filtrar solo los campos válidos y definidos
+    const camposActualizar = Object.keys(data)
+      .filter(k => camposPermitidos.includes(k) && data[k] !== undefined && data[k] !== null)
+      .reduce((obj, key) => {
+        obj[key] = data[key];
+        return obj;
+      }, {});
+
+    if (Object.keys(camposActualizar).length === 0) {
+      throw new Error("No hay campos válidos para actualizar.");
     }
+
+    // 🧠 Construir la consulta dinámica
+    const setClause = Object.keys(camposActualizar)
+      .map(key => `${key} = ?`)
+      .join(", ");
+
+    const values = Object.values(camposActualizar);
+    values.push(id_usuario);
+
+    // Ejecutar el UPDATE
+    await pool.query(`UPDATE usuarios SET ${setClause} WHERE id_usuario = ?`, values);
+
+    return { message: "Usuario actualizado correctamente." };
   },
 
   /**
