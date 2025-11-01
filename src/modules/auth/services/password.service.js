@@ -152,7 +152,7 @@ export const PasswordService = {
             </div>
             <div class="footer">
               © ${new Date().getFullYear()} Instituto de Estudios Superiores Tiozihuatl<br>
-              <a href="https://authfront.netlify.app">Visita nuestro portal</a>
+              <a href="https://frontiozihuatl.netlify.app/">Visita nuestro portal</a>
             </div>
           </div>
         </body>
@@ -197,7 +197,7 @@ export const PasswordService = {
 
     // Eliminar el código usado
     await poolPromise.query(
-      "DELETE FROM recuperacion_contrasena WHERE codigo = ?",
+      "DELETE FROM recuperacion WHERE codigo = ?",
       [codigo]
     );
 
