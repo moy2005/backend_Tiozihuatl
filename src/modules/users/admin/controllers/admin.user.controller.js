@@ -54,44 +54,35 @@ export const AdminUserController = {
    * Actualizar datos completos de un usuario
    * ================================================================
    */
- async update(id_usuario, data) {
-    const pool = await poolPromise;
+async update(req, res) {
+  try {
+    const id_usuario = req.params.id;
+    const data = req.body;
 
-    if (!id_usuario) throw new Error("Falta el ID del usuario.");
+    console.log("📥 [UPDATE] ID:", id_usuario);
+    console.log("📦 [UPDATE] Body:", data);
 
-    // Lista de campos permitidos para actualizar
-    const camposPermitidos = [
-      "nombre", "a_paterno", "a_materno", "correo",
-      "telefono", "id_rol", "id_carrera", "id_semestre",
-      "matricula", "estado", "contrasena"
-    ];
+    const result = await AdminUserService.updateUser(id_usuario, data);
 
-    // Filtrar solo los campos válidos y definidos
-    const camposActualizar = Object.keys(data)
-      .filter(k => camposPermitidos.includes(k) && data[k] !== undefined && data[k] !== null)
-      .reduce((obj, key) => {
-        obj[key] = data[key];
-        return obj;
-      }, {});
+    await AuditService.logEvent({
+      id_usuario: req.user?.id || null,
+      tipo_evento: "ACTUALIZACION_USUARIO",
+      descripcion: `El administrador #${req.user?.id || "N/A"} actualizó al usuario #${id_usuario}`,
+      ip_origen: req.ip,
+    });
 
-    if (Object.keys(camposActualizar).length === 0) {
-      throw new Error("No hay campos válidos para actualizar.");
-    }
+    console.log("✅ [UPDATE] Éxito:", result);
+    return res.status(200).json(result);
 
-    // 🧠 Construir la consulta dinámica
-    const setClause = Object.keys(camposActualizar)
-      .map(key => `${key} = ?`)
-      .join(", ");
+  } catch (err) {
+    console.error("❌ [UPDATE] Error completo:", err);
+    return res.status(500).json({
+      error: "Error interno al actualizar usuario",
+      detalle: err.message || err,
+    });
+  }
+},
 
-    const values = Object.values(camposActualizar);
-    values.push(id_usuario);
-
-    // Ejecutar el UPDATE
-    await pool.query(`UPDATE usuarios SET ${setClause} WHERE id_usuario = ?`, values);
-
-    return { message: "Usuario actualizado correctamente." };
-  },
-  
 
   /**
    * ================================================================
