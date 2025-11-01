@@ -400,11 +400,13 @@ static async authVerify(req, res) {
 
     // 🔹 Generar RefreshToken compatible con flujo de login normal
     const refreshToken = crypto.randomUUID();
-    await poolPromise.query(
-      `INSERT INTO sesiones (id_usuario, refresh_token, fecha_creacion, expiracion)
-       VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY))`,
-      [user.id_usuario, refreshToken]
-    );
+    // Guardar en la tabla tokensrefresh
+await poolPromise.query(
+  `INSERT INTO tokensrefresh 
+   (id_usuario, refresh_token, fecha_emision, fecha_expiracion, ip_origen, dispositivo, estado)
+   VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY), ?, ?, 'Activo')`,
+  [user.id_usuario, refreshToken, req.ip || 'desconocido', 'Biometría']
+);
 
     await AuditService.logEvent({
       id_usuario: user.id_usuario,
