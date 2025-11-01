@@ -327,109 +327,121 @@ export class WebAuthnController {
    * VERIFICAR AUTENTICACIÓN (LOGIN BIOMÉTRICO)
    * ================================================================
    */
-  static async authVerify(req, res) {
-    try {
-      const { credential, rolSeleccionado, assertionResponse } = req.body;
-      if (!credential || !rolSeleccionado)
-        return res
-          .status(400)
-          .json({ error: "Faltan credenciales o rol seleccionado." });
+static async authVerify(req, res) {
+  try {
+    const { credential, rolSeleccionado, assertionResponse } = req.body;
+    if (!credential || !rolSeleccionado)
+      return res
+        .status(400)
+        .json({ error: "Faltan credenciales o rol seleccionado." });
 
-      const campoBusqueda =
-        rolSeleccionado === "Visitante" ? "correo" : "matricula";
+    const campoBusqueda =
+      rolSeleccionado === "Visitante" ? "correo" : "matricula";
 
-      const base64ToBuffer = (b64) => Buffer.from(b64, "base64");
-      const bufferToArrayBuffer = (buf) =>
-        buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    const base64ToBuffer = (b64) => Buffer.from(b64, "base64");
+    const bufferToArrayBuffer = (buf) =>
+      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 
-      const assertionData = {
-        id: assertionResponse.id,
-        rawId: bufferToArrayBuffer(base64ToBuffer(assertionResponse.rawId)),
-        type: "public-key",
-        response: {
-          clientDataJSON: bufferToArrayBuffer(
-            base64ToBuffer(assertionResponse.response.clientDataJSON)
-          ),
-          authenticatorData: bufferToArrayBuffer(
-            base64ToBuffer(assertionResponse.response.authenticatorData)
-          ),
-          signature: bufferToArrayBuffer(
-            base64ToBuffer(assertionResponse.response.signature)
-          ),
-          userHandle: assertionResponse.response.userHandle
-            ? bufferToArrayBuffer(
-                base64ToBuffer(assertionResponse.response.userHandle)
-              )
-            : null,
-        },
-      };
+    const assertionData = {
+      id: assertionResponse.id,
+      rawId: bufferToArrayBuffer(base64ToBuffer(assertionResponse.rawId)),
+      type: "public-key",
+      response: {
+        clientDataJSON: bufferToArrayBuffer(
+          base64ToBuffer(assertionResponse.response.clientDataJSON)
+        ),
+        authenticatorData: bufferToArrayBuffer(
+          base64ToBuffer(assertionResponse.response.authenticatorData)
+        ),
+        signature: bufferToArrayBuffer(
+          base64ToBuffer(assertionResponse.response.signature)
+        ),
+        userHandle: assertionResponse.response.userHandle
+          ? bufferToArrayBuffer(
+              base64ToBuffer(assertionResponse.response.userHandle)
+            )
+          : null,
+      },
+    };
 
-      const result = await verifyAssertionResponse(assertionData, credential);
-      if (result.error) return res.status(400).json({ error: result.error });
+    const result = await verifyAssertionResponse(assertionData, credential);
+    if (result.error) return res.status(400).json({ error: result.error });
 
-      const [users] = await poolPromise.query(
-        `SELECT U.*, R.nombre_rol
-         FROM usuarios U
-         INNER JOIN roles R ON U.id_rol = R.id_rol
-         WHERE U.${campoBusqueda} = ?`,
-        [credential]
-      );
+    const [users] = await poolPromise.query(
+      `SELECT U.*, R.nombre_rol
+       FROM usuarios U
+       INNER JOIN roles R ON U.id_rol = R.id_rol
+       WHERE U.${campoBusqueda} = ?`,
+      [credential]
+    );
 
-      if (users.length === 0)
-        return res.status(404).json({ error: "Usuario no encontrado." });
+    if (users.length === 0)
+      return res.status(404).json({ error: "Usuario no encontrado." });
 
-      const user = users[0];
+    const user = users[0];
 
-      if (user.nombre_rol !== rolSeleccionado)
-        return res
-          .status(403)
-          .json({ error: "El rol no coincide con el usuario." });
+    if (user.nombre_rol !== rolSeleccionado)
+      return res
+        .status(403)
+        .json({ error: "El rol no coincide con el usuario." });
 
-      const token = jwt.sign(
-        {
-          id_usuario: user.id_usuario,
-          correo: user.correo,
-          matricula: user.matricula || null,
-          rol: user.nombre_rol,
-          metodo_autenticacion: "Biometría",
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" }
-      );
-
-      await AuditService.logEvent({
+    // 🔹 Generar AccessToken (igual que en login normal)
+    const token = jwt.sign(
+      {
         id_usuario: user.id_usuario,
-        tipo_evento: "LOGIN_BIOMETRICO_EXITOSO",
-        descripcion: `Inicio de sesión biométrico (${rolSeleccionado}) con ${campoBusqueda}`,
-        ip_origen: req.ip,
-      });
+        correo: user.correo,
+        matricula: user.matricula || null,
+        rol: user.nombre_rol,
+        metodo_autenticacion: "Biometría",
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
-      res.json({
-        success: true,
-        token,
-        accessToken: token,
-        user: {
-          id_usuario: user.id_usuario,
-          nombre: user.nombre,
-          a_paterno: user.a_paterno,
-          a_materno: user.a_materno,
-          correo: user.correo,
-          matricula: user.matricula,
-          telefono: user.telefono,
-          rol: user.nombre_rol,
-          metodo_autenticacion: "Biometría",
-          carrera: user.nombre_carrera || null,
-          semestre: user.nombre_semestre || null, // 👈 agregado aquí
-          estado: user.estado || "Activo",
-        },
-        message: "Autenticación biométrica exitosa.",
-      });
-    } catch (error) {
-      console.error("Error en authVerify:", error.message);
-      res.status(500).json({
-        error: "Error al verificar autenticación biométrica.",
-        details: error.message,
-      });
-    }
+    // 🔹 Generar RefreshToken compatible con flujo de login normal
+    const refreshToken = crypto.randomUUID();
+    await poolPromise.query(
+      `INSERT INTO sesiones (id_usuario, refresh_token, fecha_creacion, expiracion)
+       VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY))`,
+      [user.id_usuario, refreshToken]
+    );
+
+    await AuditService.logEvent({
+      id_usuario: user.id_usuario,
+      tipo_evento: "LOGIN_BIOMETRICO_EXITOSO",
+      descripcion: `Inicio de sesión biométrico (${rolSeleccionado}) con ${campoBusqueda}`,
+      ip_origen: req.ip,
+    });
+
+    // 🔹 Respuesta completa con tokens y datos del usuario
+    res.json({
+      success: true,
+      token,
+      accessToken: token,
+      refreshToken, // ✅ ahora sí existe
+      user: {
+        id_usuario: user.id_usuario,
+        nombre: user.nombre,
+        a_paterno: user.a_paterno,
+        a_materno: user.a_materno,
+        correo: user.correo,
+        matricula: user.matricula,
+        telefono: user.telefono,
+        rol: user.nombre_rol,
+        metodo_autenticacion: "Biometría",
+        carrera: user.nombre_carrera || null,
+        semestre: user.nombre_semestre || null,
+        estado: user.estado || "Activo",
+      },
+      message: "Autenticación biométrica exitosa.",
+    });
+  } catch (error) {
+    console.error("Error en authVerify:", error.message);
+    res.status(500).json({
+      error: "Error al verificar autenticación biométrica.",
+      details: error.message,
+    });
   }
+}
+
 }
