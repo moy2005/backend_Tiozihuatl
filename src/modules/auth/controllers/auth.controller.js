@@ -64,7 +64,7 @@ export const AuthController = {
         ]
       );
 
-      const link = `${process.env.FRONT_URL}/verificar-correo?token=${token}`;
+      const link = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}`;
 
       await sendMail({
         to: correo,
