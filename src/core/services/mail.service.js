@@ -16,7 +16,7 @@ export const sendMail = async ({ to, subject, html }) => {
     });
 
     const info = await transporter.sendMail({
-      from: `"Soporte UTHH" <${process.env.SMTP_USER}>`,
+      from: `"Instituto de Estudios Superiores Tiozihuatl" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,
