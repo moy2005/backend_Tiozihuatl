@@ -17,4 +17,9 @@ router.post('/logout', AuthController.logout);
 // Obtener perfil del usuario autenticado
 router.get("/me", authMiddleware, AuthController.me);
 
+router.post("/pre-registro", AuthController.preRegistro);
+router.get("/verify-email", AuthController.verifyEmail);
+router.post("/finalizar-registro", AuthController.finalizarRegistro);
+
+
 export default router;

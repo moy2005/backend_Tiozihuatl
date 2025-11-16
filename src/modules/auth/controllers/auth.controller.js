@@ -7,6 +7,7 @@ import { RefreshModel } from "../models/refresh.model.js";
 import { AuditService } from "../../../core/services/audit.service.js";
 import { v4 as uuidv4 } from "uuid";
 import dotenv from "dotenv";
+import { sendMail } from "../../../core/services/mail.service.js";
 
 dotenv.config();
 
@@ -16,6 +17,173 @@ export const AuthController = {
    * REGISTRO DE USUARIO — Rol por defecto: Visitante
    * ================================================================
    */
+
+  // ============================================================
+  // 1) PRE-REGISTRO (PASO 1)
+  // ============================================================
+  preRegistro: async (req, res) => {
+    try {
+      const { nombre, apaterno, amaterno, correo, telefono } = req.body;
+
+      if (!nombre || !apaterno || !amaterno || !correo || !telefono)
+        return res.status(400).json({ error: "Faltan datos obligatorios." });
+
+      // validar que NO exista en usuarios (usuario REAL)
+      const [usrReal] = await poolPromise.query(
+        "SELECT id_usuario FROM usuarios WHERE correo = ?",
+        [correo]
+      );
+      if (usrReal.length > 0)
+        return res.status(409).json({ error: "Este correo ya está registrado." });
+
+      // validar que NO exista pre-registro
+      const [preExist] = await poolPromise.query(
+        "SELECT id_pre FROM pre_registros WHERE correo = ?",
+        [correo]
+      );
+      if (preExist.length > 0)
+        await poolPromise.query("DELETE FROM pre_registros WHERE correo = ?", [
+          correo,
+        ]); // limpiar registro previo
+
+      const token = crypto.randomUUID();
+      const tokenExpira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+      await poolPromise.query(
+        `INSERT INTO pre_registros 
+         (nombre, apaterno, amaterno, correo, telefono, token_verificacion, token_expira)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          nombre,
+          apaterno,
+          amaterno,
+          correo,
+          telefono,
+          token,
+          tokenExpira,
+        ]
+      );
+
+      const link = `${process.env.FRONT_URL}/verificar-correo?token=${token}`;
+
+      await sendMail({
+        to: correo,
+        subject: "Verifica tu correo",
+        html: `
+          <h2>Verificar correo</h2>
+          <p>Haz clic aquí para continuar tu registro:</p>
+          <a href="${link}">${link}</a>
+          <p>Este enlace expira en 1 hora.</p>
+        `,
+      });
+
+      await AuditService.logEvent({
+        tipo_evento: "PRE_REGISTRO",
+        descripcion: `Pre-registro iniciado para ${correo}`,
+        ip_origen: req.ip,
+      });
+
+      res.json({
+        message: "Revisa tu correo para continuar con el registro.",
+      });
+
+    } catch (err) {
+      console.error("Error en preRegistro:", err.message);
+      res.status(500).json({ error: "Error interno." });
+    }
+  },
+
+    // ============================================================
+  // 2) VERIFICAR CORREO DESDE EL ENLACE
+  // ============================================================
+  verifyEmail: async (req, res) => {
+    try {
+      const { token } = req.query;
+
+      if (!token)
+        return res.status(400).json({ error: "Token requerido." });
+
+      const [pre] = await poolPromise.query(
+        "SELECT id_pre, token_expira FROM pre_registros WHERE token_verificacion = ?",
+        [token]
+      );
+
+      if (pre.length === 0)
+        return res.status(400).json({ error: "Token inválido." });
+
+      const { id_pre, token_expira } = pre[0];
+
+      if (new Date(token_expira) < new Date())
+        return res.status(400).json({ error: "El enlace ha expirado." });
+
+      // marcar como verificado
+      await poolPromise.query(
+        "UPDATE pre_registros SET verificado = 1 WHERE id_pre = ?",
+        [id_pre]
+      );
+
+      res.json({ verified: true });
+
+    } catch (err) {
+      console.error("Error en verifyEmail:", err.message);
+      res.status(500).json({ error: "Error interno." });
+    }
+  },
+  // ============================================================
+  // 3) FINALIZAR REGISTRO (CREAR USUARIO REAL)
+  // ============================================================
+  finalizarRegistro: async (req, res) => {
+    try {
+      const { correo, contrasena, palabra_secreta } = req.body;
+
+      if (!correo || !contrasena || !palabra_secreta)
+        return res.status(400).json({ error: "Faltan datos." });
+
+      // verificar pre-registro válido
+      const [pre] = await poolPromise.query(
+        "SELECT * FROM pre_registros WHERE correo = ? AND verificado = 1",
+        [correo]
+      );
+
+      if (pre.length === 0)
+        return res.status(400).json({ error: "No existe un pre-registro válido." });
+
+      const datos = pre[0];
+
+      // hash password
+      const contrasenaHash = await bcrypt.hash(contrasena, 12);
+
+      // crear usuario REAL
+      await UserModel.createVisitante({
+        nombre: datos.nombre,
+        a_paterno: datos.apaterno,
+        a_materno: datos.amaterno,
+        correo: datos.correo,
+        telefono: datos.telefono,
+        contrasena: contrasenaHash,
+        palabra_secreta,
+      });
+
+      // eliminar pre_registro
+      await poolPromise.query("DELETE FROM pre_registros WHERE correo = ?", [
+        correo,
+      ]);
+
+      await AuditService.logEvent({
+        tipo_evento: "REGISTRO_FINALIZADO",
+        descripcion: `Usuario creado: ${correo}`,
+        ip_origen: req.ip,
+      });
+
+      res.json({ success: true, message: "Cuenta creada exitosamente." });
+
+    } catch (err) {
+      console.error("Error en finalizarRegistro:", err);
+      res.status(500).json({ error: "Error interno." });
+    }
+  },
+
+
   register: async (req, res) => {
     try {
       const {
