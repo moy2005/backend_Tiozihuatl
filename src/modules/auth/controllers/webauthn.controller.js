@@ -17,148 +17,103 @@ export class WebAuthnController {
    * REGISTRO COMPLETO (Usuario + Biometría)
    * ================================================================
    */
-  static async registerBiometric(req, res) {
-    const connection = await poolPromise.getConnection();
-    try {
-      const {
-        nombre,
-        apaterno,
-        amaterno,
-        correo,
-        telefono,
-        contrasena,
-        palabra_secreta,
-        biometria,
-      } = req.body;
+/**
+ * ================================================================
+ * REGISTRAR BIOMETRÍA (usuario ya existe)
+ * ================================================================
+ */
+static async registerBiometric(req, res) {
+  const connection = await poolPromise.getConnection();
+  try {
+    const { correo, biometria } = req.body;
 
-      // Validar datos básicos
-      if (
-        !nombre ||
-        !apaterno ||
-        !amaterno ||
-        !correo ||
-        !telefono ||
-        !contrasena ||
-        !palabra_secreta
-      )
-        return res
-          .status(400)
-          .json({ error: "Faltan datos del usuario o la palabra secreta." });
+    if (!correo)
+      return res.status(400).json({ error: "Correo requerido." });
 
-      if (!biometria || !biometria.tipo || !biometria.credentialData)
-        return res.status(400).json({ error: "Faltan datos biométricos." });
+    if (!biometria || !biometria.tipo || !biometria.credentialData)
+      return res.status(400).json({ error: "Faltan datos biométricos." });
 
-      await connection.beginTransaction();
+    // 1️⃣ Verificar usuario existente
+    const [user] = await connection.query(
+      "SELECT id_usuario FROM usuarios WHERE correo = ?",
+      [correo]
+    );
 
-      // 1️⃣ Verificar si el correo ya existe
-      const [existing] = await connection.query(
-        "SELECT id_usuario FROM usuarios WHERE correo = ?",
-        [correo]
-      );
-      if (existing.length > 0) {
-        await connection.rollback();
-        return res.status(400).json({ error: "El correo ya está registrado." });
-      }
+    if (user.length === 0)
+      return res.status(404).json({ error: "Usuario no encontrado." });
 
-      // 2️⃣ Obtener id_rol del visitante
-      const [roles] = await connection.query(
-        "SELECT id_rol FROM roles WHERE nombre_rol = 'Visitante'"
-      );
-      const id_rol = roles[0]?.id_rol;
-      if (!id_rol) {
-        await connection.rollback();
-        return res
-          .status(500)
-          .json({ error: "No se encontró el rol Visitante." });
-      }
+    await connection.beginTransaction();
 
-      // 3️⃣ Crear usuario visitante con palabra secreta
-      const hashedPassword = await bcrypt.hash(contrasena, 10);
-      await connection.query(
-        `INSERT INTO usuarios 
-        (id_rol, nombre, a_paterno, a_materno, correo, telefono, contrasena, palabra_secreta, estado, fecha_registro)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())`,
-        [
-          id_rol,
-          nombre,
-          apaterno,
-          amaterno,
-          correo,
-          telefono,
-          hashedPassword,
-          palabra_secreta,
-        ]
-      );
+    // 2️⃣ Procesar biometría
+    const { tipo, challenge, credentialData } = biometria;
 
-      // 4️⃣ Procesar biometría
-      const { tipo, challenge, credentialData } = biometria;
-      const base64ToBuffer = (b64) => Buffer.from(b64, "base64");
-      const bufferToArrayBuffer = (buf) =>
-        buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    const base64ToBuffer = (b64) => Buffer.from(b64, "base64");
+    const bufferToArrayBuffer = (buf) =>
+      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 
-      const attestationData = {
-        id: credentialData.id,
-        rawId: bufferToArrayBuffer(base64ToBuffer(credentialData.rawId)),
-        type: credentialData.type,
-        response: {
-          clientDataJSON: bufferToArrayBuffer(
-            base64ToBuffer(credentialData.response.clientDataJSON)
-          ),
-          attestationObject: bufferToArrayBuffer(
-            base64ToBuffer(credentialData.response.attestationObject)
-          ),
-        },
-      };
+    const attestationData = {
+      id: credentialData.id,
+      rawId: bufferToArrayBuffer(base64ToBuffer(credentialData.rawId)),
+      type: credentialData.type,
+      response: {
+        clientDataJSON: bufferToArrayBuffer(
+          base64ToBuffer(credentialData.response.clientDataJSON)
+        ),
+        attestationObject: bufferToArrayBuffer(
+          base64ToBuffer(credentialData.response.attestationObject)
+        ),
+      },
+    };
 
-      const verifyResult = await verifyAttestationResponse(
-        attestationData,
-        challenge,
-        correo
-      );
-      if (verifyResult.error) {
-        await connection.rollback();
-        return res.status(400).json({ error: verifyResult.error });
-      }
+    const verifyResult = await verifyAttestationResponse(
+      attestationData,
+      challenge,
+      correo
+    );
 
-      // 5️⃣ Guardar datos biométricos
-      await connection.query(
-        `UPDATE usuarios
+    if (verifyResult.error) {
+      await connection.rollback();
+      return res.status(400).json({ error: verifyResult.error });
+    }
+
+    // 3️⃣ Guardar biometría
+    await connection.query(
+      `UPDATE usuarios
        SET publicKey = ?, credentialId = ?, huella_biometrica = ?, prevCounter = ?
        WHERE correo = ?`,
-        [
-          verifyResult.publicKey,
-          credentialData.id,
-          tipo,
-          verifyResult.counter || 0,
-          correo,
-        ]
-      );
+      [
+        verifyResult.publicKey,
+        credentialData.id,
+        tipo,
+        verifyResult.counter || 0,
+        correo,
+      ]
+    );
 
-      await connection.commit();
+    await connection.commit();
 
-      // 6️⃣ Registrar auditoría
-      await AuditService.logEvent({
-        tipo_evento: "REGISTRO_VISITANTE_BIOMETRICO",
-        descripcion: `Registro biométrico exitoso de ${correo}`,
-        ip_origen: req.ip,
-      });
+    await AuditService.logEvent({
+      tipo_evento: "REGISTRO_BIOMETRICO",
+      descripcion: `Biometría agregada a ${correo}`,
+      ip_origen: req.ip,
+    });
 
-      res.json({
-        success: true,
-        message:
-          "Usuario registrado con biometría y palabra secreta exitosamente.",
-      });
-    } catch (error) {
-      if (connection) await connection.rollback();
-      console.error("Error en registro biométrico:", error.message);
-      res.status(500).json({
-        error: "Error en el registro biométrico.",
-        details: error.message,
-      });
-    } finally {
-      if (connection) connection.release();
-    }
+    res.json({
+      success: true,
+      message: "Biometría registrada exitosamente.",
+    });
+  } catch (err) {
+    if (connection) await connection.rollback();
+    console.error("Error en registro biométrico:", err.message);
+    res.status(500).json({
+      error: "Error en el registro biométrico.",
+      details: err.message,
+    });
+  } finally {
+    if (connection) connection.release();
   }
+}
+
 
   /**
    * ================================================================
