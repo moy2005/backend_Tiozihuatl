@@ -14,6 +14,7 @@ import webauthnRoutes from "./modules/auth/routes/webauthn.routes.js";
 import smsRoutes from "./modules/auth/routes/sms.routes.js";
 import passwordRoutes from "./modules/auth/routes/password.routes.js";
 import userRoutes from "./modules/users/index.js";
+import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 
 // ================================================================
 // 🔧 Configuración base
@@ -83,6 +84,8 @@ app.use(
 // ================================================================
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(sanitizeXSS);
 
 // ================================================================
 // 🚦 Rate Limiter global
