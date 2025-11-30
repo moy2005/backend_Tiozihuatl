@@ -16,7 +16,7 @@ const poolPromise = mysql.createPool({
 
   // SSL requerido por Aiven
   ssl: {
-    ca: fs.readFileSync("./ca.pem", "utf8"),
+    ca: process.env.DB_SSL_CA,
     rejectUnauthorized: true
   }
 });
