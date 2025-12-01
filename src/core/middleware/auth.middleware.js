@@ -42,4 +42,6 @@ export const authMiddleware = (req, res, next) => {
     console.error("❌ Error en authMiddleware:", error.message);
     res.status(401).json({ error: "No autorizado" });
   }
+
+  
 };
