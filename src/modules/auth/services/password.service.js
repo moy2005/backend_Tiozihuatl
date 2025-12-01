@@ -5,69 +5,60 @@ import { poolPromise } from "../../../config/db.config.js";
 import { RecoveryModel } from "../models/recovery.model.js";
 
 export const PasswordService = {
+
+  
 async sendRecoveryEmail(correo) {
 
-    // ============================================================
-    // 0) LIMITACIÓN DE INTENTOS (5 minutos por solicitud)
-    // ============================================================
+  // ============================================================
+  // 0) LIMITACIÓN: Máximo 3 intentos por cada 5 minutos
+  // ============================================================
+  const [intentos] = await poolPromise.query(
+    `SELECT COUNT(*) AS total 
+     FROM recovery_requests 
+     WHERE correo = ?
+     AND fecha > (NOW() - INTERVAL 5 MINUTE)`,
+    [correo]
+  );
 
-    // Buscar el último intento
-    const [intentos] = await poolPromise.query(
-      `SELECT fecha FROM recovery_requests 
-       WHERE correo = ?
-       ORDER BY fecha DESC 
-       LIMIT 1`,
-      [correo]
-    );
+  if (intentos[0].total >= 3) {
+    return {
+      message: "Ya solicitaste varios códigos. Intenta nuevamente más tarde."
+    };
+  }
 
-    if (intentos.length > 0) {
-      const ultimaFecha = new Date(intentos[0].fecha);
-      const ahora = new Date();
-      const diffMin = (ahora - ultimaFecha) / 1000 / 60;
+  // Registrar intento (aun si no existe el usuario)
+  await poolPromise.query(
+    "INSERT INTO recovery_requests (correo) VALUES (?)",
+    [correo]
+  );
 
-      // ❌ Bloqueo si fue hace menos de 5 minutos
-      if (diffMin < 5) {
-        return {
-          message:
-            "Ya solicitaste un código recientemente. Intenta nuevamente en unos minutos."
-        };
-      }
-    }
+  // ============================================================
+  // 1) BUSCAR USUARIO (pero sin revelar información)
+  // ============================================================
+  const mensajeGeneral = 
+    "Si el correo está registrado, se envió un código de verificación.";
 
-    // Registrar el intento actual
-    await poolPromise.query(
-      "INSERT INTO recovery_requests (correo) VALUES (?)",
-      [correo]
-    );
+  const [rows] = await poolPromise.query(
+    "SELECT id_usuario, nombre, estado FROM usuarios WHERE correo = ? LIMIT 1",
+    [correo]
+  );
 
-    // ============================================================
-    // 1) BUSCAR USUARIO (pero sin revelar información)
-    // ============================================================
-    const [rows] = await poolPromise.query(
-      "SELECT id_usuario, nombre, estado FROM usuarios WHERE correo = ? LIMIT 1",
-      [correo]
-    );
+  // Usuario no existe → NO revelar
+  if (rows.length === 0) return { message: mensajeGeneral };
 
-    // 🔒 No revelar si el usuario existe o no
-    const mensajeGeneral =
-      "Si el correo está registrado, se envió un código de verificación.";
+  const user = rows[0];
 
-    if (rows.length === 0) return { message: mensajeGeneral };
+  if (user.estado !== "Activo") return { message: mensajeGeneral };
 
-    const user = rows[0];
+  const { id_usuario, nombre } = user;
 
-    if (user.estado !== "Activo")
-      return { message: mensajeGeneral };
+  // ============================================================
+  // 2) GENERAR CÓDIGO Y ENVIARLO
+  // ============================================================
+  const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiracion = new Date(Date.now() + 15 * 60 * 1000);
 
-    const { id_usuario, nombre } = user;
-
-    // ============================================================
-    // 2) GENERAR CÓDIGO Y ENVIARLO
-    // ============================================================
-    const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiracion = new Date(Date.now() + 15 * 60 * 1000);
-
-    await RecoveryModel.create({ id_usuario, codigo, expiracion });
+  await RecoveryModel.create({ id_usuario, codigo, expiracion });
 
    // HTML con diseño ultra moderno y profesional
 const mailOptions = {
