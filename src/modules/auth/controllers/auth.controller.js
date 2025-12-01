@@ -292,11 +292,8 @@ export const AuthController = {
     }
   },
 
-  /**
-   * ================================================================
-   * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
-   * ================================================================
-   */
+
+
 /**
  * ================================================================
  * LOGIN NORMAL — CONTRASEÑA + JWT + REFRESH TOKEN
@@ -314,34 +311,91 @@ login: async (req, res) => {
     if (!user)
       return res.status(401).json({ error: "Usuario no encontrado." });
 
-    // 🔒 Validar estado del usuario
-// 🔒 Validar estado del usuario
-const estadoUsuario = (user.estado || "").toString().trim().toLowerCase();
+    // ============================================================
+    // 🔒 1) VERIFICAR SI EL USUARIO ESTÁ BLOQUEADO POR INTENTOS
+    // ============================================================
+    const ahora = new Date();
+    const bloqueadoHasta = user.bloqueado_hasta ? new Date(user.bloqueado_hasta) : null;
 
-if (estadoUsuario !== "activo") {
-  await AuditService.logEvent({
-    id_usuario: user.id_usuario,
-    tipo_evento: "LOGIN_BLOQUEADO",
-    descripcion: `Intento de acceso con cuenta en estado: ${user.estado}`,
-    ip_origen: req.ip,
-  });
-  return res
-    .status(403)
-    .json({ error: "Tu cuenta está inactiva o bloqueada. Contacta al administrador." });
-}
+    // ⛔ Si la hora actual es menor al "bloqueado_hasta"
+    if (bloqueadoHasta && ahora < bloqueadoHasta) {
+      const minutosRestantes = Math.ceil((bloqueadoHasta - ahora) / 60000);
+      return res.status(403).json({
+        error: `Tu cuenta está bloqueada. Intenta en ${minutosRestantes} minuto(s).`
+      });
+    }
 
-    // Validar rol
+    // ============================================================
+    // 🔒 2) VALIDAR ESTADO DEL USUARIO (ACTIVO)
+    // ============================================================
+    const estadoUsuario = (user.estado || "").toString().trim().toLowerCase();
+    if (estadoUsuario !== "activo") {
+      await AuditService.logEvent({
+        id_usuario: user.id_usuario,
+        tipo_evento: "LOGIN_BLOQUEADO",
+        descripcion: `Intento de acceso con cuenta en estado: ${user.estado}`,
+        ip_origen: req.ip,
+      });
+
+      return res.status(403).json({
+        error: "Tu cuenta está inactiva o bloqueada. Contacta al administrador."
+      });
+    }
+
+    // ============================================================
+    // 🔐 3) VALIDAR ROL
+    // ============================================================
     if (user.nombre_rol !== rolSeleccionado)
-      return res
-        .status(403)
-        .json({ error: "El rol no coincide con el usuario." });
+      return res.status(403).json({ error: "El rol no coincide con el usuario." });
 
-    // Validar contraseña
+    // ============================================================
+    // 🔑 4) VALIDAR CONTRASEÑA
+    // ============================================================
     const validPassword = await bcrypt.compare(contrasena, user.contrasena);
-    if (!validPassword)
-      return res.status(401).json({ error: "Contraseña incorrecta." });
 
-    // Generar tokens
+    if (!validPassword) {
+      const nuevosIntentos = (user.intentos_fallidos || 0) + 1;
+
+      // Guardar el intento fallido
+      await poolPromise.query(
+        "UPDATE usuarios SET intentos_fallidos = ? WHERE id_usuario = ?",
+        [nuevosIntentos, user.id_usuario]
+      );
+
+      // ⛔ Si llegó a 3 intentos → bloquear 15 minutos
+      if (nuevosIntentos >= 3) {
+        const bloqueo = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+        await poolPromise.query(
+          "UPDATE usuarios SET bloqueado_hasta = ? WHERE id_usuario = ?",
+          [bloqueo, user.id_usuario]
+        );
+
+        await AuditService.logEvent({
+          id_usuario: user.id_usuario,
+          tipo_evento: "LOGIN_BLOQUEO_TEMPORAL",
+          descripcion: "Usuario bloqueado por múltiples intentos fallidos.",
+          ip_origen: req.ip,
+        });
+
+        return res.status(403).json({
+          error: "Has excedido los intentos permitidos. Tu cuenta fue bloqueada por 15 minutos."
+        });
+      }
+
+      return res.status(401).json({ error: "Contraseña incorrecta." });
+    }
+
+    // ============================================================
+    // ✔ 5) SI LA CONTRASEÑA ES CORRECTA → RESET INTENTOS
+    // ============================================================
+    await poolPromise.query(
+      "UPDATE usuarios SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id_usuario = ?",
+      [user.id_usuario]
+    );
+
+    // ============================================================
+    // 🔐 6) GENERAR TOKENS
+    // ============================================================
     const accessToken = JWTService.generateToken(
       { id: user.id_usuario, rol: user.nombre_rol },
       "15m"
@@ -358,7 +412,7 @@ if (estadoUsuario !== "activo") {
       ip_origen: req.ip,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Inicio de sesión exitoso.",
       accessToken,
       refreshToken,
@@ -367,16 +421,15 @@ if (estadoUsuario !== "activo") {
         nombre: user.nombre,
         rol: user.nombre_rol,
         correo: user.correo,
-        matricula: user.matricula,
-        carrera: user.carrera || null,
-        semestre: user.nombre_semestre || null,
       },
     });
+
   } catch (err) {
     console.error("Error en login:", err.message);
-    res.status(500).json({ error: "Error interno del servidor." });
+    return res.status(500).json({ error: "Error interno del servidor." });
   }
 },
+
 
   /**
    * ================================================================
