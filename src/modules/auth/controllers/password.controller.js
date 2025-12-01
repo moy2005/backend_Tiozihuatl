@@ -4,32 +4,43 @@ export const PasswordController = {
 
   /**
    * ============================================================
-   * 1) Enviar enlace de recuperación
+   * 1) Enviar enlace de recuperación (correo + palabra secreta)
    * ============================================================
    */
   async forgotPassword(req, res) {
     try {
-      const { correo } = req.body;
+      const { correo, palabra_secreta } = req.body;
 
-      if (!correo)
-        return res.status(400).json({ error: "Correo requerido" });
+      // Validar campos requeridos
+      if (!correo || !palabra_secreta) {
+        return res.status(400).json({
+          error: "Correo y palabra secreta son obligatorios"
+        });
+      }
 
-      const result = await PasswordService.sendRecoveryEmail(correo);
+      // Llamar al servicio
+      const result = await PasswordService.sendRecoveryEmail(
+        correo,
+        palabra_secreta
+      );
 
-      // Siempre 200 para no revelar información
+      // Siempre devolvemos 200 para no revelar información confidencial
       return res.status(200).json({
         message: result.message
       });
 
     } catch (error) {
-      return res.status(500).json({ error: "Error interno del servidor" });
+      console.error("Error en forgotPassword:", error);
+      return res.status(500).json({
+        error: "Error interno del servidor"
+      });
     }
   },
 
 
   /**
    * ============================================================
-   * 2) Validar token (cuando usuario abre enlace del correo)
+   * 2) Validar token (cuando usuario abre el enlace del correo)
    * ============================================================
    */
   async validateToken(req, res) {
@@ -58,8 +69,11 @@ export const PasswordController = {
     try {
       const { token, nuevaContrasena } = req.body;
 
-      if (!token || !nuevaContrasena)
-        return res.status(400).json({ error: "Datos incompletos" });
+      if (!token || !nuevaContrasena) {
+        return res.status(400).json({
+          error: "Datos incompletos"
+        });
+      }
 
       const result = await PasswordService.resetPasswordByToken(
         token,
@@ -69,7 +83,9 @@ export const PasswordController = {
       return res.status(200).json(result);
 
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({
+        error: error.message
+      });
     }
   },
 

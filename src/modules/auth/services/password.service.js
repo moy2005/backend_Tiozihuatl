@@ -7,10 +7,10 @@ export const PasswordService = {
 
   /**
    * ================================================================
-   * ENVIAR ENLACE DE RECUPERACIÓN
+   * ENVIAR ENLACE DE RECUPERACIÓN (correo + palabra secreta)
    * ================================================================
    */
-  async sendRecoveryEmail(correo) {
+  async sendRecoveryEmail(correo, palabra_secreta) {
 
     // ============================================================
     // 0) LIMITAR A 3 INTENTOS POR 5 MINUTOS
@@ -29,44 +29,61 @@ export const PasswordService = {
       };
     }
 
-    // Registrar intento (incluso si correo NO existe)
+    // Registrar intento SIEMPRE, aunque falle
     await poolPromise.query(
       "INSERT INTO recovery_requests (correo) VALUES (?)",
       [correo]
     );
 
     // ============================================================
-    // 1) BUSCAR USUARIO (SIN REVELAR INFORMACIÓN)
+    // 1) BUSCAR USUARIO (sin revelar información)
     // ============================================================
     const mensajeGeneral =
-      "Si el correo está registrado, se envió un enlace de recuperación.";
+      "Si los datos son correctos, se envió un enlace de recuperación.";
 
     const [rows] = await poolPromise.query(
-      "SELECT id_usuario, nombre, estado FROM usuarios WHERE correo = ? LIMIT 1",
+      `SELECT id_usuario, nombre, estado, palabra_secreta 
+       FROM usuarios 
+       WHERE correo = ? 
+       LIMIT 1`,
       [correo]
     );
 
+    // Si no existe → mensaje general
     if (rows.length === 0) return { message: mensajeGeneral };
 
     const usuario = rows[0];
 
+    // Si está inactivo → mensaje general
     if (usuario.estado !== "Activo") return { message: mensajeGeneral };
 
     // ============================================================
-    // 2) GENERAR TOKEN SEGURO Y ENLACE
+    // 2) VALIDAR PALABRA SECRETA
+    // ============================================================
+    if (!palabra_secreta || palabra_secreta.trim() === "") {
+      return { message: mensajeGeneral };
+    }
+
+    if (usuario.palabra_secreta !== palabra_secreta) {
+      return { message: mensajeGeneral };
+    }
+
+    // ============================================================
+    // 3) GENERAR TOKEN Y INSERTAR EN BD
     // ============================================================
     const token = crypto.randomUUID();
-    const expiracion = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    const expiracion = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 
     await poolPromise.query(
-      `INSERT INTO recovery_links (id_usuario, token, expiracion) VALUES (?, ?, ?)`,
+      `INSERT INTO recovery_links (id_usuario, token, expiracion) 
+       VALUES (?, ?, ?)`,
       [usuario.id_usuario, token, expiracion]
     );
 
     const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
     // ============================================================
-    // 3) ENVIAR CORREO
+    // 4) ENVIAR CORREO
     // ============================================================
     const mailOptions = {
       from: `"Instituto de Estudios Superiores Tiozihuatl" <${process.env.SMTP_USER}>`,
@@ -83,12 +100,11 @@ export const PasswordService = {
           </a>
         </p>
 
-        <p>Si el botón no funciona, puedes copiar y pegar este enlace:</p>
+        <p>Si el botón no funciona, copia y pega este enlace:</p>
         <p>${link}</p>
 
         <p><strong>Este enlace expira en 15 minutos.</strong></p>
-
-        <p>Si no solicitaste este cambio, simplemente ignora este correo.</p>
+        <p>Si no solicitaste este cambio, ignora este correo.</p>
       `
     };
 
@@ -107,23 +123,19 @@ export const PasswordService = {
     const [rows] = await poolPromise.query(
       `SELECT id_usuario
        FROM recovery_links
-       WHERE token = ? 
+       WHERE token = ?
        AND expiracion > NOW()
        LIMIT 1`,
       [token]
     );
 
-    if (rows.length === 0) {
-      return { valid: false };
-    }
-
-    return { valid: true };
+    return { valid: rows.length > 0 };
   },
 
 
   /**
    * ================================================================
-   * RESTABLECER CONTRASEÑA VIA TOKEN
+   * RESTABLECER CONTRASEÑA POR TOKEN
    * ================================================================
    */
   async resetPasswordByToken(token, nuevaContrasena) {
@@ -143,7 +155,6 @@ export const PasswordService = {
 
     const id_usuario = rows[0].id_usuario;
 
-    // Encriptar contraseña
     const hash = await bcrypt.hash(nuevaContrasena, 12);
 
     await poolPromise.query(
@@ -151,7 +162,6 @@ export const PasswordService = {
       [hash, id_usuario]
     );
 
-    // Eliminar token después de usarlo
     await poolPromise.query(
       "DELETE FROM recovery_links WHERE token = ?",
       [token]
