@@ -105,42 +105,48 @@ export const UserModel = {
   },
 
   /**
-   * ================================================================
-   * Buscar usuario por credencial (correo o matrícula según rol)
-   * Incluye nombre de rol, carrera y semestre
-   * ================================================================
-   */
-  async findByCredential(credential, rolSeleccionado) {
-    try {
-      const campo = rolSeleccionado === "Visitante" ? "correo" : "matricula";
+ * ================================================================
+ * Buscar usuario por credencial (correo o matrícula según rol)
+ * Incluye rol, carrera, semestre, intentos fallidos y bloqueo
+ * ================================================================
+ */
+async findByCredential(credential, rolSeleccionado) {
+  try {
+    const campo = rolSeleccionado === "Visitante" ? "correo" : "matricula";
 
-      const [rows] = await poolPromise.query(
-        `SELECT 
-          U.id_usuario,
-          U.nombre,
-          U.a_paterno,
-          U.a_materno,
-          U.correo,
-          U.matricula,
-          U.telefono,
-          U.contrasena,
-          U.estado,
-          R.nombre_rol,
-          C.nombre_carrera AS carrera,
-          S.nombre_semestre
-         FROM usuarios U
-         INNER JOIN roles R ON U.id_rol = R.id_rol
-         LEFT JOIN carreras C ON U.id_carrera = C.id_carrera
-         LEFT JOIN semestres S ON U.id_semestre = S.id_semestre
-         WHERE U.${campo} = ?
-         LIMIT 1`,
-        [credential]
-      );
+    const [rows] = await poolPromise.query(
+      `SELECT 
+        U.id_usuario,
+        U.nombre,
+        U.a_paterno,
+        U.a_materno,
+        U.correo,
+        U.matricula,
+        U.telefono,
+        U.contrasena,
+        U.estado,
 
-      return rows[0] || null;
-    } catch (err) {
-      console.error("❌ Error al buscar por credencial:", err.message);
-      return null;
-    }
-  },
+        -- 👇 CAMPOS FALTANTES PARA BLOQUEO
+        U.intentos_fallidos,
+        U.bloqueado_hasta,
+
+        R.nombre_rol,
+        C.nombre_carrera AS carrera,
+        S.nombre_semestre
+      FROM usuarios U
+      INNER JOIN roles R ON U.id_rol = R.id_rol
+      LEFT JOIN carreras C ON U.id_carrera = C.id_carrera
+      LEFT JOIN semestres S ON U.id_semestre = S.id_semestre
+      WHERE U.${campo} = ?
+      LIMIT 1`,
+      [credential]
+    );
+
+    return rows[0] || null;
+  } catch (err) {
+    console.error("❌ Error al buscar por credencial:", err.message);
+    return null;
+  }
+},
+
 };
