@@ -7,35 +7,36 @@ export const PasswordController = {
    * 1) Enviar enlace de recuperación (correo + palabra secreta)
    * ============================================================
    */
-  async forgotPassword(req, res) {
-    try {
-      const { correo, palabra_secreta } = req.body;
+async forgotPassword(req, res) {
+  try {
+    const { correo, palabra_secreta } = req.body;
 
-      // Validar campos requeridos
-      if (!correo || !palabra_secreta) {
-        return res.status(400).json({
-          error: "Correo y palabra secreta son obligatorios"
-        });
-      }
-
-      // Llamar al servicio
-      const result = await PasswordService.sendRecoveryEmail(
-        correo,
-        palabra_secreta
-      );
-
-      // Siempre devolvemos 200 para no revelar información confidencial
-      return res.status(200).json({
-        message: result.message
-      });
-
-    } catch (error) {
-      console.error("Error en forgotPassword:", error);
-      return res.status(500).json({
-        error: "Error interno del servidor"
+    if (!correo || !palabra_secreta) {
+      return res.status(400).json({
+        error: "Correo y palabra secreta son obligatorios"
       });
     }
-  },
+
+    const result = await PasswordService.sendRecoveryEmail(
+      correo,
+      palabra_secreta
+    );
+
+    if (result.error) {
+      return res.status(200).json(result); // palabra secreta incorrecta
+    }
+
+    return res.status(200).json({
+      message: result.message
+    });
+
+  } catch (error) {
+    console.error("Error en forgotPassword:", error);
+    return res.status(500).json({
+      error: "Error interno del servidor"
+    });
+  }
+},
 
 
   /**
