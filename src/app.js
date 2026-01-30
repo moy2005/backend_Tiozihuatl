@@ -14,6 +14,8 @@ import webauthnRoutes from "./modules/auth/routes/webauthn.routes.js";
 import smsRoutes from "./modules/auth/routes/sms.routes.js";
 import passwordRoutes from "./modules/auth/routes/password.routes.js";
 import userRoutes from "./modules/users/index.js";
+import helpRoutes from "./modules/help/index.js";
+import contactInfo from "./modules/contact/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 
 // ================================================================
@@ -121,6 +123,9 @@ app.use("/api/webauthn", webauthnRoutes); // Biométrico
 app.use("/api/sms", smsRoutes);         // SMS 2FA
 app.use("/api/password", passwordRoutes); // Recuperación
 app.use("/api/users", userRoutes);      // Perfiles y administración
+app.use("/api/help", helpRoutes);      // Ayuda / FAQ
+app.use("/api/contact", contactInfo);   // Información de contacto
+
 
 // ================================================================
 // 🚀 Exportar app para Vercel o uso local
