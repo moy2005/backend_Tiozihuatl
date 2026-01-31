@@ -2,7 +2,7 @@ import { ContactInfoModel } from "../../models/contact.model.js";
 
 export const AdminContactController = {
   getAll: async (req, res) => {
-    const [rows] = await ContactInfoModel.getAllAdmin();
+    const rows = await ContactInfoModel.getAllAdmin();
     res.json(rows);
   },
 

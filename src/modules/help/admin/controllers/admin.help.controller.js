@@ -2,7 +2,7 @@ import { HelpModel } from "../../models/help.model.js";
 
 export const AdminHelpController = {
   getAll: async (req, res) => {
-    const [rows] = await HelpModel.getAllAdmin();
+    const rows = await HelpModel.getAllAdmin();
     res.json(rows);
   },
 
