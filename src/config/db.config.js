@@ -12,7 +12,7 @@ let sslConfig = undefined;
 if (!isLocal) {
   sslConfig = {
     ca: process.env.DB_SSL_CA,
-    rejectUnauthorized: true
+    rejectUnauthorized: false//aqui
   };
 }
 
