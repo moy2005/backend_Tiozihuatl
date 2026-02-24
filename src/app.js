@@ -18,11 +18,6 @@ import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 
-import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
-import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
-
-import calendarRoutes from "./modules/calendar/index.js"
-
 // ================================================================
 // 🔧 Configuración base
 // ================================================================
@@ -37,8 +32,6 @@ const PORT = process.env.PORT || 4000;
 if (isProduction) app.set("trust proxy", true); // obligatorio en Vercel
 app.use(express.json());
 
-app.use('/uploads', express.static('uploads'));
-
 // ================================================================
 // 🛡️ Helmet (ajustado para compatibilidad Vercel y local)
 // ================================================================
@@ -49,7 +42,6 @@ app.use(
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: false,
     hsts: isProduction, // solo fuerza HTTPS en producción
-    frameguard: false
   })
 );
 
@@ -67,7 +59,7 @@ app.use(
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", ,"PATCH","OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -133,13 +125,7 @@ app.use("/api/password", passwordRoutes); // Recuperación
 app.use("/api/users", userRoutes);      // Perfiles y administración
 app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
-app.use("/api/calendar", calendarRoutes); //Calendario escolar
 
-// Catálogo público
-app.use('/api/catalog', catalogRoutes);
-
-// Catálogo ADMIN
-app.use('/api/catalog/admin', adminCatalogRoutes);
 
 // ================================================================
 // 🚀 Exportar app para Vercel o uso local
