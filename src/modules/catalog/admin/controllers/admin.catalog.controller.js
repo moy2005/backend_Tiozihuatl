@@ -2,7 +2,12 @@ import service from '../services/admin.catalog.service.js';
 import multer from 'multer';
 import storageService from '../services/storage.service.js';
 
-const upload = multer({ dest: 'uploads/' });
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB opcional
+});
 
 const subirPdf = [
   upload.single('file'),
@@ -12,7 +17,7 @@ const subirPdf = [
         return res.status(400).json({ message: 'Archivo requerido' });
       }
 
-      const result = await storageService.uploadPdf(req.file.path);
+      const result = await storageService.uploadPdf(req.file.buffer);
 
       res.json(result);
 

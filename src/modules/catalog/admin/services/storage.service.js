@@ -6,16 +6,28 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET
 });
 
-const uploadPdf = async (filePath) => {
-  const result = await cloudinary.uploader.upload(filePath, {
-    resource_type: 'auto',
-    folder: 'libros'
+const uploadPdf = async (fileBuffer) => {
+
+  return new Promise((resolve, reject) => {
+
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'auto',
+        folder: 'libros'
+      },
+      (error, result) => {
+        if (error) return reject(error);
+
+        resolve({
+          public_id: result.public_id,
+          secure_url: result.secure_url
+        });
+      }
+    );
+
+    stream.end(fileBuffer);
   });
 
-  return {
-    public_id: result.public_id,
-    secure_url: result.secure_url
-  };
 };
 
 export default { uploadPdf };
