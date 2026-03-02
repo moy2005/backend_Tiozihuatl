@@ -1,67 +1,37 @@
 import { poolPromise } from "../../../config/db.config.js";
 
-export const createCalendar = async ({ 
-  titulo, 
-  titulo_seccion,
-  archivo_url, 
-  tipo_calendario, 
-  tipo_archivo 
-}) => {
-
+export const createCalendar = async ({ titulo, archivo_url, tipo }) => {
   const pool = await poolPromise;
 
-  // Desactivar solo los del mismo tipo (ALUMNO o DOCENTE)
-  await pool.query(
-    "UPDATE calendarios SET activo = 0 WHERE tipo_calendario = ?",
-    [tipo_calendario]
-  );
+  await pool.query("UPDATE calendarios SET activo = 0");
 
   const [result] = await pool.query(
-    `INSERT INTO calendarios 
-     (titulo, titulo_seccion, archivo_url, tipo_calendario, tipo_archivo, activo)
-     VALUES (?, ?, ?, ?, ?, 1)`,
-    [titulo, titulo_seccion, archivo_url, tipo_calendario, tipo_archivo]
+    `INSERT INTO calendarios (titulo, archivo_url, tipo, activo)
+     VALUES (?, ?, ?, 1)`,
+    [titulo, archivo_url, tipo]
   );
 
   return result.insertId;
 };
 
-export const updateCalendar = async (id, {
-  titulo,
-  titulo_seccion,
-  archivo_url,
-  tipo_calendario,
-  tipo_archivo
-}) => {
-
+export const updateCalendar = async (id, { titulo, archivo_url, tipo }) => {
   const pool = await poolPromise;
 
-  if (archivo_url) {
+  await pool.query(
+    `UPDATE calendarios
+     SET titulo = ?, archivo_url = ?, tipo = ?
+     WHERE id = ?`,
+    [titulo, archivo_url, tipo, id]
+  );
+};
 
-    await pool.query(
-      `UPDATE calendarios
-       SET titulo = ?,
-           titulo_seccion = ?,
-           archivo_url = ?,
-           tipo_calendario = ?,
-           tipo_archivo = ?
-       WHERE id = ?`,
-      [titulo, titulo_seccion, archivo_url, tipo_calendario, tipo_archivo, id]
-    );
+export const deleteCalendar = async (id) => {
+  const pool = await poolPromise;
 
-  } else {
-
-    await pool.query(
-      `UPDATE calendarios
-       SET titulo = ?,
-           titulo_seccion = ?,
-           tipo_calendario = ?,
-           tipo_archivo = ?
-       WHERE id = ?`,
-      [titulo, titulo_seccion, tipo_calendario, tipo_archivo, id]
-    );
-
-  }
+  await pool.query(
+    "DELETE FROM calendarios WHERE id = ?",
+    [id]
+  );
 };
 
 export const getAllCalendars = async () => {
@@ -73,56 +43,14 @@ export const getAllCalendars = async () => {
 };
 
 export const toggleCalendarStatus = async (id, activo) => {
-
   const pool = await poolPromise;
 
   if (activo === 1) {
-
-    // Obtener tipo del calendario
-    const [[calendar]] = await pool.query(
-      "SELECT tipo_calendario FROM calendarios WHERE id = ?",
-      [id]
-    );
-
-    // Desactivar solo los del mismo tipo
-    await pool.query(
-      "UPDATE calendarios SET activo = 0 WHERE tipo_calendario = ?",
-      [calendar.tipo_calendario]
-    );
+    await pool.query("UPDATE calendarios SET activo = 0");
   }
 
   await pool.query(
     "UPDATE calendarios SET activo = ? WHERE id = ?",
     [activo, id]
   );
-};
-
-export const getActiveCalendarByTipo = async (tipo_calendario) => {
-  const pool = await poolPromise;
-
-  const [rows] = await pool.query(
-    `SELECT id, titulo, titulo_seccion,  archivo_url, tipo_calendario, tipo_archivo
-     FROM calendarios
-     WHERE tipo_calendario = ?
-     AND activo = 1
-     LIMIT 1`,
-    [tipo_calendario]
-  );
-
-  return rows[0] || null;
-};
-
-export const deleteCalendar = async (id) => {
-
-  const pool = await poolPromise;
-
-  const [result] = await pool.query(
-    "DELETE FROM calendarios WHERE id = ?",
-    [id]
-  );
-
-  if (result.affectedRows === 0) {
-    throw new Error("Calendario no encontrado");
-  }
-
 };
