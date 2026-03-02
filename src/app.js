@@ -21,7 +21,8 @@ import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
 
-import calendarRoutes from "./modules/calendar/index.js"
+import publicCalendarRoutes from "./modules/calendar/public/routes/public.calendar.routes.js"
+import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.routes.js"
 
 // ================================================================
 // 🔧 Configuración base
@@ -133,13 +134,10 @@ app.use("/api/password", passwordRoutes); // Recuperación
 app.use("/api/users", userRoutes);      // Perfiles y administración
 app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
-app.use("/api/calendar", calendarRoutes); //Calendario escolar
-
-// Catálogo público
-app.use('/api/catalog', catalogRoutes);
-
-// Catálogo ADMIN
 app.use('/api/catalog/admin', adminCatalogRoutes);
+app.use('/api/catalog', catalogRoutes);
+app.use("/api/calendarios/admin", adminCalendarRoutes); //Calendario escolar
+app.use("/api/calendarios", publicCalendarRoutes);
 
 // ================================================================
 // 🚀 Exportar app para Vercel o uso local
