@@ -18,6 +18,10 @@ import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 
+import aboutModule from "./modules/about/index.js"; // ✅ NUEVO
+import magazinesModule from './modules/magazines/index.js';// ✅ NUEVO
+
+
 // ================================================================
 // 🔧 Configuración base
 // ================================================================
@@ -55,11 +59,11 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // permite Postman
+      if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // 🔥 AGREGAR PATCH
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -125,6 +129,9 @@ app.use("/api/password", passwordRoutes); // Recuperación
 app.use("/api/users", userRoutes);      // Perfiles y administración
 app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
+aboutModule(app); // ✅ MÓDULO ABOUT (ADMIN + PÚBLICO)
+app.use("/api/magazines", magazinesModule); // ✅ MÓDULO MAGAZINES (CATÁLOGO, COMPRA, LECTURA)
+
 
 
 // ================================================================
