@@ -9,6 +9,11 @@ router.post("/task",authMiddleware,roleMiddleware(["Administrador"]),automationC
 router.get("/tasks",authMiddleware,roleMiddleware(["Administrador"]),automationController.getTasks);
 router.patch("/task/:id/toggle",authMiddleware,roleMiddleware(["Administrador"]),automationController.toggleTask);
 router.delete("/task/:id",authMiddleware,roleMiddleware(["Administrador"]),automationController.deleteTask);
+router.post(
+  "/run-pending",
+  automationController.runPendingTasks
+  // Sin authMiddleware — lo protege el secret header
+);
 
 export default router;
 

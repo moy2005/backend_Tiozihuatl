@@ -48,14 +48,20 @@ const backupDatabase = async (origen = "manual") => {
       password: process.env.DB_PASS_BACKUP,
       database: process.env.DB_NAME,
       port: process.env.DB_PORT
+    },
+
+    dump: {
+      trigger: true
     }
 
   });
 
   const sql =
-    dump.dump.schema +
+    (dump.dump.schema ?? '') +
     "\n" +
-    dump.dump.data;
+    (dump.dump.data ?? '') +
+    "\n" +
+    (dump.dump.trigger ?? '');
 
   const fileName =
     buildFileName("database", null, origen);

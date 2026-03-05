@@ -5,6 +5,35 @@ const createTask = async (req, res) => {
   try {
     const { nombre_tarea, cron_expression } = req.body;
 
+    // contar tareas existentes
+    const [countRows] = await poolOperacion.execute(
+      `SELECT COUNT(*) AS total FROM tareas_programadas`
+    );
+
+    const totalTasks = countRows[0].total;
+
+    // límite
+    if (totalTasks >= 10) {
+      return res.status(400).json({
+        message: "Se alcanzó el límite máximo de tareas (10)"
+      });
+    }
+
+    const [existing] = await poolOperacion.execute(
+      `SELECT id_tarea
+       FROM tareas_programadas
+       WHERE nombre_tarea = ?
+       AND cron_expression = ?
+       LIMIT 1`,
+      [nombre_tarea, cron_expression]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        message: "Ya existe una tarea con ese nombre en el mismo horario"
+      });
+    }
+
     const [result] = await poolOperacion.execute(
       `INSERT INTO tareas_programadas
        (nombre_tarea, tipo_tarea, cron_expression)
@@ -17,7 +46,7 @@ const createTask = async (req, res) => {
       [result.insertId]
     );
 
-    // 👇 Registrar inmediatamente en node-cron
+    // Registrar inmediatamente en node-cron
     await cronManager.scheduleTask(rows[0]);
 
     res.json({ message: "Tarea programada creada" });
@@ -78,10 +107,68 @@ const deleteTask = async (req, res) => {
   res.json({ message: "Tarea eliminada" });
 };
 
+// automation.controller.js — agregar este método
+const runPendingTasks = async (req, res) => {
+  try {
+    // Verificar secret para que no lo llame cualquiera
+    const secret = req.headers['x-cron-secret'];
+    if (secret !== process.env.CRON_SECRET) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+
+    const tasks = await automationService.getActiveTasks();
+    const now = new Date();
+    const results = [];
+
+    for (const task of tasks) {
+      if (shouldRunNow(task.cron_expression, now)) {
+        await automationService.executeTask(task);
+        results.push({ id: task.id_tarea, nombre: task.nombre_tarea, ejecutado: true });
+      }
+    }
+
+    res.json({ ejecutadas: results.length, tareas: results });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error ejecutando tareas' });
+  }
+};
+
+// Verifica si la expresión cron debe correr en este minuto
+function shouldRunNow(cronExpr, now) {
+  const partes = cronExpr.trim().split(/\s+/);
+  if (partes.length < 5) return false;
+
+  const [minCron, horaCron, , , diasCron] = partes;
+
+  const minActual  = now.getMinutes();
+  const horaActual = now.getHours();
+  const diaActual  = now.getDay(); // 0=Dom
+
+  // Intervalo tipo */6
+  if (horaCron.startsWith('*/')) {
+    const intervalo = Number(horaCron.replace('*/', ''));
+    return horaActual % intervalo === 0 && minActual === 0;
+  }
+
+  // Hora y minuto exactos
+  if (Number(minCron) !== minActual) return false;
+  if (Number(horaCron) !== horaActual) return false;
+
+  // Días específicos
+  if (diasCron !== '*') {
+    const diasPermitidos = diasCron.split(',').map(Number);
+    return diasPermitidos.includes(diaActual);
+  }
+
+  return true;
+}
+
 export default {
   createTask,
   getTasks,
   toggleTask,
-  deleteTask
+  deleteTask,
+  runPendingTasks
 };
 

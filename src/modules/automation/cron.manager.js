@@ -3,7 +3,7 @@ import automationService from "./services/automation.service.js";
 
 let scheduledTasks = {};
 
-// 👇 Función reutilizable para registrar una tarea
+//  Función reutilizable para registrar una tarea
 const scheduleTask = (task) => {
   if (scheduledTasks[task.id_tarea]) {
     scheduledTasks[task.id_tarea].stop(); // evitar duplicados
