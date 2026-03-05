@@ -111,7 +111,6 @@ const deleteTask = async (req, res) => {
 // automation.controller.js — agregar este método
 const runPendingTasks = async (req, res) => {
   try {
-    // Verificar secret para que no lo llame cualquiera
     const secret = req.headers['x-cron-secret'];
     if (secret !== process.env.CRON_SECRET) {
       return res.status(401).json({ message: 'No autorizado' });
@@ -119,16 +118,16 @@ const runPendingTasks = async (req, res) => {
 
     const tasks = await automationService.getActiveTasks();
     const now = new Date();
-    const results = [];
+    const pendientes = tasks.filter(t => shouldRunNow(t.cron_expression, now));
 
-    for (const task of tasks) {
-      if (shouldRunNow(task.cron_expression, now)) {
-        await automationService.executeTask(task);
-        results.push({ id: task.id_tarea, nombre: task.nombre_tarea, ejecutado: true });
-      }
+    // Responder INMEDIATAMENTE antes de ejecutar
+    res.json({ ejecutadas: pendientes.length, tareas: pendientes.map(t => t.nombre_tarea) });
+
+    // Ejecutar en segundo plano DESPUÉS de responder
+    for (const task of pendientes) {
+      automationService.executeTask(task).catch(e => console.error('Error ejecutando tarea:', e));
     }
 
-    res.json({ ejecutadas: results.length, tareas: results });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error ejecutando tareas' });
