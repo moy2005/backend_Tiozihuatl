@@ -118,26 +118,26 @@ const runPendingTasks = async (req, res) => {
 
     const tasks = await automationService.getActiveTasks();
     const now = new Date();
-
-    // Debug info en la respuesta
-    const debug = tasks.map(t => ({
-      nombre: t.nombre_tarea,
-      cron: t.cron_expression,
-      utcActual: `${now.getUTCHours()}:${String(now.getUTCMinutes()).padStart(2,'0')}`,
-      deberiaCorrer: shouldRunNow(t.cron_expression, now)
-    }));
-
     const pendientes = tasks.filter(t => shouldRunNow(t.cron_expression, now));
 
-    res.json({ 
-      ejecutadas: pendientes.length, 
-      tareas: pendientes.map(t => t.nombre_tarea),
-      debug  // 👈 ver qué está pasando
-    });
+    // 👇 Este header le dice a Vercel que NO cierre la función todavía
+    res.setHeader('Connection', 'keep-alive');
 
+    // Ejecutar PRIMERO, responder DESPUÉS
+    const results = [];
     for (const task of pendientes) {
-      automationService.executeTask(task).catch(e => console.error('Error:', e));
+      try {
+        await automationService.executeTask(task); // await, no fire-and-forget
+        results.push(task.nombre_tarea);
+      } catch(e) {
+        console.error('Error ejecutando tarea:', task.nombre_tarea, e);
+      }
     }
+
+    res.json({ 
+      ejecutadas: results.length, 
+      tareas: results
+    });
 
   } catch (error) {
     console.error(error);
