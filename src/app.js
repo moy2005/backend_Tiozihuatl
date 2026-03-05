@@ -6,6 +6,7 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import session from "express-session";
 import passport from "./modules/auth/services/oauth.service.js";
 import "./config/db.config.js";
+import cronManager from "./modules/automation/cron.manager.js";
 
 // 🔹 Importar rutas
 import authRoutes from "./modules/auth/routes/auth.routes.js";
@@ -16,7 +17,17 @@ import passwordRoutes from "./modules/auth/routes/password.routes.js";
 import userRoutes from "./modules/users/index.js";
 import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
+import newsRoutes from "./modules/news/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
+
+import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
+import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
+
+import calendarRoutes from "./modules/calendar/index.js"
+import prestamoRoutes from "./modules/prestamos/index.js";
+
+import backupRoutes from "./modules/backups/index.js";
+import automationRoutes from "./modules/automation/index.js";
 
 // ================================================================
 // 🔧 Configuración base
@@ -59,7 +70,7 @@ app.use(
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
@@ -106,6 +117,8 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+await cronManager.loadTasks();
+
 // ================================================================
 // 📡 Rutas base
 // ================================================================
@@ -125,6 +138,21 @@ app.use("/api/password", passwordRoutes); // Recuperación
 app.use("/api/users", userRoutes);      // Perfiles y administración
 app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
+app.use("/api/news", newsRoutes);   // Noticias y Eventos
+
+app.use("/api/calendar", calendarRoutes); //Calendario escolar
+
+// Catálogo público
+app.use('/api/catalog', catalogRoutes);
+
+// Catálogo ADMIN
+app.use('/api/catalog/admin', adminCatalogRoutes);
+
+app.use("/api/prestamos", prestamoRoutes);
+
+app.use("/api/backups", backupRoutes);
+
+app.use("/api/automation", automationRoutes);
 
 
 // ================================================================

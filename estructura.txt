@@ -1,0 +1,259 @@
+Listado de rutas de carpetas para el volumen Windows-SSD
+El número de serie del volumen es E01F-D71F
+C:.
+|   .env
+|   .gitignore
+|   ca.pem
+|   estructura.txt
+|   package-lock.json
+|   package.json
+|   vercel.json
+\---src
+    |   app.js
+    |   hash.js
+    |   server.js
+    |   
+    +---config
+    |       cloudinary.js
+    |       db.config.js
+    |       email.config.js
+    |       env.config.js
+    |       
+    +---core
+    |   +---middleware
+    |   |       auth.middleware.js
+    |   |       role.middleware.js
+    |   |       upload.middleware.js
+    |   |       uploadExcel.middleware.js
+    |   |       validateRegister.middleware.js
+    |   |       validateUserFields.middleware.js
+    |   |       xss.middleware.js
+    |   |       
+    |   +---services
+    |   |       audit.service.js
+    |   |       jwt.service.js
+    |   |       mail.service.js
+    |   |       
+    |   \---utils
+    |           cloudinaryUpload.js
+    |           
+    \---modules
+        +---auth
+        |   +---controllers
+        |   |       auth.controller.js
+        |   |       oauth.controller.js
+        |   |       password.controller.js
+        |   |       sms.controller.js
+        |   |       webauthn.controller.js
+        |   |       
+        |   +---models
+        |   |       recovery.model.js
+        |   |       refresh.model.js
+        |   |       session.model.js
+        |   |       token.model.js
+        |   |       user.model.js
+        |   |       
+        |   +---routes
+        |   |       auth.routes.js
+        |   |       oauth.routes.js
+        |   |       password.routes.js
+        |   |       sms.routes.js
+        |   |       webauthn.routes.js
+        |   |       
+        |   \---services
+        |           oauth.service.js
+        |           password.service.js
+        |           sms.service.js
+        |           twofa.service.js
+        |           webauthn.service.js
+        |           
+        +---calendar
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   +---controllers
+        |   |   |       admin.calendar.controller.js
+        |   |   |       
+        |   |   +---routes
+        |   |   |       admin.calendar.routes.js
+        |   |   |       
+        |   |   \---services
+        |   |           admin.calendar.service.js
+        |   |           
+        |   +---models
+        |   |       calendar.model.js
+        |   |       
+        |   \---public
+        |       +---controllers
+        |       |       public.calendar.controller.js
+        |       |       
+        |       +---routes
+        |       |       public.calendar.routes.js
+        |       |       
+        |       \---services
+        |               public.calendar.serivice.js
+        |               
+        +---catalog
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   |   index.js
+        |   |   |   
+        |   |   +---controllers
+        |   |   |       admin.catalog.controller.js
+        |   |   |       
+        |   |   +---routes
+        |   |   |       admin.catalog.routes.js
+        |   |   |       
+        |   |   \---services
+        |   |           admin.catalog.service.js
+        |   |           storage.service.js
+        |   |           
+        |   +---models
+        |   |       libro.model.js
+        |   |       libroFormato.model.js
+        |   |       
+        |   \---public
+        |       |   index.js
+        |       |   
+        |       +---controllers
+        |       |       catalog.controller.js
+        |       |       
+        |       +---routes
+        |       |       catalog.routes.js
+        |       |       
+        |       \---services
+        |               catalog.service.js
+        |               
+        +---contact
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   +---controllers
+        |   |   |       admin.contact.controller.js
+        |   |   |       
+        |   |   +---routes
+        |   |   |       admin.contact.routes.js
+        |   |   |       
+        |   |   \---services
+        |   |           admin.contact.service.js
+        |   |           
+        |   +---models
+        |   |       contact.model.js
+        |   |       
+        |   \---public
+        |       +---controllers
+        |       |       public.contact.controller.js
+        |       |       
+        |       +---routes
+        |       |       public.contact.routes.js
+        |       |       
+        |       \---services
+        |               public.contact.service.js
+        |               
+        +---help
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   +---controllers
+        |   |   |       admin.help.controller.js
+        |   |   |       
+        |   |   +---routes
+        |   |   |       admin.help.routes.js
+        |   |   |       
+        |   |   \---services
+        |   |           admin.help.service.js
+        |   |           
+        |   +---models
+        |   |       help.model.js
+        |   |       
+        |   \---public
+        |       +---controllers
+        |       |       public.help.controller.js
+        |       |       
+        |       +---routes
+        |       |       public.help.routes.js
+        |       |       
+        |       \---services
+        |               public.help.service.js
+        |               
+        +---news
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   +---controllers
+        |   |   |       admin.news.controller.js
+        |   |   |       
+        |   |   \---routes
+        |   |           admin.news.routes.js
+        |   |           
+        |   +---models
+        |   |       news.model.js
+        |   |       
+        |   \---public
+        |       +---controllers
+        |       |       public.news.controller.js
+        |       |       
+        |       \---routes
+        |               public.news.routes.js
+        |               
+        +---prestamos
+        |   |   index.js
+        |   |   
+        |   +---admin
+        |   |   +---controllers
+        |   |   |       admin.prestamo.controller.js
+        |   |   |       
+        |   |   +---routes
+        |   |   |       admin.prestamo.routes.js
+        |   |   |       
+        |   |   \---services
+        |   |           admin.prestamo.service.js
+        |   |           
+        |   +---models
+        |   |       prestamo.model.js
+        |   |       
+        |   \---public
+        |       +---controllers
+        |       |       public.prestamos.controller.js
+        |       |       
+        |       +---routes
+        |       |       public.prestamo.routes.js
+        |       |       
+        |       \---services
+        |               public.prestamo.service.js
+        |               
+        \---users
+            |   index.js
+            |   README.md
+            |   
+            +---admin
+            |   +---controllers
+            |   |       admin.user.controller.js
+            |   |       periodo.controller.js
+            |   |       
+            |   +---models
+            |   |       periodo.model.js
+            |   |       role.model.js
+            |   |       user.model.js
+            |   |       
+            |   +---routes
+            |   |       admin.user.routes.js
+            |   |       
+            |   \---services
+            |           admin.user.service.js
+            |           periodo.service.js
+            |           
+            \---common
+                +---controllers
+                |       profile.controller.js
+                |       
+                +---models
+                |       user.model.js
+                |       
+                +---routes
+                |       profile.routes.js
+                |       
+                \---services
+                        profile.service.js
+                        

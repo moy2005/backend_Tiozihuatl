@@ -9,3 +9,4 @@ router.get("/", authMiddleware, roleMiddleware(["Administrador"]), AdminContactC
 router.post("/", authMiddleware, roleMiddleware(["Administrador"]), AdminContactController.save);
 
 export default router;
+

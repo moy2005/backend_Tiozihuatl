@@ -12,3 +12,4 @@ router.put("/:id", authMiddleware, roleMiddleware(["Administrador"]), AdminHelpC
 router.delete("/:id", authMiddleware, roleMiddleware(["Administrador"]), AdminHelpController.delete);
 
 export default router;
+

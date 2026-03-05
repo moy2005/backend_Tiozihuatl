@@ -154,5 +154,148 @@ async update(req, res) {
       res.status(500).json({ error: "Error interno al obtener semestres" });
     }
   },
+
+async importUsers(req, res) {
+  try {
+    const file = req.file;
+    const { id_rol, id_carrera, id_semestre, grupo, id_periodo } = req.body;
+
+    if (!file) {
+      return res.status(400).json({ error: "Archivo Excel requerido." });
+    }
+
+    const result = await AdminUserService.importFromExcel({
+      buffer: file.buffer,
+      id_rol,
+      id_carrera,
+      id_semestre,
+      grupo,
+      id_periodo,
+      adminId: req.user?.id || null,
+      ip: req.ip,
+    });
+
+    res.status(200).json(result);
+
+  } catch (err) {
+    console.error("❌ Error al importar usuarios:", err);
+    res.status(400).json({ error: err.message });
+  }
+},
+
+
+async downloadTemplate(req, res) {
+  const XLSX = await import("xlsx");
+
+  const data = [
+    {
+      matricula: "IEST0001",
+      a_paterno: "ROBLES",
+      a_materno: "DE LA CRUZ",
+      nombre: "ROSALBA"
+    },
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Plantilla");
+
+  const buffer = XLSX.write(workbook, {
+    type: "buffer",
+    bookType: "xlsx",
+  });
+
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=plantilla_importacion_usuarios.xlsx"
+  );
+
+  res.type(
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+
+  res.send(buffer);
+},
+
+async avanzarSemestre(req, res) {
+  try {
+    const { id_periodo_origen, id_periodo_destino, alumnos } = req.body;
+
+    if (!id_periodo_origen || !id_periodo_destino) {
+      return res.status(400).json({ error: "Debe enviar id_periodo_origen e id_periodo_destino." });
+    }
+
+    const result = await AdminUserService.avanzarSemestrePersonalizado(
+      id_periodo_origen,
+      id_periodo_destino,
+      alumnos || []
+    );
+
+    await AuditService.logEvent({
+      id_usuario: req.user?.id || null,
+      tipo_evento: "AVANCE_SEMESTRE_SELECTIVO",
+      descripcion: `Avance procesado desde periodo ${id_periodo_origen} hacia ${id_periodo_destino}`,
+      ip_origen: req.ip,
+    });
+
+    res.status(200).json(result);
+
+  } catch (err) {
+    console.error("❌ Error al avanzar semestre:", err);
+    res.status(400).json({ error: err.message });
+  }
+},
+
+async getPreviewAvance(req, res) {
+  try {
+    const { id_periodo } = req.query;
+
+    if (!id_periodo) {
+      return res.status(400).json({ error: "Debe enviar id_periodo." });
+    }
+
+    const alumnos = await AdminUserService.getAlumnosParaAvance(id_periodo);
+    res.status(200).json(alumnos);
+
+  } catch (err) {
+    console.error("❌ Error al obtener preview de avance:", err);
+    res.status(500).json({ error: "Error interno al obtener alumnos." });
+  }
+},
+
+async getFiltered(req, res) {
+  try {
+
+    const filters = {
+      rol: req.query.rol,
+      id_carrera: req.query.id_carrera,
+      id_semestre: req.query.id_semestre,
+      grupo: req.query.grupo,
+      id_periodo: req.query.id_periodo,
+    };
+
+    const users = await AdminUserService.getFilteredUsers(filters);
+
+    res.status(200).json(users);
+
+  } catch (err) {
+    console.error("❌ Error en filtros avanzados:", err);
+    res.status(500).json({ error: "Error interno al filtrar usuarios" });
+  }
+},
+
+async getOpcionesPorPeriodo(req, res) {
+  try {
+    const { id_periodo } = req.query;
+    if (!id_periodo) {
+      return res.status(400).json({ error: "Debe enviar id_periodo." });
+    }
+    const opciones = await AdminUserService.getOpcionesPorPeriodo(id_periodo);
+    res.status(200).json(opciones);
+  } catch (err) {
+    console.error("❌ Error al obtener opciones por periodo:", err);
+    res.status(500).json({ error: "Error interno." });
+  }
+},
   
 };
