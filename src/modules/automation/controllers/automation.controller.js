@@ -141,10 +141,12 @@ function shouldRunNow(cronExpr, now) {
 
   const [minCron, horaCron, , , diasCron] = partes;
 
-  // Usar UTC para comparar
   const minActual  = now.getUTCMinutes();
   const horaActual = now.getUTCHours();
   const diaActual  = now.getUTCDay();
+
+  // 👇 LOG TEMPORAL
+  console.log(`CRON: ${cronExpr} | UTC actual: ${horaActual}:${minActual} | cronHora: ${horaCron} cronMin: ${minCron}`);
 
   if (horaCron.startsWith('*/')) {
     const intervalo = Number(horaCron.replace('*/', ''));
