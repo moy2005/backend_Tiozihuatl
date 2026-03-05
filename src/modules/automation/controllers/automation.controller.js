@@ -142,21 +142,19 @@ function shouldRunNow(cronExpr, now) {
 
   const [minCron, horaCron, , , diasCron] = partes;
 
-  const minActual  = now.getMinutes();
-  const horaActual = now.getHours();
-  const diaActual  = now.getDay(); // 0=Dom
+  // Usar UTC para comparar
+  const minActual  = now.getUTCMinutes();
+  const horaActual = now.getUTCHours();
+  const diaActual  = now.getUTCDay();
 
-  // Intervalo tipo */6
   if (horaCron.startsWith('*/')) {
     const intervalo = Number(horaCron.replace('*/', ''));
     return horaActual % intervalo === 0 && minActual === 0;
   }
 
-  // Hora y minuto exactos
   if (Number(minCron) !== minActual) return false;
   if (Number(horaCron) !== horaActual) return false;
 
-  // Días específicos
   if (diasCron !== '*') {
     const diasPermitidos = diasCron.split(',').map(Number);
     return diasPermitidos.includes(diaActual);
