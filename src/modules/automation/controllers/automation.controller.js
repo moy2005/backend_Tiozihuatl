@@ -1,5 +1,6 @@
 import { poolOperacion } from "../../../config/dbPools/poolOperacion.config.js";
 import cronManager from "../cron.manager.js";
+import automationService from "../services/automation.service.js";
 
 const createTask = async (req, res) => {
   try {
