@@ -22,7 +22,7 @@ const executeTask = async (task) => {
 
     // Evitar duplicados en el mismo minuto
     const [recent] = await poolOperacion.execute(
-      `SELECT id_log FROM backups_log 
+      `SELECT * FROM backups_log
        WHERE tipo = 'automatico' 
        AND fecha >= DATE_SUB(NOW(), INTERVAL 1 MINUTE)
        LIMIT 1`
