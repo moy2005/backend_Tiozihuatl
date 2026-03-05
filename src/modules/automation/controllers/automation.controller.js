@@ -118,14 +118,25 @@ const runPendingTasks = async (req, res) => {
 
     const tasks = await automationService.getActiveTasks();
     const now = new Date();
+
+    // Debug info en la respuesta
+    const debug = tasks.map(t => ({
+      nombre: t.nombre_tarea,
+      cron: t.cron_expression,
+      utcActual: `${now.getUTCHours()}:${String(now.getUTCMinutes()).padStart(2,'0')}`,
+      deberiaCorrer: shouldRunNow(t.cron_expression, now)
+    }));
+
     const pendientes = tasks.filter(t => shouldRunNow(t.cron_expression, now));
 
-    // Responder INMEDIATAMENTE antes de ejecutar
-    res.json({ ejecutadas: pendientes.length, tareas: pendientes.map(t => t.nombre_tarea) });
+    res.json({ 
+      ejecutadas: pendientes.length, 
+      tareas: pendientes.map(t => t.nombre_tarea),
+      debug  // 👈 ver qué está pasando
+    });
 
-    // Ejecutar en segundo plano DESPUÉS de responder
     for (const task of pendientes) {
-      automationService.executeTask(task).catch(e => console.error('Error ejecutando tarea:', e));
+      automationService.executeTask(task).catch(e => console.error('Error:', e));
     }
 
   } catch (error) {
