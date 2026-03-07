@@ -1,7 +1,4 @@
 import { poolPromise } from "../../../config/db.config.js";
-import { poolAdmin } from "../../../config/dbPools/poolAdmin.config.js";
-import { poolConsulta } from "../../../config/dbPools/poolConsulta.config.js";
-import { poolOperacion } from "../../../config/dbPools/poolOperacion.config.js";
 
 const searchBooks = async ({ search, autor, materia, formato, ordenAutor }) => {
 
@@ -63,8 +60,7 @@ if (ordenAutor === 'DESC') {
   query += ` ORDER BY l.autor DESC`;
 }
 
-  const [rows] = await poolConsulta.execute(query, params);
-  
+  const [rows] = await poolPromise.execute(query, params);
   return rows;
 };
 
@@ -83,7 +79,7 @@ const createLibro = async (data) => {
     throw new Error('Datos incompletos para crear libro');
   }
 
-  const conn = await poolAdmin.getConnection();
+  const conn = await poolPromise.getConnection();
 
   try {
     await conn.beginTransaction();
@@ -134,7 +130,7 @@ const createLibro = async (data) => {
 };
 
 const getAll = async () => {
-  const [rows] = await poolConsulta.execute(`
+  const [rows] = await poolPromise.execute(`
       SELECT
       l.id,
       l.titulo,
@@ -158,7 +154,6 @@ const getAll = async () => {
     
     GROUP BY l.id
   `);
-    
   return rows;
 };
 
@@ -166,7 +161,7 @@ const getAll = async () => {
 /** 📚 Listado admin */
 const getAllAdmin = async () => {
 
-  const [libros] = await poolConsulta.execute(
+  const [libros] = await poolPromise.execute(
     `SELECT
       l.id,
       l.titulo,
@@ -179,11 +174,10 @@ const getAllAdmin = async () => {
      LEFT JOIN materias m ON m.id = lm.materia_id
      GROUP BY l.id`
   );
-  
 
   for (let libro of libros) {
 
-    const [formatos] = await poolConsulta.execute(
+    const [formatos] = await poolPromise.execute(
       `SELECT tipo, total, disponibles, pdf_url
        FROM libro_formatos
        WHERE libro_id = ?`,
@@ -233,7 +227,7 @@ const updateLibro = async (id, data) => {
     pdf_url
   } = data;
 
-  const conn = await poolOperacion.getConnection();
+  const conn = await poolPromise.getConnection();
 
   try {
     await conn.beginTransaction();
@@ -324,25 +318,26 @@ const updateLibro = async (id, data) => {
 };
 
 const cambiarEstado = async (id, activo) => {
-  await poolOperacion.execute(
+  await poolPromise.execute(
     `UPDATE libros SET activo = ? WHERE id = ?`,
     [activo, id]
   );
 };
 
 const getMaterias = async () => {
-  const [rows] = await poolConsulta.execute(`
-    SELECT DISTINCT m.nombre
-    FROM materias m
-    ORDER BY m.nombre ASC
+  const [rows] = await poolPromise.execute(`
+    SELECT id, nombre          -- ✅ agregar id
+    FROM materias
+    ORDER BY nombre ASC
   `);
-
   return rows;
 };
+
 const getLibroDigitalById = async (id) => {
-  const [rows] = await poolConsulta.execute(`
+  const [rows] = await poolPromise.execute(`
     SELECT 
       l.id,
+      l.titulo,
       l.activo,
       f.pdf_url
     FROM libros l

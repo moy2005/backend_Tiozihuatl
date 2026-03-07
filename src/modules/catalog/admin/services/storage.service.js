@@ -4,50 +4,36 @@ const uploadPdf = async (fileBuffer) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        resource_type: 'auto',
-        folder: 'libros',
-        format: 'pdf' // Opcional: forzar formato PDF
-      },
-      (error, result) => {
-        if (error) return reject(error);
-
-        resolve({
-          public_id: result.public_id,
-          secure_url: result.secure_url,
-          format: result.format,
-          bytes: result.bytes,
-          created_at: result.created_at
-        });
-      }
-    );
-
-    stream.end(fileBuffer);
-  });
-};
-
-// Función adicional para subir imágenes si la necesitas
-const uploadImage = async (fileBuffer, folder = 'imagenes') => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
         resource_type: 'image',
-        folder
+        format: 'pdf',
+        folder: 'libros',
+        timeout: 120000,
+        //  Genera la portada inmediatamente al subir
+        eager: [
+          {
+           page: 1,
+            format: 'jpg',
+            width: 400,
+            crop: 'scale',
+            quality: 80
+          }
+        ],
+        eager_async: false  // espera a que se genere antes de responder
       },
       (error, result) => {
         if (error) return reject(error);
+
         resolve({
           public_id: result.public_id,
-          secure_url: result.secure_url,
-          format: result.format,
-          bytes: result.bytes
+          secure_url: result.secure_url
+          // la portada ya quedó cacheada en Cloudinary
         });
       }
     );
     stream.end(fileBuffer);
   });
-};
+}; 
 
 export default { 
-  uploadPdf,
-  uploadImage 
+  uploadPdf
 };

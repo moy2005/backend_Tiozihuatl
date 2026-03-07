@@ -30,53 +30,21 @@ const getMaterias = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener materias' });
   }
 };
-
-const verPdf = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const libro = await libroModel.getLibroDigitalById(id);
-
-    if (!libro || libro.activo !== 1 || !libro.pdf_url) {
-      return res.status(404).json({ message: 'Libro no disponible' });
-    }
-
-    // pdf_url ya es la URL completa, redirigir directo
-    return res.redirect(libro.pdf_url);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener PDF' });
-  }
-};
-
 const preview = async (req, res) => {
   try {
     const { id } = req.params;
-
     const libro = await libroModel.getLibroDigitalById(id);
 
     if (!libro || !libro.pdf_url) {
       return res.status(404).json({ message: 'No tiene versión digital' });
     }
 
-    // pdf_url es algo como:
-    // https://res.cloudinary.com/dazzy4wzq/image/upload/v1772094826/libros/xxxx.pdf
-    // Extraer el public_id: "libros/xxxx"
-    const match = libro.pdf_url.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
+    // ✅ Para archivos raw (PDF), se accede con resource_type 'raw'
+    // pero la transformación a imagen se hace así:
+    const cloudName = process.env.CLOUD_NAME;
+    const publicId = libro.pdf_url; // ej: libros/z3oa1niq7ndjbuinsvla
 
-    if (!match) {
-      return res.status(400).json({ message: 'URL de PDF inválida' });
-    }
-
-    const publicId = match[1]; // "libros/xxxx"
-
-    const previewUrl = cloudinary.url(publicId, {
-      cloud_name: 'dazzy4wzq', // 👈 cuenta correcta
-      resource_type: 'image',
-      format: 'jpg',
-      page: 1
-    });
+    const previewUrl = `https://res.cloudinary.com/${cloudName}/image/upload/pg_1,w_400,f_jpg,q_auto/${publicId}.jpg`;
 
     res.json({ previewUrl });
 
@@ -86,9 +54,37 @@ const preview = async (req, res) => {
   }
 };
 
+const getPdfUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const libro = await libroModel.getLibroDigitalById(id);
+
+    if (!libro || libro.activo !== 1 || !libro.pdf_url) {
+      return res.status(404).json({ message: 'Libro no disponible' });
+    }
+
+    const cloudName = process.env.CLOUD_NAME;
+
+    // ✅ URL firmada con expiración — funciona con archivos públicos
+    const expiracion = Math.floor(Date.now() / 1000) + 300; // 5 minutos
+
+    const pdfUrl = cloudinary.url(libro.pdf_url, {
+      resource_type: 'image',
+      sign_url: true,
+      expires_at: expiracion,
+      secure: true
+    });
+
+    res.json({ url: pdfUrl, titulo: libro.titulo });
+
+  } catch (error) {
+    console.error('❌ Error getPdfUrl:', error.message);
+    res.status(500).json({ message: 'Error al obtener URL del PDF' });
+  }
+};
 export default {
   getCatalog,
   getMaterias,
-  verPdf,
+  getPdfUrl,
   preview
 };

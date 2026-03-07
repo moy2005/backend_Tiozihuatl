@@ -1,16 +1,15 @@
 import express from 'express';
 import controller from '../controllers/admin.catalog.controller.js';
-// aquí luego irá adminGuard
+import { authMiddleware } from "../../../../core/middleware/auth.middleware.js";
+import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 
 const router = express.Router();
 
-router.post('/libros', controller.crearLibro);
-router.get('/libros', controller.listarLibros);
-
-router.put('/libros/:id', controller.updateLibro);
-router.patch('/libros/:id/estado', controller.cambiarEstado);
-
-router.post('/upload-pdf', controller.subirPdf);
+router.get("/libros",authMiddleware, roleMiddleware(["Administrador"]), controller.listarLibros);
+router.post("/libros",authMiddleware, roleMiddleware(["Administrador"]), controller.crearLibro);
+router.put("/libros/:id", authMiddleware, roleMiddleware(["Administrador"]), controller.updateLibro);
+router.patch("/libros/:id/estado",authMiddleware,roleMiddleware(["Administrador"]), controller.cambiarEstado);
+router.post( "/upload-pdf",authMiddleware,roleMiddleware(["Administrador"]), controller.subirPdf);
 
 export default router;
 
