@@ -25,9 +25,6 @@ import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
 import calendarRoutes from "./modules/calendar/index.js"
 
-
-import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
-import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
 import publicCalendarRoutes from "./modules/calendar/public/routes/public.calendar.routes.js"
 import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.routes.js"
 import prestamoRoutes from "./modules/prestamos/index.js";
