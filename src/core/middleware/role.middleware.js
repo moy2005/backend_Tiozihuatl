@@ -5,7 +5,6 @@
  * @param {Array<string>} rolesPermitidos - Lista de roles que pueden acceder a la ruta
  */
 export const roleMiddleware = (rolesPermitidos = []) => {
-
   return (req, res, next) => {
     try {
 
@@ -17,27 +16,18 @@ export const roleMiddleware = (rolesPermitidos = []) => {
 
       const rolUsuario = req.user.rol;
 
-      if (!rolUsuario) {
-        return res.status(403).json({
-          error: 'Usuario sin rol asignado'
-        });
-      }
-
-      // 🔎 Validación exacta de rol
+      // Verifica si el rol del usuario está entre los permitidos
       if (!rolesPermitidos.includes(rolUsuario)) {
         return res.status(403).json({
-          error: `Acceso denegado. Rol '${rolUsuario}' no autorizado`
+          error: `Acceso denegado. Rol '${rolUsuario}' no tiene permisos.`,
         });
       }
 
+      // Si pasa la validación, continúa
       next();
-
-    } catch (error) {
-      console.error('❌ Error en roleMiddleware:', error.message);
-
-      return res.status(500).json({
-        error: 'Error interno validando rol'
-      });
+    } catch (err) {
+      console.error("❌ Error en roleMiddleware:", err.message);
+      res.status(500).json({ error: "Error interno al validar rol." });
     }
   };
 };
