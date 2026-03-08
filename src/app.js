@@ -19,19 +19,15 @@ import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
 import newsRoutes from "./modules/news/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
-
-import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
+import aboutModule from "./modules/about/index.js";         
+import magazinesModule from './modules/magazines/index.js';   
+import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js";
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
+import calendarRoutes from "./modules/calendar/index.js";
+import prestamoRoutes from "./modules/prestamos/index.js";    
+import backupRoutes from "./modules/backups/index.js";      
+import automationRoutes from "./modules/automation/index.js"; 
 
-import calendarRoutes from "./modules/calendar/index.js"
-import prestamoRoutes from "./modules/prestamos/index.js";
-
-import backupRoutes from "./modules/backups/index.js";
-import automationRoutes from "./modules/automation/index.js";
-
-// ================================================================
-// 🔧 Configuración base
-// ================================================================
 dotenv.config();
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -40,11 +36,12 @@ const PORT = process.env.PORT || 4000;
 // ================================================================
 // 🧠 Proxy y Middlewares básicos
 // ================================================================
-if (isProduction) app.set("trust proxy", true); // obligatorio en Vercel
+if (isProduction) app.set("trust proxy", true);
 app.use(express.json());
+app.use('/uploads', express.static('uploads')); 
 
 // ================================================================
-// 🛡️ Helmet (ajustado para compatibilidad Vercel y local)
+// 🛡️ Helmet
 // ================================================================
 app.use(
   helmet({
@@ -52,12 +49,13 @@ app.use(
     crossOriginOpenerPolicy: false,
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: false,
-    hsts: isProduction, // solo fuerza HTTPS en producción
+    hsts: isProduction,
+    frameguard: false 
   })
 );
 
 // ================================================================
-// 🌐 Configuración dinámica de CORS
+// 🌐 CORS
 // ================================================================
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
@@ -66,18 +64,18 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // permite Postman
+      if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], 
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
 
 // ================================================================
-// 💾 Sesiones (para OAuth2 y WebAuthn)
+// 💾 Sesiones
 // ================================================================
 app.use(
   session({
@@ -85,26 +83,22 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: isProduction, // usa HTTPS solo en Vercel
+      secure: isProduction,
       httpOnly: true,
       sameSite: isProduction ? "none" : "lax",
     },
   })
 );
 
-// ================================================================
-// 🔑 Passport (OAuth2 y sesión persistente)
-// ================================================================
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use(sanitizeXSS);
 
 // ================================================================
-// 🚦 Rate Limiter global
+// 🚦 Rate Limiter
 // ================================================================
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
+  windowMs: 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
@@ -123,39 +117,29 @@ await cronManager.loadTasks();
 // 📡 Rutas base
 // ================================================================
 app.get("/", (req, res) => {
-  res.send(`🚀 API funcionando correctamente en entorno ${isProduction ? "de producción" : "local"}`);
+  res.send(`🚀 API funcionando en entorno ${isProduction ? "producción" : "local"}`);
 });
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // ================================================================
-// 🔗 Módulos principales
+// 🔗 Módulos
 // ================================================================
-app.use("/api/auth", authRoutes);       // Login, registro, tokens
-app.use("/api/oauth", oauthRoutes);     // Google / Facebook
-app.use("/api/webauthn", webauthnRoutes); // Biométrico
-app.use("/api/sms", smsRoutes);         // SMS 2FA
-app.use("/api/password", passwordRoutes); // Recuperación
-app.use("/api/users", userRoutes);      // Perfiles y administración
-app.use("/api/help", helpRoutes);      // Ayuda / FAQ
-app.use("/api/contact", contactInfo);   // Información de contacto
-app.use("/api/news", newsRoutes);   // Noticias y Eventos
-
-app.use("/api/calendar", calendarRoutes); //Calendario escolar
-
-// Catálogo público
+app.use("/api/auth", authRoutes);
+app.use("/api/oauth", oauthRoutes);
+app.use("/api/webauthn", webauthnRoutes);
+app.use("/api/sms", smsRoutes);
+app.use("/api/password", passwordRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/help", helpRoutes);
+app.use("/api/contact", contactInfo);
+app.use("/api/news", newsRoutes);           
+aboutModule(app);                          
+app.use("/api/magazines", magazinesModule); 
+app.use("/api/calendar", calendarRoutes);
 app.use('/api/catalog', catalogRoutes);
-
-// Catálogo ADMIN
 app.use('/api/catalog/admin', adminCatalogRoutes);
+app.use("/api/prestamos", prestamoRoutes);  
+app.use("/api/backups", backupRoutes);      
+app.use("/api/automation", automationRoutes); 
 
-app.use("/api/prestamos", prestamoRoutes);
-
-app.use("/api/backups", backupRoutes);
-
-app.use("/api/automation", automationRoutes);
-
-
-// ================================================================
-// 🚀 Exportar app para Vercel o uso local
-// ================================================================
 export default app;
