@@ -35,8 +35,7 @@ export const authMiddleware = (req, res, next) => {
     if (!decoded)
       return res.status(401).json({ error: "Token inválido o expirado" });
 
-      // Agrega esto temporalmente
-    console.log('🔍 Token decodificado:', decoded);
+   // console.log('🔍 Token decodificado:', decoded);
 
 
     // Guarda los datos del usuario en la solicitud
