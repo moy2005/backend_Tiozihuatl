@@ -12,11 +12,6 @@ import { sendMail } from "../../../core/services/mail.service.js";
 dotenv.config();
 
 export const AuthController = {
-  /**
-   * ================================================================
-   * REGISTRO DE USUARIO — Rol por defecto: Visitante
-   * ================================================================
-   */
 
   // ============================================================
   // 1) PRE-REGISTRO (PASO 1)
@@ -821,30 +816,54 @@ login: async (req, res) => {
    * REFRESH TOKEN — ROTACIÓN DE TOKENS
    * ================================================================
    */
-  refreshToken: async (req, res) => {
-    try {
-      const { id_usuario, refreshToken } = req.body;
-      if (!id_usuario || !refreshToken)
-        return res.status(400).json({ error: "Faltan datos." });
+refreshToken: async (req, res) => {
+  console.log('🔄 REFRESH LLAMADO con id_usuario:', req.body.id_usuario);
+  try {
+    const { id_usuario, refreshToken } = req.body;
+    if (!id_usuario || !refreshToken)
+      return res.status(400).json({ error: "Faltan datos." });
 
-      const valid = await RefreshModel.validate(id_usuario, refreshToken);
-      if (!valid)
-        return res.status(401).json({ error: "Token inválido o expirado." });
+    const valid = await RefreshModel.validate(id_usuario, refreshToken);
+    if (!valid)
+      return res.status(401).json({ error: "Token inválido o expirado." });
 
-      const newAccess = JWTService.generateToken({ id: id_usuario }, "15m");
-      const newRefresh = uuidv4();
+    // ✅ Recuperar el usuario para incluir el rol en el nuevo token
+    const [rows] = await poolPromise.query(
+      `SELECT U.id_usuario, R.nombre_rol
+       FROM usuarios U
+       INNER JOIN roles R ON U.id_rol = R.id_rol
+       WHERE U.id_usuario = ?
+       LIMIT 1`,
+      [id_usuario]
+    );
 
-      await RefreshModel.save(id_usuario, newRefresh, 7);
+    if (!rows || rows.length === 0)
+      return res.status(404).json({ error: "Usuario no encontrado." });
 
-      res.status(200).json({
-        message: "Tokens renovados correctamente.",
-        accessToken: newAccess,
-        refreshToken: newRefresh,
-      });
-    } catch {
-      res.status(500).json({ error: "Error al renovar token." });
-    }
-  },
+    const user = rows[0];
+
+    // ✅ Nuevo accessToken con rol incluido
+    const newAccess = JWTService.generateToken(
+      { id: user.id_usuario, rol: user.nombre_rol },
+      "15m"
+    );
+    const newRefresh = uuidv4();
+
+    await RefreshModel.save(id_usuario, newRefresh, 7);
+
+    // ✅ Actualizar la sesión activa
+    await SessionModel.save(id_usuario, newAccess, req.ip);
+
+    res.status(200).json({
+      message: "Tokens renovados correctamente.",
+      accessToken: newAccess,
+      refreshToken: newRefresh,
+    });
+  } catch (err) {
+    console.error("Error en refreshToken:", err.message);
+    res.status(500).json({ error: "Error al renovar token." });
+  }
+},
 
   /**
    * ================================================================

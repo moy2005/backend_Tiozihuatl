@@ -7,6 +7,9 @@
 export const roleMiddleware = (rolesPermitidos = []) => {
   return (req, res, next) => {
     try {
+
+      console.log('🔍 req.user completo:', req.user);
+      console.log('🔍 Roles permitidos:', rolesPermitidos);
       if (!req.user || !req.user.rol) {
         return res.status(401).json({ error: "No autorizado. Token no válido o usuario sin rol." });
       }

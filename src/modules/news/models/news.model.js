@@ -104,7 +104,6 @@ export const NewsModel = {
 
 getPublic: async () => {
   try {
-    console.log('🔍 Consultando noticias públicas...');
     
     const query = `
       SELECT id_noticia, titulo, contenido, imagen_url, video_url,
@@ -116,14 +115,7 @@ getPublic: async () => {
     
     const [rows] = await poolPromise.query(query);
     
-    console.log(`✅ Total noticias encontradas: ${rows.length}`);
-    console.log('📊 Detalles:', rows.map(r => ({
-      id: r.id_noticia,
-      titulo: r.titulo,
-      tiene_imagen: !!r.imagen_url,
-      tiene_video: !!r.video_url
-    })));
-    
+
     return rows;
   } catch (error) {
     console.error('❌ Error en getPublic:', error);
