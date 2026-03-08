@@ -13,4 +13,3 @@ router.patch('/libros/:id/estado', controller.cambiarEstado);
 router.post('/upload-pdf', controller.subirPdf);
 
 export default router;
-

@@ -1,204 +1,82 @@
 import service from '../services/admin.catalog.service.js';
-import storageService from '../services/storage.service.js';
 import multer from 'multer';
+import storageService from '../services/storage.service.js';
 
-// Configuración específica para PDFs (Opción B)
-const pdfUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { 
-    fileSize: 20 * 1024 * 1024 // 20MB para PDFs
-  },
-  fileFilter: (req, file, cb) => {
-    // Solo permitir PDFs
-    if (file.mimetype === 'application/pdf') {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten archivos PDF'), false);
-    }
-  }
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB opcional
 });
 
-/**
- * 📤 Subir PDF de libro
- * Ruta: POST /api/admin/catalog/upload-pdf
- */
 const subirPdf = [
-  pdfUpload.single('file'),
+  upload.single('file'),
   async (req, res) => {
     try {
       if (!req.file) {
-        return res.status(400).json({ 
-          success: false,
-          message: 'Archivo requerido' 
-        });
+        return res.status(400).json({ message: 'Archivo requerido' });
       }
-
-      console.log('📄 Subiendo PDF:', {
-        originalname: req.file.originalname,
-        size: `${(req.file.size / 1024 / 1024).toFixed(2)}MB`,
-        mimetype: req.file.mimetype
-      });
 
       const result = await storageService.uploadPdf(req.file.buffer);
 
-      res.status(201).json({
-        success: true,
-        message: 'PDF subido exitosamente',
-        data: {
-          public_id: result.public_id,
-          secure_url: result.secure_url,
-          format: result.format,
-          size: result.bytes,
-          created_at: result.created_at
-        }
-      });
+      res.json(result);
 
     } catch (error) {
       console.error('❌ Error subirPdf:', error);
-      
-      // Manejar errores específicos de multer
-      if (error instanceof multer.MulterError) {
-        if (error.code === 'LIMIT_FILE_SIZE') {
-          return res.status(400).json({ 
-            success: false,
-            message: 'El archivo excede el límite de 10MB' 
-          });
-        }
-      }
-      
-      // Manejar errores de Cloudinary
-      if (error.http_code) {
-        return res.status(400).json({ 
-          success: false,
-          message: `Error de Cloudinary: ${error.message}` 
-        });
-      }
-      
-      res.status(500).json({ 
-        success: false,
-        message: error.message || 'Error al subir PDF' 
-      });
+      res.status(500).json({ message: 'Error al subir PDF' });
     }
   }
 ];
 
-/**
- * ➕ Crear libro
- * Ruta: POST /api/admin/catalog
- */
+/** ➕ Crear libro */
 const crearLibro = async (req, res) => {
   try {
-    const { titulo, autor, editorial, categoria_id, url_pdf, total } = req.body;
-
-    // Transformar al formato que espera el modelo
-    const data = {
-      titulo,
-      autor,
-      editorial,
-      materias: categoria_id ? [categoria_id] : [],
-      formatos: []
-    };
-
-    // Agregar formato físico si tiene stock
-    if (total) {
-      data.formatos.push({
-        tipo: 'FISICO',
-        total: total,
-        disponibles: total
-      });
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: 'Datos del libro requeridos' });
     }
 
-    // Agregar formato digital si tiene PDF
-    if (url_pdf) {
-      data.formatos.push({
-        tipo: 'DIGITAL',
-        pdf_url: url_pdf
-      });
-    }
-
-    const id = await service.crearLibro(data);
-
-    res.status(201).json({
-      success: true,
-      message: 'Libro creado exitosamente',
-      data: { id }
-    });
-
+    const id = await service.crearLibro(req.body);
+    res.status(201).json({ message: 'Libro creado', id });
   } catch (err) {
     console.error('❌ Error crearLibro:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Error al crear libro'
-    });
+    res.status(500).json({ message: 'Error al crear libro' });
   }
 };
-
-/**
- * 📚 Listar libros (admin)
- * Ruta: GET /api/admin/catalog
- */
+/** 📚 Listar libros (admin) */
 const listarLibros = async (req, res) => {
   try {
     const libros = await service.obtenerLibrosAdmin();
-    
-    res.json({
-      success: true,
-      data: libros
-    });
+    res.json(libros);
   } catch (error) {
     console.error('❌ Error listarLibros:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Error al obtener libros' 
-    });
+    res.status(500).json({ message: 'Error al obtener libros' });
   }
 };
 
-/**
- * ✏️ Actualizar libro
- * Ruta: PUT /api/admin/catalog/:id
- */
+/** ✏️ Actualizar libro */
 const updateLibro = async (req, res) => {
   try {
     const { id } = req.params;
     const data = req.body;
-    
-    if (!data || Object.keys(data).length === 0) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Datos vacíos para actualizar' 
-      });
+    if(!data || Object.keys(data).length===0){
+      return res.status(400).json({message: 'Datos vacíos para actualizar'})
     }
-
     await service.actualizarLibro(id, data);
-    
-    res.json({ 
-      success: true,
-      message: 'Libro actualizado correctamente' 
-    });
+    res.json({ message: 'Libro actualizado correctamente' });
   } catch (error) {
     console.error('❌ Error updateLibro:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Error al actualizar libro' 
-    });
+    res.status(500).json({ message: 'Error al actualizar libro' });
   }
 };
 
-/**
- * 🔄 Activar / Desactivar libro
- * Ruta: PATCH /api/admin/catalog/:id/estado
- */
+/** 🔄 Activar / Desactivar */
 const cambiarEstado = async (req, res) => {
   try {
     const { id } = req.params;
     let { activo } = req.body;
 
     if (activo === undefined) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Campo activo requerido' 
-      });
+      return res.status(400).json({ message: 'Campo activo requerido' });
     }
 
     // Normalizar a 1 o 0
@@ -207,17 +85,13 @@ const cambiarEstado = async (req, res) => {
     await service.cambiarEstado(id, activo);
 
     res.json({ 
-      success: true,
       message: 'Estado actualizado correctamente',
-      data: { activo }
+      activo
     });
 
   } catch (error) {
     console.error('❌ Error cambiarEstado:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Error al cambiar estado' 
-    });
+    res.status(500).json({ message: 'Error al cambiar estado' });
   }
 };
 

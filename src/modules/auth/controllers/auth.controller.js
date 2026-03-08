@@ -777,7 +777,10 @@ login: async (req, res) => {
     // 🔐 6) GENERAR TOKENS
     // ============================================================
     const accessToken = JWTService.generateToken(
-      { id: user.id_usuario, rol: user.nombre_rol },
+      { 
+        id_usuario: user.id_usuario,  // 🔥 CAMBIO IMPORTANTE
+        rol: user.nombre_rol 
+      },
       "15m"
     );
     const refreshToken = uuidv4();
