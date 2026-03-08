@@ -19,7 +19,7 @@ export const UserModel = {
     palabra_secreta = null,
   }) {
     try {
-      await poolPromise.query(
+      await pool.query(
         `INSERT INTO usuarios 
           (id_rol, nombre, a_paterno, a_materno, correo, telefono, contrasena, metodo_autenticacion, proveedor_oauth, palabra_secreta, estado, fecha_registro)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())`,

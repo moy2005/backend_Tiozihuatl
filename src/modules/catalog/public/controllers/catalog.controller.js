@@ -41,8 +41,9 @@ const verPdf = async (req, res) => {
       return res.status(404).json({ message: 'Libro no disponible' });
     }
 
-    // pdf_url ya es la URL completa, redirigir directo
-    return res.redirect(libro.pdf_url);
+    const pdfUrl = `https://res.cloudinary.com/dxq0apa5a/image/upload/v1/${libro.pdf_url}.pdf`;
+
+    return res.redirect(pdfUrl);
 
   } catch (error) {
     console.error(error);
@@ -60,19 +61,7 @@ const preview = async (req, res) => {
       return res.status(404).json({ message: 'No tiene versión digital' });
     }
 
-    // pdf_url es algo como:
-    // https://res.cloudinary.com/dazzy4wzq/image/upload/v1772094826/libros/xxxx.pdf
-    // Extraer el public_id: "libros/xxxx"
-    const match = libro.pdf_url.match(/\/upload\/(?:v\d+\/)?(.+)\.\w+$/);
-
-    if (!match) {
-      return res.status(400).json({ message: 'URL de PDF inválida' });
-    }
-
-    const publicId = match[1]; // "libros/xxxx"
-
-    const previewUrl = cloudinary.url(publicId, {
-      cloud_name: 'dazzy4wzq', // 👈 cuenta correcta
+    const previewUrl = cloudinary.url(libro.pdf_url, {
       resource_type: 'image',
       format: 'jpg',
       page: 1

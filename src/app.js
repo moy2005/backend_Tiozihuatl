@@ -40,6 +40,8 @@ if (isProduction) app.set("trust proxy", true);
 app.use(express.json());
 app.use('/uploads', express.static('uploads')); 
 
+app.use('/uploads', express.static('uploads'));
+
 // ================================================================
 // 🛡️ Helmet
 // ================================================================
