@@ -13,10 +13,11 @@ export const verifyAuth = (req, res, next) => {
     return res.status(403).json({ error: 'Token inválido o expirado' });
   }
 
-  req.user = {
-    id: decoded.id || decoded.id_usuario,
-    rol: decoded.rol
-  };
+ req.user = {
+  id: decoded.id || decoded.id_usuario,
+  id_usuario: decoded.id || decoded.id_usuario,
+  rol: decoded.rol
+};
   next();
 };
 
@@ -34,10 +35,11 @@ export const authMiddleware = (req, res, next) => {
     if (!decoded)
       return res.status(401).json({ error: "Token inválido o expirado" });
 
-    req.user = {
-      id: decoded.id || decoded.id_usuario, 
-      rol: decoded.rol
-    };
+  req.user = {
+  id: decoded.id || decoded.id_usuario,
+  id_usuario: decoded.id || decoded.id_usuario, 
+  rol: decoded.rol
+};
     next();
   } catch (error) {
     console.error("❌ Error en authMiddleware:", error.message);
