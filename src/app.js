@@ -23,11 +23,11 @@ import aboutModule from "./modules/about/index.js"; // ✅ NUEVO
 import magazinesModule from './modules/magazines/index.js';// ✅ NUEVO
 import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
-import calendarRoutes from "./modules/calendar/index.js"
+//import calendarRoutes from "./modules/calendar/index.js"
 
 
-import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
-import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
+//import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
+//import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
 import publicCalendarRoutes from "./modules/calendar/public/routes/public.calendar.routes.js"
 import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.routes.js"
 import prestamoRoutes from "./modules/prestamos/index.js";
@@ -80,7 +80,7 @@ app.use(
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // 🔥 AGREGAR PATCH
-    methods: ["GET", "POST", "PUT", "DELETE", ,"PATCH","OPTIONS"],
+    //methods: ["GET", "POST", "PUT", "DELETE", ,"PATCH","OPTIONS"],
 
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -151,7 +151,9 @@ app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
 aboutModule(app); // MÓDULO ABOUT (ADMIN + PÚBLICO)
 app.use("/api/magazines", magazinesModule); // MÓDULO MAGAZINES
-app.use("/api/calendar", calendarRoutes); // Calendario escolar
+//app.use("/api/calendar", calendarRoutes); // Calendario escolar
+app.use("/api/calendar/admin", adminCalendarRoutes);
+app.use("/api/calendar", publicCalendarRoutes);
 // Catálogo público
 app.use('/api/catalog', catalogRoutes);
 // Catálogo ADMIN
