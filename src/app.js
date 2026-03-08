@@ -17,17 +17,12 @@ import userRoutes from "./modules/users/index.js";
 import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
-
-<<<<<<< HEAD
 import aboutModule from "./modules/about/index.js"; // ✅ NUEVO
 import magazinesModule from './modules/magazines/index.js';// ✅ NUEVO
-
-=======
 import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
-
 import calendarRoutes from "./modules/calendar/index.js"
->>>>>>> e9d96a5300ff538902f370001eb604326c27fedf
+
 
 // ================================================================
 // 🔧 Configuración base
@@ -73,11 +68,9 @@ app.use(
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("CORS no permitido para este dominio: " + origin), false);
     },
-<<<<<<< HEAD
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // 🔥 AGREGAR PATCH
-=======
     methods: ["GET", "POST", "PUT", "DELETE", ,"PATCH","OPTIONS"],
->>>>>>> e9d96a5300ff538902f370001eb604326c27fedf
+
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })

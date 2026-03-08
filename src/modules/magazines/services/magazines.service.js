@@ -293,8 +293,7 @@ export const createMagazine = async ({
 
 export const getAuditoriaCompras = async ({ usuario, fecha_inicio, fecha_fin }) => {
 
-  const poolPromise = await poolPromise;
-
+  // ✅ Usar directamente poolPromise del import
   let query = `
     SELECT 
       ac.id_auditoria,
@@ -303,13 +302,10 @@ export const getAuditoriaCompras = async ({ usuario, fecha_inicio, fecha_fin }) 
       ac.ip_address,
       ac.user_agent,
       ac.fecha,
-
-      u.nombre,
+      u.nombre AS usuario,
       u.correo,
-
       c.id_compra,
       r.titulo AS revista
-
     FROM auditoria_compras ac
     LEFT JOIN usuarios u ON ac.id_usuario = u.id_usuario
     LEFT JOIN compras c ON ac.id_compra = c.id_compra
@@ -319,21 +315,18 @@ export const getAuditoriaCompras = async ({ usuario, fecha_inicio, fecha_fin }) 
 
   const params = [];
 
-  // 🔎 Filtro por usuario
   if (usuario) {
-    query += ` AND u.nombre LIKE ? `;
+    query += ` AND u.nombre LIKE ?`;
     params.push(`%${usuario}%`);
   }
 
-  // 📅 Filtro por fecha inicio
   if (fecha_inicio) {
-    query += ` AND ac.fecha >= ? `;
+    query += ` AND ac.fecha >= ?`;
     params.push(fecha_inicio);
   }
 
-  // 📅 Filtro por fecha fin
   if (fecha_fin) {
-    query += ` AND ac.fecha <= ? `;
+    query += ` AND ac.fecha <= ?`;
     params.push(fecha_fin);
   }
 
@@ -402,3 +395,46 @@ export const saveReadingProgress = async (id_usuario, id_magazine, page) => {
 
 };
 
+export const getFilteredMagazines = async (search, sort, letter) => {
+
+  const pool = await poolPromise;
+
+  let query = `
+    SELECT *
+    FROM revistas
+    WHERE estado = 'Activa'
+  `;
+
+  const params = [];
+
+  // 🔎 búsqueda por título
+  if (search) {
+    query += ` AND titulo LIKE ?`;
+    params.push(`%${search}%`);
+  }
+
+  // 🔤 filtro por letra inicial
+  if (letter) {
+    query += ` AND titulo LIKE ?`;
+    params.push(`${letter}%`);
+  }
+
+  // 🔡 ordenamiento
+    if (sort === 'asc') {
+      query += ` ORDER BY titulo ASC`;
+    } else if (sort === 'desc') {
+      query += ` ORDER BY titulo DESC`;
+    } else if (sort === 'price_asc') {
+      query += ` ORDER BY precio ASC`;
+    } else if (sort === 'price_desc') {
+      query += ` ORDER BY precio DESC`;
+    } else if (sort === 'recent') {
+      query += ` ORDER BY created_at DESC`;
+    } else {
+      query += ` ORDER BY created_at DESC`;
+    }
+
+  const [rows] = await pool.query(query, params);
+
+  return rows;
+};

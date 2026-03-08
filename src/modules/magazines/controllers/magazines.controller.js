@@ -440,6 +440,8 @@ export const createPurchase = async (req, res) => {
 
   const { items } = req.body;
   const userId = req.user.id_usuario;
+  const total = items.reduce((sum, i) => sum + Number(i.precio || 0), 0);
+  const ahora = new Date();
 
   const conn = await poolPromise.getConnection();
 
@@ -463,33 +465,29 @@ export const createPurchase = async (req, res) => {
       );
     }
 
-    // 🔥 INSERTAR EN auditoria_compras
-    await connection.query(`
-      INSERT INTO auditoria_compras
-      (id_usuario, id_compra, accion, descripcion, ip_address, user_agent, fecha)
-      VALUES (?, ?, 'COMPRA', ?, ?, ?, ?)
-    `, [
-      userId,
-      idCompra,
-      `Compra realizada correctamente por $${total}`,
-      req.ip,
-      req.headers['user-agent'],
-      ahora
-    ]);
-    await conn.commit();
+    await conn.query(`
+          INSERT INTO auditoria_compras
+          (id_usuario, id_compra, accion, descripcion, ip_address, user_agent, fecha)
+          VALUES (?, ?, 'COMPRA', ?, ?, ?, ?)
+        `, [
+          userId,
+          idCompra,
+          `Compra realizada correctamente por $${total}`,
+          req.ip,
+          req.headers['user-agent'],
+          ahora
+        ]);
 
-    res.json({ success: true });
+        await conn.commit();
+        res.json({ success: true });
 
-  } catch (error) {
-
-    await conn.rollback();
-    res.status(500).json({ error: error.message });
-
-  } finally {
-    conn.release();
-  }
-
-};
+      } catch (error) {
+        await conn.rollback();
+        res.status(500).json({ error: error.message });
+      } finally {
+        conn.release();
+      }
+    };
 
 export const getAuditoriaCompras = async (req, res) => {
   try {
@@ -524,5 +522,28 @@ export const getAuditoriaCompras = async (req, res) => {
   } catch (error) {
     console.error("Error auditoría:", error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const filterMagazines = async (req, res) => {
+  try {
+
+    const { search, sort, letter } = req.query;
+
+    const magazines =
+      await service.getFilteredMagazines(
+        search,
+        sort,
+        letter
+      );
+
+    res.json({ ok: true, data: magazines });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      ok: false,
+      message: 'Error al filtrar revistas'
+    });
   }
 };
