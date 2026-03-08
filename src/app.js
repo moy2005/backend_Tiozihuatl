@@ -138,12 +138,9 @@ app.use("/api/help", helpRoutes);      // Ayuda / FAQ
 app.use("/api/contact", contactInfo);   // Información de contacto
 aboutModule(app); // MÓDULO ABOUT (ADMIN + PÚBLICO)
 app.use("/api/magazines", magazinesModule); // MÓDULO MAGAZINES
-
 app.use("/api/calendar", calendarRoutes); // Calendario escolar
-
 // Catálogo público
 app.use('/api/catalog', catalogRoutes);
-
 // Catálogo ADMIN
 app.use('/api/catalog/admin', adminCatalogRoutes);
 

@@ -3,9 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const isLocal = process.env.NODE_ENV !== "production";
-
 let sslConfig = undefined;
-
 if (!isLocal) {
   sslConfig = {
     ca: process.env.DB_SSL_CA,
@@ -17,7 +15,6 @@ if (!isLocal) {
     rejectUnauthorized: false
   };
 }
-
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -32,7 +29,6 @@ const pool = mysql.createPool({
   timezone: '-06:00'
 });
 
-// 🔥 AQUÍ ESTÁ LA CLAVE
 export const poolPromise = pool;
 
 // Test opcional
