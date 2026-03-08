@@ -19,6 +19,7 @@ export const verifyAuth = (req, res, next) => {
 
   // Almacena la info del usuario decodificada para usar en la ruta
   req.user = decoded;
+  console.log('👤 req.user:', req.user); 
   next();
 };
 
@@ -41,6 +42,7 @@ export const authMiddleware = (req, res, next) => {
 
     // Guarda los datos del usuario en la solicitud
     req.user = decoded;
+    console.log('👤 req.user:', req.user); 
     next();
   } catch (error) {
     console.error("❌ Error en authMiddleware:", error.message);
