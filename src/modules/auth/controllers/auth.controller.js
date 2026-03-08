@@ -782,7 +782,10 @@ login: async (req, res) => {
     // 🔐 6) GENERAR TOKENS
     // ============================================================
     const accessToken = JWTService.generateToken(
-      { id: user.id_usuario, rol: user.nombre_rol },
+      { 
+        id_usuario: user.id_usuario,  // 🔥 CAMBIO IMPORTANTE
+        rol: user.nombre_rol 
+      },
       "15m"
     );
     const refreshToken = uuidv4();
@@ -831,7 +834,14 @@ login: async (req, res) => {
       if (!valid)
         return res.status(401).json({ error: "Token inválido o expirado." });
 
-      const newAccess = JWTService.generateToken({ id: id_usuario }, "15m");
+      //const newAccess = JWTService.generateToken({ id: id_usuario }, "15m");
+      const newAccess = JWTService.generateToken(
+        { 
+          id_usuario: id_usuario,
+          rol: req.body.rol || "Administrador" // o mejor consulta el rol real en BD
+        },
+        "15m"
+      );
       const newRefresh = uuidv4();
 
       await RefreshModel.save(id_usuario, newRefresh, 7);

@@ -326,18 +326,17 @@ const cambiarEstado = async (id, activo) => {
 
 const getMaterias = async () => {
   const [rows] = await poolPromise.execute(`
-    SELECT id, nombre          -- ✅ agregar id
-    FROM materias
-    ORDER BY nombre ASC
+    SELECT DISTINCT m.nombre
+    FROM materias m
+    ORDER BY m.nombre ASC
   `);
+
   return rows;
 };
-
 const getLibroDigitalById = async (id) => {
   const [rows] = await poolPromise.execute(`
     SELECT 
       l.id,
-      l.titulo,
       l.activo,
       f.pdf_url
     FROM libros l

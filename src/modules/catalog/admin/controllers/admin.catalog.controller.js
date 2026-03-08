@@ -6,7 +6,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 } // 10MB opcional
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB opcional
 });
 
 const subirPdf = [
@@ -42,7 +42,6 @@ const crearLibro = async (req, res) => {
     res.status(500).json({ message: 'Error al crear libro' });
   }
 };
-
 /** 📚 Listar libros (admin) */
 const listarLibros = async (req, res) => {
   try {
