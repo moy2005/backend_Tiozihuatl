@@ -86,9 +86,9 @@ const toggleTask = async (req, res) => {
   const task = rows[0];
 
   if (task.activo) {
-    cronManager.scheduleTask(task); // 👈 reactivar en node-cron
+    cronManager.scheduleTask(task); // reactivar en node-cron
   } else {
-    cronManager.stopTask(Number(id)); // 👈 detener en node-cron
+    cronManager.stopTask(Number(id)); // detener en node-cron
   }
 
   res.json({ message: "Estado actualizado" });

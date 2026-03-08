@@ -1,6 +1,11 @@
 import mysqldump from "mysqldump";
 import { poolAdmin } from "../../../config/dbPools/poolAdmin.config.js";
+import { poolBackup } from "../../../config/dbPools/poolBackup.config.js";
 import cloudinary from "../../../config/cloudinary.js";
+import { exec } from "child_process";
+import util from "util";
+
+const execAsync = util.promisify(exec);
 
 const getTimestamp = () => {
 
@@ -37,8 +42,207 @@ const buildFileName = (scope, table = null, origen = "manual") => {
 
 };
 
+const getRoutines = async () => {
+
+  await poolBackup.execute(`
+    SET SESSION sql_mode = REPLACE(@@sql_mode,'ANSI_QUOTES','')
+  `);
+
+  const [routines] = await poolBackup.execute(`
+    SELECT ROUTINE_NAME, ROUTINE_TYPE
+    FROM information_schema.routines
+    WHERE routine_schema = ?
+  `, [process.env.DB_NAME]);
+
+  let sql = "";
+
+  for (const routine of routines) {
+
+    const type = routine.ROUTINE_TYPE;
+
+    const [rows] = await poolBackup.execute(
+      `SHOW CREATE ${type} \`${process.env.DB_NAME}\`.\`${routine.ROUTINE_NAME}\``
+    );
+
+    const definition =
+      rows[0][`Create ${type}`] ||
+      rows[0][`Create_${type}`];
+
+    if (!definition) continue;
+
+    sql += `
+
+DELIMITER $$
+
+${definition}$$
+
+DELIMITER ;
+
+`;
+
+  }
+
+  return sql;
+};
+
+
+const getFunctions = async () => {
+
+  await poolBackup.execute(`
+    SET SESSION sql_mode = REPLACE(@@sql_mode,'ANSI_QUOTES','')
+  `);
+
+  const [functions] = await poolBackup.execute(`
+    SELECT ROUTINE_NAME
+    FROM information_schema.routines
+    WHERE routine_schema = ?
+    AND routine_type = 'FUNCTION'
+  `, [process.env.DB_NAME]);
+
+  let sql = "";
+
+  for (const fn of functions) {
+
+    const [rows] = await poolBackup.execute(
+      `SHOW CREATE FUNCTION \`${process.env.DB_NAME}\`.\`${fn.ROUTINE_NAME}\``
+    );
+
+    const definition =
+      rows[0]["Create Function"] ||
+      rows[0].Create_Function;
+
+    if (!definition) continue;
+
+    sql += `
+
+DELIMITER $$
+
+${definition}$$
+
+DELIMITER ;
+
+`;
+
+  }
+
+  return sql;
+};
+
+const getStoredProcedures = async () => {
+
+  await poolBackup.execute(`
+    SET SESSION sql_mode = REPLACE(@@sql_mode,'ANSI_QUOTES','')
+  `);
+
+  const [procedures] = await poolBackup.execute(`
+    SELECT ROUTINE_NAME
+    FROM information_schema.routines
+    WHERE routine_schema = ?
+    AND routine_type = 'PROCEDURE'
+  `, [process.env.DB_NAME]);
+
+  let sql = "";
+
+  for (const proc of procedures) {
+
+    const [rows] = await poolBackup.execute(
+      `SHOW CREATE PROCEDURE \`${process.env.DB_NAME}\`.\`${proc.ROUTINE_NAME}\``
+    );
+
+    const definition =
+      rows[0]["Create Procedure"] ||
+      rows[0].Create_Procedure;
+
+ if (!definition) {
+  console.warn("SP sin definición:", proc.ROUTINE_NAME);
+  continue;
+}
+
+    sql += `
+
+DELIMITER $$
+
+${definition}$$
+
+DELIMITER ;
+
+`;
+
+  }
+
+  return sql;
+};
+
+
+const getViews = async () => {
+
+  const [views] = await poolBackup.execute(`
+    SELECT TABLE_NAME
+    FROM information_schema.views
+    WHERE table_schema = ?
+  `, [process.env.DB_NAME]);
+
+  let sql = "";
+
+  for (const view of views) {
+
+    const [rows] = await poolBackup.execute(
+      `SHOW CREATE VIEW \`${process.env.DB_NAME}\`.\`${view.TABLE_NAME}\``
+    );
+
+    const definition =
+      rows[0]["Create View"] ||
+      rows[0].Create_View;
+
+    sql += `
+
+${definition};
+
+`;
+
+  }
+
+  return sql;
+};
+
+const getEvents = async () => {
+
+  const [events] = await poolBackup.execute(`
+    SELECT EVENT_NAME
+    FROM information_schema.events
+    WHERE event_schema = ?
+  `, [process.env.DB_NAME]);
+
+  let sql = "";
+
+  for (const event of events) {
+
+    const [rows] = await poolBackup.execute(
+      `SHOW CREATE EVENT \`${process.env.DB_NAME}\`.\`${event.EVENT_NAME}\``
+    );
+
+    const definition =
+      rows[0]["Create Event"] ||
+      rows[0].Create_Event;
+
+    sql += `
+
+${definition};
+
+`;
+
+  }
+
+  return sql;
+};
+
 
 const backupDatabase = async (origen = "manual") => {
+
+  // quitar ANSI_QUOTES solo para esta sesión
+  await poolBackup.execute(`
+    SET SESSION sql_mode = REPLACE(@@sql_mode, 'ANSI_QUOTES', '')
+  `);
 
   const dump = await mysqldump({
 
@@ -56,12 +260,25 @@ const backupDatabase = async (origen = "manual") => {
 
   });
 
-  const sql =
-    (dump.dump.schema ?? '') +
-    "\n" +
-    (dump.dump.data ?? '') +
-    "\n" +
-    (dump.dump.trigger ?? '');
+  const proceduresSQL = await getStoredProcedures();
+  const functionsSQL = await getFunctions();
+  const viewsSQL = await getViews();
+  const eventsSQL = await getEvents();
+
+const sql =
+  (dump.dump.schema ?? '') +
+  "\n" +
+  (dump.dump.data ?? '') +
+  "\n" +
+  (dump.dump.trigger ?? '') +
+  "\n" +
+  proceduresSQL +
+  "\n" +
+  functionsSQL +
+  "\n" +
+  viewsSQL +
+  "\n" +
+  eventsSQL;
 
   const fileName =
     buildFileName("database", null, origen);

@@ -13,7 +13,12 @@ export const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    const decoded = JWTService.verifyToken(token);
+    if (!decoded)
+      return res.status(401).json({ error: "Token inválido o expirado" });
+
+      // Agrega esto temporalmente
+    console.log('🔍 Token decodificado:', decoded);
+
 
     if (!decoded) {
       return res.status(403).json({
