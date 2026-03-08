@@ -6,6 +6,7 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import session from "express-session";
 import passport from "./modules/auth/services/oauth.service.js";
 import "./config/db.config.js";
+import cronManager from "./modules/automation/cron.manager.js";
 
 // 🔹 Importar rutas
 import authRoutes from "./modules/auth/routes/auth.routes.js";
@@ -16,6 +17,7 @@ import passwordRoutes from "./modules/auth/routes/password.routes.js";
 import userRoutes from "./modules/users/index.js";
 import helpRoutes from "./modules/help/index.js";
 import contactInfo from "./modules/contact/index.js";
+import newsRoutes from "./modules/news/index.js";
 import { sanitizeXSS } from "./core/middleware/xss.middleware.js";
 import aboutModule from "./modules/about/index.js"; // ✅ NUEVO
 import magazinesModule from './modules/magazines/index.js';// ✅ NUEVO
@@ -23,6 +25,15 @@ import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
 import calendarRoutes from "./modules/calendar/index.js"
 
+
+import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js"
+import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
+import publicCalendarRoutes from "./modules/calendar/public/routes/public.calendar.routes.js"
+import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.routes.js"
+import prestamoRoutes from "./modules/prestamos/index.js";
+
+import backupRoutes from "./modules/backups/index.js";
+import automationRoutes from "./modules/automation/index.js";
 
 // ================================================================
 // 🔧 Configuración base
@@ -116,6 +127,8 @@ const limiter = rateLimit({
   message: "⚠️ Demasiadas peticiones desde esta IP. Intenta más tarde.",
 });
 app.use(limiter);
+
+await cronManager.loadTasks();
 
 // ================================================================
 // 📡 Rutas base

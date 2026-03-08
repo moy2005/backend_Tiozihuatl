@@ -1,7 +1,7 @@
 // hash.js (ESM)
 import bcrypt from 'bcrypt';
 
-const password = 'admin123';   // <- tu contraseña en claro
+const password = '12345678';   // <- tu contraseña en claro
 const saltRounds = 10;         // recomendado: 10-12
 
 (async () => {
