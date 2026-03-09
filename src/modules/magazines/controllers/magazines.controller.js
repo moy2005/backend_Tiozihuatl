@@ -6,7 +6,7 @@ import { poolPromise } from '../../../config/db.config.js';
 import os from 'os';'
 import { Readable } from 'stream';
 
-console.log("🔥 MAGAZINES CONTROLLER REAL CARGADO");
+console.log("MAGAZINES CONTROLLER REAL CARGADO");
 
 const uploadBufferToCloudinary = (buffer, options) => {
   return new Promise((resolve, reject) => {
@@ -169,7 +169,7 @@ export const uploadMagazine = async (req, res) => {
       return res.status(400).json({ error: 'PDF is required for new magazines' });
     }
 
-    // ✅ buffer en lugar de path
+    //buffer en lugar de path
     const pdfBuffer = req.files.pdf[0].buffer;
     const pdfResult = await uploadBufferToCloudinary(pdfBuffer, {
       resource_type: 'image',
@@ -190,7 +190,7 @@ export const uploadMagazine = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
-  // ✅ sin finally — no hay archivo en disco
+  //sin finally — no hay archivo en disco
 };
 
 
@@ -249,7 +249,7 @@ export const toggleMagazineStatus = async (req, res) => {
 
     const id = req.params.id;
 
-    // 1️⃣ Obtener estado actual
+    // 1 Obtener estado actual
     const [rows] = await poolPromise.query(
       `SELECT estado FROM revistas WHERE id_revista = ?`,
       [id]
@@ -261,17 +261,17 @@ export const toggleMagazineStatus = async (req, res) => {
 
     const estadoActual = rows[0].estado;
 
-    // 2️⃣ Determinar nuevo estado
+    // 2️ Determinar nuevo estado
     const nuevoEstado =
       estadoActual === 'Activa' ? 'Inactiva' : 'Activa';
 
-    // 3️⃣ Actualizar estado
+    // 3️ Actualizar estado
     await poolPromise.query(
       `UPDATE revistas SET estado = ? WHERE id_revista = ?`,
       [nuevoEstado, id]
     );
 
-    // 4️⃣ Registrar auditoría
+    // 4️ Registrar auditoría
     await poolPromise.query(`
       INSERT INTO auditoria_compras
       (id_usuario, accion, descripcion, ip_address)
@@ -395,7 +395,7 @@ export const toggleMagazineStatus = async (req, res) => {
   }
 };
 
-// 🔥 1️⃣ Helper arriba del archivo (fuera de cualquier función)
+// 1️ Helper arriba del archivo (fuera de cualquier función)
 export const registrarAuditoria = async ({
   id_usuario,
   accion,
