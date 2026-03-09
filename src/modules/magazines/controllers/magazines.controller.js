@@ -3,9 +3,21 @@ import cloudinary from '../../../config/cloudinary.config.js';
 import { successResponse, errorResponse } from '../../../core/utils/response.util.js';
 import fs from 'fs';
 import { poolPromise } from '../../../config/db.config.js';
-import os from 'os';
+import os from 'os';'
+import { Readable } from 'stream';
 
 console.log("🔥 MAGAZINES CONTROLLER REAL CARGADO");
+
+const uploadBufferToCloudinary = (buffer, options) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+    Readable.from(buffer).pipe(stream);
+  });
+};
+
 /* =====================================
    GET CATALOG
 ===================================== */
@@ -109,25 +121,21 @@ export const viewMagazine = async (req, res) => {
 
 export const updateMagazine = async (req, res) => {
   try {
-
     const id = req.params.id;
     const { titulo, descripcion, precio, stock } = req.body;
 
     let pdf_public_id = null;
 
     if (req.files && req.files.pdf) {
-      const pdfResult = await cloudinary.uploader.upload(
-        req.files.pdf[0].path,
-        {
-          resource_type: 'raw',
-          folder: 'magazines/revistas'
-        }
-      );
-
-      pdf_public_id = pdfResult.public_id.replace('.pdf', '');
+      // buffer en lugar de path
+      const pdfBuffer = req.files.pdf[0].buffer;
+      const pdfResult = await uploadBufferToCloudinary(pdfBuffer, {
+        resource_type: 'image',
+        folder: 'magazines/revistas'
+      });
+      pdf_public_id = pdfResult.public_id;
     }
 
-    // 🔥 REGISTRAR AUDITORÍA SIN conn
     await registrarAuditoria({
       id_usuario: req.user.id_usuario,
       accion: 'UPDATE_REVISTA',
@@ -136,14 +144,7 @@ export const updateMagazine = async (req, res) => {
       user_agent: req.headers['user-agent']
     });
 
-    await service.updateMagazine({
-      id,
-      titulo,
-      descripcion,
-      precio,
-      stock,
-      pdf_public_id
-    });
+    await service.updateMagazine({ id, titulo, descripcion, precio, stock, pdf_public_id });
 
     res.json({ message: 'Magazine updated' });
 
@@ -158,35 +159,22 @@ export const updateMagazine = async (req, res) => {
    ADMIN - UPLOAD MAGAZINE (PDF)
 ===================================== */
 export const uploadMagazine = async (req, res) => {
-
-  let pdfPath;
-
   try {
-
     const { titulo, descripcion, precio, stock } = req.body;
 
     if (!titulo || !precio || !stock) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-
     if (!req.files || !req.files.pdf) {
       return res.status(400).json({ error: 'PDF is required for new magazines' });
     }
 
-    pdfPath = req.files.pdf[0].path;
-
-    /* ===========================
-       SUBIR PDF COMO IMAGE
-    =========================== */
-
-    const pdfResult = await cloudinary.uploader.upload(pdfPath, {
+    // ✅ buffer en lugar de path
+    const pdfBuffer = req.files.pdf[0].buffer;
+    const pdfResult = await uploadBufferToCloudinary(pdfBuffer, {
       resource_type: 'image',
       folder: 'magazines/revistas'
     });
-
-    /* ===========================
-       GUARDAR EN BD
-    =========================== */
 
     await service.createMagazine({
       titulo,
@@ -199,16 +187,10 @@ export const uploadMagazine = async (req, res) => {
     res.json({ message: 'Magazine uploaded successfully' });
 
   } catch (error) {
-
     console.error(error);
     res.status(500).json({ error: error.message });
-
-  } finally {
-
-    if (pdfPath && fs.existsSync(pdfPath)) {
-      fs.unlinkSync(pdfPath);
-    }
   }
+  // ✅ sin finally — no hay archivo en disco
 };
 
 
