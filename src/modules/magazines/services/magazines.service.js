@@ -1,5 +1,5 @@
 import {poolPromise} from '../../../config/db.config.js';
-import cloudinary from '../../../config/cloudinary.config.js';
+import cloudinary from '../../../config/cloudinary.js';
 import { processPayment } from './payment.service.js';
 import { registerAudit } from './audit.service.js';
 
