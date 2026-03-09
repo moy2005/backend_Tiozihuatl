@@ -3,7 +3,7 @@ export const validateUserFields = (req, res, next) => {
   const { nombre, a_paterno, correo, telefono } = req.body;
 
   // ================================================================
-  // 🔹 VALIDACIÓN PARA CREAR USUARIO (POST)
+  // VALIDACIÓN PARA CREAR USUARIO (POST)
   // ================================================================
   if (method === "POST") {
     if (!nombre || !a_paterno || !correo) {
@@ -25,7 +25,7 @@ export const validateUserFields = (req, res, next) => {
   }
 
   // ================================================================
-  // 🔹 VALIDACIÓN PARA ACTUALIZAR USUARIO (PUT)
+  // VALIDACIÓN PARA ACTUALIZAR USUARIO (PUT)
   // ================================================================
   if (method === "PUT") {
     const camposPermitidos = [

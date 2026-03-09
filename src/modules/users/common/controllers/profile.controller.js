@@ -1,23 +1,12 @@
 import { UserService } from "../services/profile.service.js";
-import { JWTService } from "../../../../core/services/jwt.service.js";
 import { AuditService } from "../../../../core/services/audit.service.js";
 
 export const UserController = {
-  /**
-   * ================================================================
-   * GET /api/perfil
-   * Obtener datos del perfil del usuario autenticado
-   * ================================================================
-   */
+
   async getProfile(req, res) {
     try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (!token) return res.status(401).json({ error: "Token no proporcionado." });
-
-      const decoded = JWTService.verifyToken(token);
-      if (!decoded) return res.status(401).json({ error: "Token inválido o expirado." });
-
-      const user = await UserService.getProfile(decoded.id);
+      // ✅ req.user ya viene del authMiddleware, no re-verificar
+      const user = await UserService.getProfile(req.user.id);
       res.status(200).json(user);
     } catch (err) {
       console.error("❌ Error en getProfile:", err.message);
@@ -25,25 +14,12 @@ export const UserController = {
     }
   },
 
-  /**
-   * ================================================================
-   * PUT /api/perfil
-   * Actualizar datos personales del usuario autenticado
-   * ================================================================
-   */
   async updateProfile(req, res) {
     try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (!token) return res.status(401).json({ error: "Token no proporcionado." });
+      const result = await UserService.updateProfile(req.user.id, req.body);
 
-      const decoded = JWTService.verifyToken(token);
-      if (!decoded) return res.status(401).json({ error: "Token inválido o expirado." });
-
-      const result = await UserService.updateProfile(decoded.id, req.body);
-
-      // Registro en auditoría
       await AuditService.logEvent({
-        id_usuario: decoded.id,
+        id_usuario: req.user.id,
         tipo_evento: "ACTUALIZACION_PERFIL",
         descripcion: "El usuario actualizó su información personal.",
         ip_origen: req.ip,
@@ -56,33 +32,20 @@ export const UserController = {
     }
   },
 
-  /**
-   * ================================================================
-   * PUT /api/perfil/cambiar-contrasena
-   * Cambiar contraseña del usuario autenticado
-   * ================================================================
-   */
   async changePassword(req, res) {
     try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (!token) return res.status(401).json({ error: "Token no proporcionado." });
-
-      const decoded = JWTService.verifyToken(token);
-      if (!decoded) return res.status(401).json({ error: "Token inválido o expirado." });
-
       const { contrasenaActual, nuevaContrasena } = req.body;
       if (!contrasenaActual || !nuevaContrasena)
         return res.status(400).json({ error: "Debe proporcionar ambas contraseñas." });
 
       const result = await UserService.changePassword(
-        decoded.id,
+        req.user.id,
         contrasenaActual,
         nuevaContrasena
       );
 
-      // Registro en auditoría
       await AuditService.logEvent({
-        id_usuario: decoded.id,
+        id_usuario: req.user.id,
         tipo_evento: "CAMBIO_CONTRASENA",
         descripcion: "El usuario cambió su contraseña.",
         ip_origen: req.ip,

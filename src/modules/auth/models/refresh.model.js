@@ -32,26 +32,32 @@ export const RefreshModel = {
    * @param {string} token
    * @returns {boolean}
    */
-  async validate(id_usuario, token) {
-    const [rows] = await poolPromise.query(
-      `SELECT * FROM tokensrefresh
-       WHERE id_usuario = ? AND estado = 'Activo'
-       ORDER BY fecha_emision DESC
-       LIMIT 1`,
-      [id_usuario]
-    );
+async validate(id_usuario, token) {
+  const [rows] = await poolPromise.query(
+    `SELECT * FROM tokensrefresh
+     WHERE id_usuario = ? AND estado = 'Activo'
+     ORDER BY fecha_emision DESC
+     LIMIT 1`,
+    [id_usuario]
+  );
 
-    if (!rows.length) return false;
+  console.log('🔍 Tokens activos en BD:', rows.length);
+  console.log('🔍 Token recibido (primeros 8 chars):', token.substring(0, 8));
 
-    const record = rows[0];
-    const match = await bcrypt.compare(token, record.refresh_token);
-    if (!match) return false;
+  if (!rows.length) {
+    console.log('❌ No hay tokens activos en BD');
+    return false;
+  }
 
-    const now = new Date();
-    if (now > record.fecha_expiracion) return false;
+  const record = rows[0];
+  const match = await bcrypt.compare(token, record.refresh_token);
+  console.log('🔍 bcrypt match:', match);
+  console.log('🔍 Expiración:', record.fecha_expiracion, '| Ahora:', new Date());
 
-    return true;
-  },
+  if (!match) return false;
+  if (new Date() > record.fecha_expiracion) return false;
+  return true;
+},
 
   /**
    * Revoca todos los refresh tokens activos del usuario (por logout o rotación)
