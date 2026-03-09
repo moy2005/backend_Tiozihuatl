@@ -1,5 +1,5 @@
 import * as service from '../services/magazines.service.js';
-import cloudinary from '../../../config/cloudinary.config.js';
+import cloudinary from '../../../config/cloudinary.js';
 import { successResponse, errorResponse } from '../../../core/utils/response.util.js';
 import { poolPromise } from '../../../config/db.config.js';
 import { Readable } from 'stream';
