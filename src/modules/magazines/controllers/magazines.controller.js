@@ -1,9 +1,7 @@
 import * as service from '../services/magazines.service.js';
 import cloudinary from '../../../config/cloudinary.config.js';
 import { successResponse, errorResponse } from '../../../core/utils/response.util.js';
-import fs from 'fs';
 import { poolPromise } from '../../../config/db.config.js';
-import os from 'os';'
 import { Readable } from 'stream';
 
 console.log("MAGAZINES CONTROLLER REAL CARGADO");
