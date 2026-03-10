@@ -23,7 +23,8 @@ import aboutModule from "./modules/about/index.js";
 import magazinesModule from './modules/magazines/index.js';   
 import catalogRoutes from "./modules/catalog/public/routes/catalog.routes.js";
 import adminCatalogRoutes from "./modules/catalog/admin/routes/admin.catalog.routes.js";
-import calendarRoutes from "./modules/calendar/index.js";
+import publicCalendarRoutes from "./modules/calendar/public/routes/public.calendar.routes.js"
+import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.routes.js"
 import prestamoRoutes from "./modules/prestamos/index.js";    
 import backupRoutes from "./modules/backups/index.js";      
 import automationRoutes from "./modules/automation/index.js"; 
@@ -137,7 +138,8 @@ app.use("/api/contact", contactInfo);
 app.use("/api/news", newsRoutes);           
 aboutModule(app);                          
 app.use("/api/magazines", magazinesModule); 
-app.use("/api/calendar", calendarRoutes);
+app.use("/api/calendarios/admin", adminCalendarRoutes); 
+app.use("/api/calendarios", publicCalendarRoutes);
 app.use('/api/catalog', catalogRoutes);
 app.use('/api/catalog/admin', adminCatalogRoutes);
 app.use("/api/prestamos", prestamoRoutes);  
