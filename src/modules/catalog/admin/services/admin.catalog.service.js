@@ -15,8 +15,8 @@ const obtenerLibrosAdmin = async () => {
   return libros;
 };
 
-const getCatalog = async (filters) => {
-  return await libroModel.searchBooks(filters);
+const getCatalogAdmin = async (filters) => {
+  return await libroModel.searchBooksAdmin(filters);
 };
 
 const actualizarLibro = async (id, data) => {
@@ -33,5 +33,5 @@ export default {
   obtenerLibrosAdmin,
   actualizarLibro,
   cambiarEstado,
-  getCatalog
+  getCatalogAdmin
 };
