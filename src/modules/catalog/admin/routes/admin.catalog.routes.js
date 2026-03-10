@@ -10,7 +10,7 @@ router.post("/libros",authMiddleware, roleMiddleware(["Administrador"]), control
 router.put("/libros/:id", authMiddleware, roleMiddleware(["Administrador"]), controller.updateLibro);
 router.patch("/libros/:id/estado",authMiddleware,roleMiddleware(["Administrador"]), controller.cambiarEstado);
 router.post( "/upload-pdf",authMiddleware,roleMiddleware(["Administrador"]), controller.subirPdf);
-
+router.get('/autores', authMiddleware, roleMiddleware(["Administrador"]), controller.listarAutores);
 
 export default router;
 
