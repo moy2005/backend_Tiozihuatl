@@ -28,7 +28,7 @@ const subirPdf = [
   }
 ];
 
-/** ➕ Crear libro */
+/**  Crear libro */
 const crearLibro = async (req, res) => {
   try {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -43,18 +43,29 @@ const crearLibro = async (req, res) => {
   }
 };
 
-/** 📚 Listar libros (admin) */
+/** Listar libros (admin) */
 const listarLibros = async (req, res) => {
   try {
-    const libros = await service.obtenerLibrosAdmin();
+
+    const { search, materia, formato, ordenAutor, activo } = req.query;
+
+    const libros = await service.getCatalogAdmin({
+      search,
+      materia,
+      formato,
+      ordenAutor,
+      activo
+    });
+
     res.json(libros);
+
   } catch (error) {
     console.error('❌ Error listarLibros:', error);
     res.status(500).json({ message: 'Error al obtener libros' });
   }
 };
 
-/** ✏️ Actualizar libro */
+/** Actualizar libro */
 const updateLibro = async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,7 +81,7 @@ const updateLibro = async (req, res) => {
   }
 };
 
-/** 🔄 Activar / Desactivar */
+/**  Activar / Desactivar */
 const cambiarEstado = async (req, res) => {
   try {
     const { id } = req.params;

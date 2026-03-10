@@ -14,7 +14,6 @@ export const getDocenteCalendar = async (req, res) => {
         message: "No hay calendario docente activo" 
       });
     }
-
     res.json(calendar);
 
   } catch (error) {

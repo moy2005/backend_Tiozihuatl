@@ -24,7 +24,6 @@ export const getDocenteCalendar = async (req, res) => {
   }
 };
 
-
 // ===============================
 //  CALENDARIO PÚBLICO (ALUMNO)
 // ===============================
@@ -33,7 +32,7 @@ export const getPublicCalendar = async (req, res) => {
 
     const { tipo } = req.params;
 
-    // ✅ Validar tipo permitido
+    //  Validar tipo permitido
     const tiposPermitidos = ["ALUMNO"];
 
     if (!tiposPermitidos.includes(tipo)) {

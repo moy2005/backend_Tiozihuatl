@@ -9,13 +9,13 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 } // 20MB
 });
 
-// 🚀 Middleware + controlador
+//  Middleware + controlador
 const uploadCalendar = [
   upload.single('file'), // Debe coincidir con formData.append('file', ...)
   async (req, res) => {
     try {
 
-      // 🔎 Verificar archivo
+      //  Verificar archivo
       if (!req.file) {
         return res.status(400).json({
           message: 'Archivo requerido'
@@ -31,13 +31,13 @@ const uploadCalendar = [
         });
       }
 
-      // ☁️ Subir a Cloudinary (o servicio que uses)
+      // Subir a Cloudinary (o servicio que uses)
       const result = await storageService.uploadCalendar(
         req.file.buffer,
         tipo_calendario
       );
 
-      // 🔥 IMPORTANTE:
+      // IMPORTANTE:
       // Asegúrate que storageService devuelva { secure_url: "..." }
       return res.status(200).json(result);
 

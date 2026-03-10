@@ -26,7 +26,6 @@ const uploadPdf = async (fileBuffer) => {
         resolve({
           public_id: result.public_id,
           secure_url: result.secure_url
-          // la portada ya quedó cacheada en Cloudinary
         });
       }
     );

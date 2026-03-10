@@ -11,5 +11,6 @@ router.put("/libros/:id", authMiddleware, roleMiddleware(["Administrador"]), con
 router.patch("/libros/:id/estado",authMiddleware,roleMiddleware(["Administrador"]), controller.cambiarEstado);
 router.post( "/upload-pdf",authMiddleware,roleMiddleware(["Administrador"]), controller.subirPdf);
 
+
 export default router;
 

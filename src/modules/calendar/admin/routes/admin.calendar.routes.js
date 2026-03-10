@@ -6,8 +6,7 @@ import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 
 const router = Router();
 
-// Solo ADMINISTRADOR
-
+// ADMINISTRADOR
 router.get("/", authMiddleware,roleMiddleware(["Administrador"]),Controller.getCalendars);
 router.post("/upload",authMiddleware,roleMiddleware(["Administrador"]),ControllerUpload.uploadCalendar);
 router.post("/",authMiddleware,roleMiddleware(["Administrador"]),Controller.createCalendar);

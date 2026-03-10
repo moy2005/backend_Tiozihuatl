@@ -77,7 +77,6 @@ const getPdfUrl = async (req, res) => {
   }
 };
 
-
 export default {
   getCatalog,
   getMaterias,

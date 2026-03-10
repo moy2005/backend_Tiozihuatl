@@ -36,8 +36,27 @@ export const deleteCalendar = async (req, res) => {
 };
 
 export const getCalendars = async (req, res) => {
-  const data = await Service.listCalendarsService();
-  res.json(data);
+  try {
+
+    const { search, tipo_calendario, activo } = req.query;
+
+    const data = await Service.listCalendarsService({
+      search,
+      tipo_calendario,
+      activo
+    });
+
+    res.json(data);
+
+  } catch (error) {
+
+    console.error("❌ Error al listar calendarios:", error);
+
+    res.status(500).json({
+      message: "Error interno del servidor"
+    });
+
+  }
 };
 
 export const toggleStatus = async (req, res) => {

@@ -64,11 +64,40 @@ export const updateCalendar = async (id, {
   }
 };
 
-export const getAllCalendars = async () => {
+export const getAllCalendars = async ({ search, tipo_calendario, activo } = {}) => {
+
   const pool = await poolPromise;
-  const [rows] = await pool.query(
-    "SELECT * FROM calendarios ORDER BY created_at DESC"
-  );
+
+  let query = `
+    SELECT *
+    FROM calendarios
+    WHERE 1 = 1
+  `;
+
+  const params = [];
+
+  //  BUSCAR
+  if (search) {
+    query += ` AND titulo LIKE ?`;
+    params.push(`%${search}%`);
+  }
+
+  //  TIPO DE CALENDARIO
+  if (tipo_calendario) {
+    query += ` AND tipo_calendario = ?`;
+    params.push(tipo_calendario);
+  }
+
+  //  ESTADO
+  if (activo !== undefined && activo !== '') {
+    query += ` AND activo = ?`;
+    params.push(activo);
+  }
+
+  query += ` ORDER BY created_at DESC`;
+
+  const [rows] = await pool.query(query, params);
+
   return rows;
 };
 
