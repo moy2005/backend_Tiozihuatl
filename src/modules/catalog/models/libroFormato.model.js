@@ -1,6 +1,6 @@
 import { poolPromise } from "../../../config/db.config.js";
 
-/** Crear formato */
+/** Crear formato_ */
 const createFormato = async (data) => {
   const { libro_id, tipo, total, disponibles, pdf_url } = data;
 
