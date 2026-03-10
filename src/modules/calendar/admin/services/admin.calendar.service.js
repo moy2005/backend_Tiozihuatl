@@ -12,10 +12,11 @@ export const deleteCalendarService = async (id) => {
   return await Model.deleteCalendar(id);
 };
 
-export const listCalendarsService = async () => {
-  return await Model.getAllCalendars();
+export const listCalendarsService = async (filters) => {
+  return await Model.getAllCalendars(filters);
 };
 
 export const toggleStatusService = async (id, activo) => {
   return await Model.toggleCalendarStatus(id, activo);
 };
+//
