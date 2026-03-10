@@ -8,6 +8,7 @@ const getMaterias = async () => {
   return await libroModel.getMaterias();
 };
 
+
 export default {
   getCatalog,
   getMaterias
