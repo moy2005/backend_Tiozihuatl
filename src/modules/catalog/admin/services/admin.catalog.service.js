@@ -28,10 +28,16 @@ const cambiarEstado = async (id, activo) => {
   return await libroModel.cambiarEstado(id, activo);
 };
 
+const obtenerAutores = async () => {
+  return await libroModel.getAllAutores();
+};
+
+
 export default {
   crearLibro,
   obtenerLibrosAdmin,
   actualizarLibro,
   cambiarEstado,
-  getCatalogAdmin
+  getCatalogAdmin,
+  obtenerAutores
 };
