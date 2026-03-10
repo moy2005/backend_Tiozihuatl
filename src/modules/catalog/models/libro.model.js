@@ -161,9 +161,9 @@ const searchBooksAdmin = async ({ search, materia, formato, ordenAutor, activo }
 
       // 1️⃣ Crear libro
       const [result] = await conn.execute(
-        `INSERT INTO libros (titulo, autor, editorial)
-        VALUES (?, ?,?)`,
-        [titulo, autor, editorial]
+        `INSERT INTO libros (titulo, editorial)
+        VALUES (?,?)`,
+        [titulo, editorial]
       );
 
       const libroId = result.insertId;
@@ -279,7 +279,7 @@ const getAll = async () => {
 };
 
 
-/** 📚 Listado admin */
+/**  Listado admin */
 const getAllAdmin = async () => {
 
   const [libros] = await poolPromise.execute(
@@ -523,6 +523,12 @@ const getLibroDigitalById = async (id) => {
 
   return rows[0] || null;
 };
+const getAllAutores = async () => {
+  const [rows] = await poolPromise.execute(
+    `SELECT id, nombre FROM autores ORDER BY nombre ASC`
+  );
+  return rows;
+};
 
 export default {
   searchBooks,
@@ -533,5 +539,6 @@ export default {
   cambiarEstado,
   getAll,
   getMaterias,
-  getLibroDigitalById
+  getLibroDigitalById,
+  getAllAutores
 };
