@@ -1,7 +1,6 @@
 import catalogService from '../services/catalog.service.js';
-import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '../../../../config/cloudinary.js'; 
 import libroModel from '../../models/libro.model.js';
-import axios from 'axios';
 
 const getCatalog = async (req, res) => {
   try {
@@ -31,41 +30,19 @@ const getMaterias = async (req, res) => {
   }
 };
 
-const verPdf = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const libro = await libroModel.getLibroDigitalById(id);
-
-    if (!libro || libro.activo !== 1 || !libro.pdf_url) {
-      return res.status(404).json({ message: 'Libro no disponible' });
-    }
-
-    const pdfUrl = `https://res.cloudinary.com/dxq0apa5a/image/upload/v1/${libro.pdf_url}.pdf`;
-
-    return res.redirect(pdfUrl);
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener PDF' });
-  }
-};
-
 const preview = async (req, res) => {
   try {
     const { id } = req.params;
-
     const libro = await libroModel.getLibroDigitalById(id);
 
     if (!libro || !libro.pdf_url) {
       return res.status(404).json({ message: 'No tiene versión digital' });
     }
 
-    const previewUrl = cloudinary.url(libro.pdf_url, {
-      resource_type: 'image',
-      format: 'jpg',
-      page: 1
-    });
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const publicId = libro.pdf_url; 
+
+    const previewUrl = `https://res.cloudinary.com/${cloudName}/image/upload/pg_1,w_400,f_jpg,q_auto/${publicId}.jpg`;
 
     res.json({ previewUrl });
 
@@ -75,9 +52,34 @@ const preview = async (req, res) => {
   }
 };
 
+const getPdfUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const libro = await libroModel.getLibroDigitalById(id);
+
+    if (!libro || libro.activo !== 1 || !libro.pdf_url) {
+      return res.status(404).json({ message: 'Libro no disponible' });
+    }
+
+    const expiracion = Math.floor(Date.now() / 1000) + 300;
+
+    const pdfUrl = cloudinary.url(libro.pdf_url, {
+      resource_type: 'image',  
+      sign_url: true,
+      expires_at: expiracion,
+      secure: true
+    });
+
+    res.json({ url: pdfUrl, titulo: libro.titulo });
+  } catch (error) {
+    console.error('❌ Error getPdfUrl:', error.message);
+    res.status(500).json({ message: 'Error al obtener URL del PDF' });
+  }
+};
+
 export default {
   getCatalog,
   getMaterias,
-  verPdf,
+  getPdfUrl,
   preview
 };
