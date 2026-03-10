@@ -107,10 +107,20 @@ const cambiarEstado = async (req, res) => {
   }
 };
 
+const listarAutores = async (req, res) => {
+  try {
+    const autores = await service.obtenerAutores();
+    res.json(autores);
+  } catch (error) {
+    console.error('❌ Error listarAutores:', error);
+    res.status(500).json({ message: 'Error al obtener autores' });
+  }
+}
 export default {
   crearLibro,
   listarLibros,
   updateLibro,
   cambiarEstado,
-  subirPdf
+  subirPdf, 
+  listarAutores
 };
