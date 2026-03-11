@@ -1,59 +1,50 @@
 import backupService from "../services/backup.service.js";
 import { poolOperacion } from "../../../config/dbPools/poolOperacion.config.js";
 
+// Genera fecha/hora en zona México (UTC-6) como string para insertar en BD
+const getNowMexico = () => {
+  return new Date()
+    .toLocaleString('sv-SE', { timeZone: 'America/Mexico_City' })
+    .replace('T', ' ')
+    .slice(0, 19);
+};
+
+
 /* ===============================
    BACKUP COMPLETO MANUAL
 ================================ */
 
-const backupFull = async (req,res) => {
+const backupFull = async (req, res) => {
+  try {
 
-  try{
-
-    const { sql, fileName } =
+    const { fileName, url } =
       await backupService.backupDatabase("manual");
 
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=${fileName}`
-    );
-
-    res.setHeader(
-      "Content-Type",
-      "application/sql"
-    );
-
-    res.setHeader(
-      "Access-Control-Expose-Headers",
-      "Content-Disposition"
-    );
-
-    res.send(sql);
-
     await poolOperacion.execute(
-      `
-      INSERT INTO backups_log
-      (tipo, alcance, tabla_afectada, nombre_archivo, ejecutado_por)
-      VALUES (?, ?, ?, ?, ?)
-      `,
+      `INSERT INTO backups_log
+       (tipo, alcance, tabla_afectada, nombre_archivo, url_backup, ejecutado_por, fecha)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         "manual",
         "database",
         null,
         fileName,
-        req.user?.id_usuario || null
+        url,
+        req.user?.id_usuario || null,
+        getNowMexico()
       ]
     );
 
-  }catch(error){
-
-    console.error(error);
-
-    res.status(500).json({
-      message:"Error generando respaldo"
+    res.json({
+      message: "Respaldo generado y guardado en Cloudinary",
+      fileName,
+      url
     });
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generando respaldo" });
   }
-
 };
 
 
@@ -61,66 +52,47 @@ const backupFull = async (req,res) => {
    BACKUP DE TABLA MANUAL
 ================================ */
 
-const backupSingleTable = async (req,res) => {
-
-  try{
+const backupSingleTable = async (req, res) => {
+  try {
 
     const { table } = req.params;
 
-    const tables =
-      await backupService.getBackupTables();
+    const tables = await backupService.getBackupTables();
 
-    if(!tables.includes(table)){
+    if (!tables.includes(table)) {
       return res.status(400).json({
-        message:"Tabla no permitida para respaldo"
+        message: "Tabla no permitida para respaldo"
       });
     }
 
-    const { sql, fileName } =
-      await backupService.backupTable(table,"manual");
-
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=${fileName}`
-    );
-
-    res.setHeader(
-      "Content-Type",
-      "application/sql"
-    );
-
-    res.setHeader(
-      "Access-Control-Expose-Headers",
-      "Content-Disposition"
-    );
-
-    res.send(sql);
+    const { fileName, url } =
+      await backupService.backupTable(table, "manual");
 
     await poolOperacion.execute(
-      `
-      INSERT INTO backups_log
-      (tipo, alcance, tabla_afectada, nombre_archivo, ejecutado_por)
-      VALUES (?, ?, ?, ?, ?)
-      `,
+      `INSERT INTO backups_log
+       (tipo, alcance, tabla_afectada, nombre_archivo, url_backup, ejecutado_por, fecha)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         "manual",
         "table",
         table,
         fileName,
-        req.user?.id_usuario || null
+        url,
+        req.user?.id_usuario || null,
+        getNowMexico()
       ]
     );
 
-  }catch(error){
-
-    console.error(error);
-
-    res.status(500).json({
-      message:"Error generando respaldo de tabla"
+    res.json({
+      message: "Respaldo de sección generado y guardado en Cloudinary",
+      fileName,
+      url
     });
 
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error generando respaldo de tabla" });
   }
-
 };
 
 
@@ -128,25 +100,14 @@ const backupSingleTable = async (req,res) => {
    LISTA DE TABLAS
 ================================ */
 
-const getTables = async (req,res) => {
-
-  try{
-
-    const tables =
-      await backupService.getBackupTables();
-
+const getTables = async (req, res) => {
+  try {
+    const tables = await backupService.getBackupTables();
     res.json({ tables });
-
-  }catch(error){
-
+  } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      message:"Error obteniendo tablas"
-    });
-
+    res.status(500).json({ message: "Error obteniendo tablas" });
   }
-
 };
 
 
@@ -154,30 +115,16 @@ const getTables = async (req,res) => {
    HISTORIAL DE BACKUPS
 ================================ */
 
-const getBackupHistory = async (req,res) => {
-
-  try{
-
+const getBackupHistory = async (req, res) => {
+  try {
     const [rows] = await poolOperacion.execute(
-      `
-      SELECT *
-      FROM backups_log
-      ORDER BY fecha DESC
-      `
+      `SELECT * FROM backups_log ORDER BY fecha DESC`
     );
-
     res.json(rows);
-
-  }catch(error){
-
+  } catch (error) {
     console.error(error);
-
-    res.status(500).json({
-      message:"Error obteniendo historial de backups"
-    });
-
+    res.status(500).json({ message: "Error obteniendo historial de backups" });
   }
-
 };
 
 
@@ -185,5 +132,5 @@ export default {
   backupFull,
   backupSingleTable,
   getTables,
-  getBackupHistory
+  getBackupHistory,
 };

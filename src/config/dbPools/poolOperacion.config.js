@@ -31,6 +31,7 @@ export const poolOperacion = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   connectTimeout: 10000,
-  ssl: sslConfig
+  ssl: sslConfig,
+  timezone: 'Z'
 
 });
