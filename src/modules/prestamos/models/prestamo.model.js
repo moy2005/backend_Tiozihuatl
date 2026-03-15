@@ -73,19 +73,21 @@ export const PrestamoModel = {
     return rows;
   },
 
-  obtenerPorUsuario: async (usuario_id) => {
-    const [rows] = await poolPromise.query(`
-      SELECT 
-        P.*,
-        L.titulo,
-        L.imagen_portada
-      FROM prestamos P
-      JOIN libros L ON L.id = P.libro_id
-      WHERE P.id_usuario = ?
-      ORDER BY P.fecha_prestamo DESC
-    `, [usuario_id]);
-    return rows;
-  },
+obtenerPorUsuario: async (usuario_id) => {
+  const [rows] = await poolPromise.query(`
+    SELECT 
+      P.*,
+      L.titulo,
+      L.editorial,
+      lf.pdf_url
+    FROM prestamos P
+    JOIN libros L ON L.id = P.libro_id
+    LEFT JOIN libro_formatos lf ON lf.libro_id = L.id AND lf.tipo = 'DIGITAL'
+    WHERE P.id_usuario = ?
+    ORDER BY P.fecha_prestamo DESC
+  `, [usuario_id]);
+  return rows;
+},
 
 
   contarPrestamosActivos: async (conn, usuario_id) => {
