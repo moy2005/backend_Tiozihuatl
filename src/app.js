@@ -28,6 +28,7 @@ import adminCalendarRoutes from "./modules/calendar/admin/routes/admin.calendar.
 import prestamoRoutes from "./modules/prestamos/index.js";    
 import backupRoutes from "./modules/backups/index.js";      
 import automationRoutes from "./modules/automation/index.js"; 
+import monitoringAdminRouter from "./modules/monitoring/index.js";
 
 dotenv.config();
 const app = express();
@@ -145,5 +146,6 @@ app.use('/api/catalog/admin', adminCatalogRoutes);
 app.use("/api/prestamos", prestamoRoutes);  
 app.use("/api/backups", backupRoutes);      
 app.use("/api/automation", automationRoutes); 
+app.use("/api/monitoring", monitoringAdminRouter);
 
 export default app;
