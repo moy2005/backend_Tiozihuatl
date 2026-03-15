@@ -18,6 +18,10 @@ const validarHorario = () => {
 
 export const PublicPrestamoService = {
 
+  obtenerMisPrestamos: async (usuario_id) => {
+    return await PrestamoModel.obtenerPorUsuario(usuario_id);
+  },
+
    solicitarPrestamo: async (usuario_id, libro_id) => {
 
     validarHorario();

@@ -73,6 +73,19 @@ export const PrestamoModel = {
     return rows;
   },
 
+  obtenerPorUsuario: async (usuario_id) => {
+    const [rows] = await poolPromise.query(`
+      SELECT 
+        P.*,
+        L.titulo
+      FROM prestamos P
+      JOIN libros L ON L.id = P.libro_id
+      WHERE P.id_usuario = ?
+      ORDER BY P.fecha_prestamo DESC
+    `, [usuario_id]);
+    return rows;
+  },
+
 
   contarPrestamosActivos: async (conn, usuario_id) => {
   const [rows] = await conn.query(
