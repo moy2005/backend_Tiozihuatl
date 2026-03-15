@@ -77,7 +77,8 @@ export const PrestamoModel = {
     const [rows] = await poolPromise.query(`
       SELECT 
         P.*,
-        L.titulo
+        L.titulo,
+        L.imagen_portada
       FROM prestamos P
       JOIN libros L ON L.id = P.libro_id
       WHERE P.id_usuario = ?
