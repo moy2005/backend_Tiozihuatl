@@ -28,7 +28,7 @@ export const poolAdmin = mysql.createPool({
   port: process.env.DB_PORT || 3306,
 
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: 1,
   queueLimit: 0,
   connectTimeout: 10000,
   ssl: sslConfig
