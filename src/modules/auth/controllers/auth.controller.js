@@ -691,6 +691,13 @@ login: async (req, res) => {
     if (!user)
       return res.status(401).json({ error: "Usuario no encontrado." });
 
+    if (user.estado === "pending_activation") {
+      return res.status(403).json({
+        error: "Tu cuenta aún no ha sido activada. " +
+        "Solicita tu enlace de activación al administrador."
+      });
+    }
+
     // ============================================================
     // 🔒 1) VERIFICAR SI EL USUARIO ESTÁ BLOQUEADO POR INTENTOS
     // ============================================================

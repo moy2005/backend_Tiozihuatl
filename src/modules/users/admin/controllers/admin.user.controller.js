@@ -175,7 +175,34 @@ async importUsers(req, res) {
       ip: req.ip,
     });
 
-    res.status(200).json(result);
+    // Si se insertaron usuarios, devolver también el Excel de tokens
+    // El frontend puede decidir si descargarlo automáticamente
+    if (result._tokens?.length > 0) {
+
+      const baseUrl = process.env.FRONTEND_URL;
+      //const baseUrl     = "http://localhost:4200";
+
+      const excelBuffer = await AdminUserService.generateTokensExcel(
+        result._tokens,
+        baseUrl
+      );
+
+      // Guardar el buffer en base64 para que el frontend lo descargue
+      return res.status(200).json({
+        message          : result.message,
+        insertados        : result.insertados,
+        omitidos          : result.omitidos,
+        detalle_omitidos  : result.detalle_omitidos,
+        tokens_excel_b64  : excelBuffer.toString("base64"),
+      });
+    }
+
+    res.status(200).json({
+      message         : result.message,
+      insertados       : result.insertados,
+      omitidos         : result.omitidos,
+      detalle_omitidos : result.detalle_omitidos,
+    });
 
   } catch (err) {
     console.error("❌ Error al importar usuarios:", err);
@@ -183,37 +210,28 @@ async importUsers(req, res) {
   }
 },
 
-
 async downloadTemplate(req, res) {
   const XLSX = await import("xlsx");
 
   const data = [
     {
-      matricula: "IEST0001",
-      a_paterno: "ROBLES",
-      a_materno: "DE LA CRUZ",
-      nombre: "ROSALBA"
+      matricula : "IEST0001",
+      a_paterno : "HERVERT",
+      a_materno : "ESPINOZA",
+      nombre    : "FATIMA AIDE",
     },
   ];
 
   const worksheet = XLSX.utils.json_to_sheet(data);
+  worksheet["!cols"] = [{ wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 20 }];
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Plantilla");
 
-  const buffer = XLSX.write(workbook, {
-    type: "buffer",
-    bookType: "xlsx",
-  });
+  const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
-  res.setHeader(
-    "Content-Disposition",
-    "attachment; filename=plantilla_importacion_usuarios.xlsx"
-  );
-
-  res.type(
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-
+  res.setHeader("Content-Disposition", "attachment; filename=plantilla_importacion_usuarios.xlsx");
+  res.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   res.send(buffer);
 },
 

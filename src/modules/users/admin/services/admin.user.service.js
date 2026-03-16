@@ -43,7 +43,7 @@ export const AdminUserService = {
 
     const { insertId } = await AdminUserModel.createByAdmin(data);
 
-    // 🔥 Crear trayectoria inicial si es alumno
+    // Crear trayectoria inicial si es alumno
     const [rol] = await connection.query(
       "SELECT nombre_rol FROM roles WHERE id_rol = ?",
       [data.id_rol]
@@ -213,12 +213,14 @@ export const AdminUserService = {
     return await AdminUserModel.findAllSemestres();
   },
   
-async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_periodo }) {
+async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_periodo, adminId, ip }) {
 
   const pool = await poolPromise;
   const connection = await pool.getConnection();
 
   try {
+
+    await connection.beginTransaction();
 
     if (!id_rol) throw new Error("Debe seleccionar un rol.");
 
@@ -232,13 +234,10 @@ async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_perio
     const nombreRol = rolResult[0].nombre_rol;
 
     if (nombreRol === "Alumno") {
-      if (!id_carrera || !id_semestre || !id_periodo) {
+      if (!id_carrera || !id_semestre || !id_periodo)
         throw new Error("Alumno requiere carrera, semestre y periodo.");
-      }
-
-      if (!grupo || !["A", "B"].includes(grupo)) {
+      if (!grupo || !["A", "B"].includes(grupo))
         throw new Error("Alumno requiere grupo válido (A o B).");
-      }
     }
 
     const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -247,66 +246,86 @@ async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_perio
 
     if (!rows.length) throw new Error("El archivo está vacío.");
 
-    let insertados = 0;
-
-    await connection.beginTransaction();
+    const insertados = [];
+    const omitidos   = [];
 
     for (const row of rows) {
 
-      const a_paterno = row.a_paterno?.toString().trim().toUpperCase();
-      const a_materno = row.a_materno?.toString().trim().toUpperCase();
-      const nombre = row.nombre?.toString().trim().toUpperCase();
-      const matricula = row.matricula?.toString().trim() || null;
+      const a_paterno = row.a_paterno?.toString().trim().toUpperCase() || null;
+      const a_materno = row.a_materno?.toString().trim().toUpperCase() || null;
+      const nombre    = row.nombre?.toString().trim().toUpperCase()    || null;
+      const matricula = row.matricula?.toString().trim()               || null;
 
-      if (!a_paterno || !a_materno || !nombre) continue;
+      // Validar campos mínimos requeridos
+      if (!a_paterno || !a_materno || !nombre || !matricula) {
+        
+        omitidos.push({ fila: row, razon: "Faltan campos obligatorios (nombre, apellidos, matrícula)." });
+        continue;
+      }
 
-      const correoGenerado =
-        nombre.replace(/\s+/g, "").toLowerCase() +
-        `.${Date.now()}@institucion.edu`;
+      // Verificar matrícula duplicada
+      const [existeMatricula] = await connection.query(
+        "SELECT id_usuario FROM usuarios WHERE matricula = ?",
+        [matricula]
+      );
 
-      const passwordHash = await bcrypt.hash("12345678", 12);
+      if (existeMatricula.length) {
+        omitidos.push({ fila: matricula, razon: "Matrícula ya registrada." });
+        continue;
+      }
+
+      // Generar token de activación seguro
+      const { randomBytes } = await import("crypto");
+      const activation_token   = randomBytes(32).toString("hex");
+      const activation_expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       const [result] = await connection.query(
         `INSERT INTO usuarios
-        (id_rol, id_carrera, id_semestre, nombre, a_paterno, a_materno,
-         correo, matricula, grupo, contrasena, estado, fecha_registro)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())`,
+          (id_rol, id_carrera, id_semestre, nombre, a_paterno, a_materno,
+           correo, matricula, grupo, contrasena, estado,
+           token_verificacion, token_expira, fecha_registro)
+         VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, 'pending_activation', ?, ?, NOW())`,
         [
           id_rol,
-          id_carrera,
-          id_semestre,
+          id_carrera  || null,
+          id_semestre || null,
           nombre,
           a_paterno,
           a_materno,
-          correoGenerado,
           matricula,
-          grupo,
-          passwordHash,
+          grupo || null,
+          activation_token,
+          activation_expires,
         ]
       );
 
-      // 🔥 Insertar trayectoria
+      // Trayectoria académica si es Alumno
       if (nombreRol === "Alumno") {
-        await connection.query(`
-          INSERT INTO trayectoria_academica
-          (id_usuario, id_periodo, id_semestre, grupo, estado, repite)
-          VALUES (?, ?, ?, ?, 'Activo', FALSE)
-        `, [
-          result.insertId,
-          id_periodo,
-          id_semestre,
-          grupo
-        ]);
+        await connection.query(
+          `INSERT INTO trayectoria_academica
+            (id_usuario, id_periodo, id_semestre, grupo, estado, repite)
+           VALUES (?, ?, ?, ?, 'Activo', FALSE)`,
+          [result.insertId, id_periodo, id_semestre, grupo]
+        );
       }
 
-      insertados++;
+      insertados.push({
+        id_usuario      : result.insertId,
+        matricula,
+        nombre          : `${a_paterno} ${a_materno} ${nombre}`,
+        activation_token,
+      });
     }
 
     await connection.commit();
 
     return {
-      message: "Importación completada",
-      insertados
+      message   : "Importación completada.",
+      insertados: insertados.length,
+      omitidos  : omitidos.length,
+      detalle_omitidos: omitidos,
+      // Devolvemos los tokens para que el controller genere el Excel
+      _tokens: insertados,
     };
 
   } catch (error) {
@@ -315,6 +334,33 @@ async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_perio
   } finally {
     connection.release();
   }
+},
+
+async generateTokensExcel(tokens, baseUrl) {
+
+  const data = tokens.map(u => ({
+    matricula         : u.matricula,
+    nombre_completo   : u.nombre,
+    url_activacion    : `${baseUrl}/activar?token=${u.activation_token}`,
+    token             : u.activation_token,
+    expira_en         : "24 horas",
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // Ancho de columnas para que sea legible
+  worksheet["!cols"] = [
+    { wch: 15 },
+    { wch: 35 },
+    { wch: 80 },
+    { wch: 70 },
+    { wch: 12 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Tokens de activación");
+
+  return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 },
 
 async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumnos = []) {

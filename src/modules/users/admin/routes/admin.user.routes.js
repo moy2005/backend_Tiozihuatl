@@ -5,10 +5,12 @@ import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 import { validateUserFields } from "../../../../core/middleware/validateUserFields.middleware.js";
 import { uploadExcel } from "../../../../core/middleware/uploadExcel.middleware.js";
 import { PeriodoController } from "../controllers/periodo.controller.js";
+import { ActivationController } from "../../../auth/controllers/activation.controller.js";
 
 const router = Router();
 
 // Solo administradores autenticados
+router.post("/regenerar-token/:id",authMiddleware,roleMiddleware(["Administrador"]),ActivationController.regenerateToken);
 router.get("/", authMiddleware, roleMiddleware(["Administrador"]), AdminUserController.getAll);
 router.post("/", authMiddleware, roleMiddleware(["Administrador"]), validateUserFields, AdminUserController.create);
 router.put("/:id", authMiddleware, roleMiddleware(["Administrador"]), validateUserFields, AdminUserController.update);
@@ -24,7 +26,6 @@ router.get("/filtros",authMiddleware,roleMiddleware(["Administrador"]),AdminUser
 router.get("/periodos",authMiddleware,roleMiddleware(["Administrador"]),PeriodoController.getAll);
 router.get("/periodos/activo",authMiddleware,roleMiddleware(["Administrador"]),PeriodoController.getActivo);
 router.get('/filtros-opciones', authMiddleware, roleMiddleware(["Administrador"]), AdminUserController.getOpcionesPorPeriodo);
-
 
 export default router;
 
