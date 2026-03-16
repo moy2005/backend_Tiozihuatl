@@ -7,5 +7,5 @@ export const poolBackup = mysql.createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   waitForConnections: true,
-  connectionLimit: 5
+  connectionLimit: 1
 });
