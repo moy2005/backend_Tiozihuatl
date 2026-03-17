@@ -4,15 +4,21 @@ import { successResponse, errorResponse } from '../../../core/utils/response.uti
 import { poolPromise } from '../../../config/db.config.js';
 import { Readable } from 'stream';
 
-console.log("MAGAZINES CONTROLLER REAL CARGADO");
-
 const uploadBufferToCloudinary = (buffer, options) => {
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
-      if (error) reject(error);
-      else resolve(result);
-    });
-    Readable.from(buffer).pipe(stream);
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        ...options,
+        api_key:    process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(buffer);
   });
 };
 
@@ -70,21 +76,46 @@ export const purchaseMagazine = async (req, res) => {
   }
 };
 
+/* =====================================
+   SECURE PDF ACCESS
+===================================== */
 export const getSecurePdf = async (req, res) => {
   try {
 
     const id_usuario = req.user.id_usuario;
-    const id_magazine = req.params.id;
+    const id_magazine = Number(req.params.id);
 
     const url = await service.getSecurePdf(id_usuario, id_magazine);
 
     res.json({ url });
 
   } catch (error) {
-    res.status(403).json({ message: error.message });
+
+    if (error.message === "Access denied") {
+      return res.status(403).json({ error: error.message });
+    }
+
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
+/*export const getSecurePdf = async (id_usuario, id_magazine) => {
 
+  const magazine = await getMagazineById(id_magazine);
+
+  if (!magazine) {
+    throw new Error("Magazine not found");
+  }
+
+  const url = cloudinary.url(magazine.pdf_public_id, {
+    resource_type: "image",
+    secure: true,
+    format: "pdf",
+    version: magazine.version
+  });
+
+  return url;
+};*/
 /* =====================================
    VIEW SECURE PDF
 ===================================== */
@@ -152,7 +183,6 @@ export const updateMagazine = async (req, res) => {
   }
 };
 
-
 /* =====================================
    ADMIN - UPLOAD MAGAZINE (PDF)
 ===================================== */
@@ -185,7 +215,9 @@ export const uploadMagazine = async (req, res) => {
     res.json({ message: 'Magazine uploaded successfully' });
 
   } catch (error) {
-    console.error(error);
+    console.error("❌ ERROR DETALLADO uploadMagazine:");
+    console.error("Mensaje:", error.message);
+    console.error("Stack:", error.stack);
     res.status(500).json({ error: error.message });
   }
   //sin finally — no hay archivo en disco
