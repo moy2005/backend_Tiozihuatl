@@ -266,6 +266,33 @@ export const getSecurePdf = async (id_usuario, id_magazine) => {
 
   return pdfUrl;
 };
+/*export const getSecurePdf = async (id_usuario, id_magazine) => {
+  
+
+  const [rows] = await poolPromise.query(`
+    SELECT r.pdf_public_id
+    FROM compras c
+    JOIN detalle_compra dc ON c.id_compra = dc.id_compra
+    JOIN revistas r ON r.id_revista = dc.id_revista
+    WHERE c.id_usuario = ?
+    AND dc.id_revista = ?
+    AND c.estado = 'pagado'
+  `, [id_usuario, id_magazine]);
+
+  if (!rows.length) {
+    throw new Error('Access denied');
+  }
+
+  const publicId = rows[0].pdf_public_id;
+  console.log("PUBLIC ID:", publicId);
+  const pdfUrl = cloudinary.url(publicId, {
+    resource_type: "image",
+    secure: true,
+    format: "pdf"
+  });
+
+  return pdfUrl;
+};*/
 /* =====================================
    CREATE MAGAZINE
 ===================================== */
@@ -338,7 +365,7 @@ export const getAuditoriaCompras = async ({ usuario, fecha_inicio, fecha_fin }) 
 
 export const getAllMagazines = async () => {
   const [rows] = await poolPromise.query(`
-    SELECT id_revista, titulo, precio, stock, estado, pdf_public_id
+    SELECT id_revista, titulo, descripcion, precio, stock, estado, pdf_public_id
     FROM revistas
     ORDER BY created_at DESC
   `);
