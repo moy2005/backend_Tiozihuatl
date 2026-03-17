@@ -22,6 +22,7 @@ router.get('/filter', controller.filterMagazines);
 router.get('/my-purchases', authMiddleware,controller.getMyPurchases);
 // Obtener URL segura del PDF
 router.get('/secure-pdf/:id',authMiddleware,controller.getSecurePdf);
+/*router.get('/secure-pdf/:id', authMiddleware, controller.viewMagazine);*/
 // Completar compra
 router.post('/complete-purchase',authMiddleware,controller.completePurchase);
 // Guardar progreso de lectura
