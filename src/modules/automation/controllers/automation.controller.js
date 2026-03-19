@@ -4,37 +4,28 @@ import automationService from "../services/automation.service.js";
 
 const createTask = async (req, res) => {
   try {
-    const { nombre_tarea, cron_expression } = req.body;
+    const { nombre_tarea, tipo_tarea, cron_expression } = req.body;
 
-    // contar tareas existentes
     const [countRows] = await poolOperacion.execute(
       `SELECT COUNT(*) AS total FROM tareas_programadas`
     );
-
-    const totalTasks = countRows[0].total;
-
-    // límite
-    if (totalTasks >= 10) {
+    if (countRows[0].total >= 10) {
       return res.status(400).json({
         message: "Se alcanzó el límite máximo de tareas (10)"
       });
     }
 
     const [existing] = await poolOperacion.execute(
-      `SELECT id_tarea
-       FROM tareas_programadas
-       WHERE nombre_tarea = ?
-       AND cron_expression = ?
-       LIMIT 1`,
+      `SELECT id_tarea FROM tareas_programadas
+       WHERE nombre_tarea = ? AND cron_expression = ? LIMIT 1`,
       [nombre_tarea, cron_expression]
     );
-
     if (existing.length > 0) {
       return res.status(400).json({
         message: "Ya existe una tarea con ese nombre en el mismo horario"
       });
     }
-    
+
     const tiposPermitidos = ['backup_database', 'maintenance_db'];
     if (!tiposPermitidos.includes(tipo_tarea)) {
       return res.status(400).json({ message: 'Tipo de tarea no válido' });
@@ -42,7 +33,7 @@ const createTask = async (req, res) => {
 
     const [result] = await poolOperacion.execute(
       `INSERT INTO tareas_programadas (nombre_tarea, tipo_tarea, cron_expression)
-      VALUES (?, ?, ?)`,
+       VALUES (?, ?, ?)`,
       [nombre_tarea, tipo_tarea, cron_expression]
     );
 
@@ -51,9 +42,7 @@ const createTask = async (req, res) => {
       [result.insertId]
     );
 
-    // Registrar inmediatamente en node-cron
     await cronManager.scheduleTask(rows[0]);
-
     res.json({ message: "Tarea programada creada" });
 
   } catch (error) {
@@ -61,7 +50,6 @@ const createTask = async (req, res) => {
     res.status(500).json({ message: "Error creando tarea" });
   }
 };
-
 
 const getTasks = async (req,res) => {
 
