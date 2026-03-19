@@ -29,6 +29,7 @@ import prestamoRoutes from "./modules/prestamos/index.js";
 import backupRoutes from "./modules/backups/index.js";      
 import automationRoutes from "./modules/automation/index.js"; 
 import monitoringAdminRouter from "./modules/monitoring/index.js";
+import maintenanceRoutes from './modules/maintenance/index.js';
 
 dotenv.config();
 const app = express();
@@ -147,5 +148,6 @@ app.use("/api/prestamos", prestamoRoutes);
 app.use("/api/backups", backupRoutes);      
 app.use("/api/automation", automationRoutes); 
 app.use("/api/monitoring", monitoringAdminRouter);
+app.use("/api/maintenance", maintenanceRoutes);
 
 export default app;
