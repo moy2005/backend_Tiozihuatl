@@ -34,12 +34,16 @@ const createTask = async (req, res) => {
         message: "Ya existe una tarea con ese nombre en el mismo horario"
       });
     }
+    
+    const tiposPermitidos = ['backup_database', 'maintenance_db'];
+    if (!tiposPermitidos.includes(tipo_tarea)) {
+      return res.status(400).json({ message: 'Tipo de tarea no válido' });
+    }
 
     const [result] = await poolOperacion.execute(
-      `INSERT INTO tareas_programadas
-       (nombre_tarea, tipo_tarea, cron_expression)
-       VALUES (?, ?, ?)`,
-      [nombre_tarea, "backup_database", cron_expression]
+      `INSERT INTO tareas_programadas (nombre_tarea, tipo_tarea, cron_expression)
+      VALUES (?, ?, ?)`,
+      [nombre_tarea, tipo_tarea, cron_expression]
     );
 
     const [rows] = await poolOperacion.execute(
