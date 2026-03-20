@@ -1,15 +1,10 @@
-import { JWTService } from "../../../core/services/jwt.service.js";
-import { SessionModel } from "../models/session.model.js";
-import { RefreshModel } from "../models/refresh.model.js";
-import { poolPromise } from "../../../config/db.config.js";
 import crypto from "crypto";
+import { poolPromise } from "../../../config/db.config.js";
+import { JWTService } from "../../../core/services/jwt.service.js";
+import { RefreshModel } from "../models/refresh.model.js";
+import { SessionModel } from "../models/session.model.js";
 
 export const OAuthController = {
-  /**
-   * ================================================================
-   * ÉXITO EN AUTENTICACIÓN OAUTH (Google / Facebook)
-   * ================================================================
-   */
   success: async (req, res) => {
     try {
       const user = req.user;
@@ -20,23 +15,40 @@ export const OAuthController = {
         );
       }
 
-      const accessToken = JWTService.generateToken({
-        id: user.id_usuario,
-        correo: user.correo,
-      });
+      const [rows] = await poolPromise.query(
+        `SELECT U.id_usuario, U.nombre, U.correo, R.nombre_rol
+         FROM usuarios U
+         INNER JOIN roles R ON U.id_rol = R.id_rol
+         WHERE U.id_usuario = ?
+         LIMIT 1`,
+        [user.id_usuario]
+      );
 
+      if (!rows.length) {
+        return res.redirect(
+          `${process.env.FRONTEND_URL}/login?error=invalid_user`
+        );
+      }
+
+      const sessionUser = rows[0];
+      const accessToken = JWTService.generateAccessToken({
+        id: sessionUser.id_usuario,
+        id_usuario: sessionUser.id_usuario,
+        correo: sessionUser.correo,
+        rol: sessionUser.nombre_rol,
+      });
       const refreshToken = crypto.randomUUID();
 
-      // Guardar sesión y refresh token en MySQL
-      await SessionModel.save(user.id_usuario, accessToken, req.ip);
-      await RefreshModel.save(user.id_usuario, refreshToken, 7);
+      await SessionModel.save(sessionUser.id_usuario, accessToken, req.ip);
+      await RefreshModel.save(sessionUser.id_usuario, refreshToken, 7);
 
-      // Construir URL dinámica con datos del usuario
       const redirectUrl = new URL(`${process.env.FRONTEND_URL}/login`);
       redirectUrl.searchParams.set("accessToken", accessToken);
       redirectUrl.searchParams.set("refreshToken", refreshToken);
-      redirectUrl.searchParams.set("nombre", user.nombre || "");
-      redirectUrl.searchParams.set("correo", user.correo || "");
+      redirectUrl.searchParams.set("id", String(sessionUser.id_usuario));
+      redirectUrl.searchParams.set("rol", sessionUser.nombre_rol || "");
+      redirectUrl.searchParams.set("nombre", sessionUser.nombre || "");
+      redirectUrl.searchParams.set("correo", sessionUser.correo || "");
 
       return res.redirect(redirectUrl.toString());
     } catch (err) {
@@ -47,11 +59,6 @@ export const OAuthController = {
     }
   },
 
-  /**
-   * ================================================================
-   * FALLA EN AUTENTICACIÓN OAUTH
-   * ================================================================
-   */
   failure: (req, res) => {
     return res.redirect(
       `${process.env.FRONTEND_URL}/login?error=auth_cancelled`
