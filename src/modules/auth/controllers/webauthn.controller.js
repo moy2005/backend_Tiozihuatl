@@ -1,22 +1,18 @@
 import crypto from "crypto";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { poolPromise } from "../../../config/db.config.js";
+import { JWTService } from "../../../core/services/jwt.service.js";
 import {
   verifyAttestationResponse,
   verifyAssertionResponse,
 } from "../services/webauthn.service.js";
 import { AuditService } from "../../../core/services/audit.service.js";
+import { RefreshModel } from "../models/refresh.model.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 export class WebAuthnController {
-  /**
-   * ================================================================
-   * REGISTRO COMPLETO (Usuario + Biometría)
-   * ================================================================
-   */
 /**
  * ================================================================
  * REGISTRAR BIOMETRÍA (usuario ya existe)
@@ -341,28 +337,21 @@ static async authVerify(req, res) {
         .json({ error: "El rol no coincide con el usuario." });
 
     // 🔹 Generar AccessToken (igual que en login normal)
-    const token = jwt.sign(
+    const token = JWTService.generateAccessToken(
       {
         id: user.id_usuario,
+        id_usuario: user.id_usuario,
         correo: user.correo,
         matricula: user.matricula || null,
         rol: user.nombre_rol,
         metodo_autenticacion: "Biometría",
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" }
     );
 
     // 🔹 Generar RefreshToken compatible con flujo de login normal
     const refreshToken = crypto.randomUUID();
     // Guardar en la tabla tokensrefresh
-await poolPromise.query(
-  `INSERT INTO tokensrefresh 
-   (id_usuario, refresh_token, fecha_emision, fecha_expiracion, ip_origen, dispositivo, estado)
-   VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY), ?, ?, 'Activo')`,
-  [user.id_usuario, refreshToken, req.ip || 'desconocido', 'Biometría']
-);
-
+    await RefreshModel.save(user.id_usuario, refreshToken, 7);
     await AuditService.logEvent({
       id_usuario: user.id_usuario,
       tipo_evento: "LOGIN_BIOMETRICO_EXITOSO",
@@ -377,6 +366,7 @@ await poolPromise.query(
       accessToken: token,
       refreshToken, // ✅ ahora sí existe
       user: {
+        id: user.id_usuario,
         id_usuario: user.id_usuario,
         nombre: user.nombre,
         a_paterno: user.a_paterno,
