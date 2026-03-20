@@ -783,12 +783,13 @@ login: async (req, res) => {
     // ============================================================
     // 🔐 6) GENERAR TOKENS
     // ============================================================
-    const accessToken = JWTService.generateToken(
+    const accessToken = JWTService.generateAccessToken(
       { 
-        id_usuario: user.id_usuario,  // 🔥 CAMBIO IMPORTANTE
+        id: user.id_usuario,
+        id_usuario: user.id_usuario,
+        correo: user.correo,
         rol: user.nombre_rol 
       },
-      "15m"
     );
     const refreshToken = uuidv4();
 
@@ -839,7 +840,7 @@ refreshToken: async (req, res) => {
 
     // ✅ Recuperar el usuario para incluir el rol en el nuevo token
     const [rows] = await poolPromise.query(
-      `SELECT U.id_usuario, R.nombre_rol
+      `SELECT U.id_usuario, U.correo, R.nombre_rol
        FROM usuarios U
        INNER JOIN roles R ON U.id_rol = R.id_rol
        WHERE U.id_usuario = ?
@@ -853,10 +854,12 @@ refreshToken: async (req, res) => {
     const user = rows[0];
 
     // ✅ Nuevo accessToken con rol incluido
-    const newAccess = JWTService.generateToken(
-      { id: user.id_usuario, rol: user.nombre_rol },
-      "15m"
-    );
+    const newAccess = JWTService.generateAccessToken({
+      id: user.id_usuario,
+      id_usuario: user.id_usuario,
+      correo: user.correo,
+      rol: user.nombre_rol,
+    });
     const newRefresh = uuidv4();
 
     await RefreshModel.save(id_usuario, newRefresh, 7);
