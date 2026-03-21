@@ -47,14 +47,15 @@ const crearLibro = async (req, res) => {
 const listarLibros = async (req, res) => {
   try {
 
-    const { search, materia, formato, ordenAutor, activo } = req.query;
+    const { search, materia, formato, ordenAutor, activo, semestre } = req.query;
 
     const libros = await service.getCatalogAdmin({
       search,
       materia,
       formato,
       ordenAutor,
-      activo
+      activo,
+      semestre
     });
 
     res.json(libros);
@@ -115,12 +116,46 @@ const listarAutores = async (req, res) => {
     console.error('❌ Error listarAutores:', error);
     res.status(500).json({ message: 'Error al obtener autores' });
   }
+};
+
+
+const getEditoriales = async (req, res) => {
+  try {
+
+    const { search } = req.query;
+
+    const editoriales = await service.getEditoriales(search);
+
+    res.json(editoriales);
+
+  } catch (error) {
+
+    console.error("Error obteniendo editoriales", error);
+
+    res.status(500).json({
+      message: "Error obteniendo editoriales"
+    });
+
+  }
 }
+
+const getSemestres = async (req, res) => {
+    try {
+      const semestres = await service.obtenerSemestres();
+      res.json(semestres);
+    } catch (error) {
+      console.error('❌ Error getSemestres:', error);
+      res.status(500).json({ message: 'Error al obtener semestres' });
+    }
+}
+
 export default {
   crearLibro,
   listarLibros,
   updateLibro,
   cambiarEstado,
   subirPdf, 
-  listarAutores
+  listarAutores,
+  getEditoriales,
+  getSemestres
 };
