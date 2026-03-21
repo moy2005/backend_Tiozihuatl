@@ -4,13 +4,14 @@ import libroModel from '../../models/libro.model.js';
 
 const getCatalog = async (req, res) => {
   try {
-    const { search, materia, formato, ordenAutor } = req.query;
+    const { search, materia, formato, ordenAutor, semestre } = req.query;
 
     const libros = await catalogService.getCatalog({
       search,
       materia,
       formato,
-      ordenAutor
+      ordenAutor,
+      semestre
     });
 
     res.json(libros);
@@ -77,9 +78,20 @@ const getPdfUrl = async (req, res) => {
   }
 };
 
+const getSemestres = async (req, res) => {
+  try {
+    const semestres = await libroModel.getSemestres();
+    res.status(200).json(semestres);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener semestres' });
+  }
+};
+
 export default {
   getCatalog,
   getMaterias,
   getPdfUrl,
-  preview
+  preview,
+  getSemestres
 };
