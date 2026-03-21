@@ -9,5 +9,6 @@ router.get( "/", authMiddleware,roleMiddleware(["Alumno", "Docente", "Biblioteca
 router.get("/materias", authMiddleware,roleMiddleware(["Alumno", "Docente", "Bibliotecario", "Administrador"]), catalogController.getMaterias);
 router.get("/libros/:id/pdf-url", authMiddleware, roleMiddleware(["Alumno", "Docente", "Bibliotecario", "Administrador"]), catalogController.getPdfUrl);
 router.get("/libros/:id/preview", authMiddleware,roleMiddleware(["Alumno", "Docente", "Bibliotecario", "Administrador"]), catalogController.preview);
+router.get("/semestres", authMiddleware, roleMiddleware(["Alumno", "Docente", "Bibliotecario", "Administrador"]), catalogController.getSemestres);
 
 export default router;
