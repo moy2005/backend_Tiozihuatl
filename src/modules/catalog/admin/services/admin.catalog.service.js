@@ -23,7 +23,6 @@ const actualizarLibro = async (id, data) => {
   return await libroModel.updateLibro(id, data);
 };
 
-
 const cambiarEstado = async (id, activo) => {
   return await libroModel.cambiarEstado(id, activo);
 };
@@ -32,6 +31,13 @@ const obtenerAutores = async () => {
   return await libroModel.getAllAutores();
 };
 
+const getEditoriales = async (search) => {
+  return await libroModel.getEditoriales(search);
+};
+
+const obtenerSemestres = async () => {
+  return await libroModel.getSemestres();
+};
 
 export default {
   crearLibro,
@@ -39,5 +45,7 @@ export default {
   actualizarLibro,
   cambiarEstado,
   getCatalogAdmin,
-  obtenerAutores
+  obtenerAutores,
+  getEditoriales,
+  obtenerSemestres
 };
