@@ -30,7 +30,7 @@ export const getCatalog = async (req, res) => {
 
     const magazines = await service.getCatalog();
     const magazinesWithCover = magazines.map(m => {
-    const portada_url = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/pg_1,w_300,h_400,c_fill/${m.pdf_public_id}.jpg`;
+    const portada_url = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/pg_1,w_300,h_400,c_fill,f_jpg/${m.pdf_public_id}`;
 
       return {
         ...m,
