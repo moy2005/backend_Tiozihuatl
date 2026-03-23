@@ -1,6 +1,8 @@
 // src/modules/automation/services/automation.service.js
 import { poolOperacion } from "../../../config/dbPools/poolOperacion.config.js";
 import backupService from "../../backups/services/backup.service.js";
+import { runMaintenance } from '../../maintenance/services/maintenance.service.js';
+
 
 // Genera fecha/hora en zona México (UTC-6) como string para insertar en BD
 const getNowMexico = () => {
@@ -48,6 +50,25 @@ const executeTask = async (task) => {
       [getNowMexico(), task.id_tarea]
     );
 
+  }
+
+  if (task.tipo_tarea === 'maintenance_db') {
+    const [recent] = await poolOperacion.execute(
+      `SELECT id_log FROM maintenance_log
+      WHERE origen = 'automatico'
+      AND fecha >= DATE_SUB(?, INTERVAL 1 MINUTE) LIMIT 1`,
+      [getNowMexico()]
+    );
+    if (recent.length > 0) {
+      console.log('Mantenimiento ya ejecutado en este minuto, omitiendo...');
+      return;
+    }
+    await runMaintenance('automatico', null);
+    
+    await poolOperacion.execute(
+      `UPDATE tareas_programadas SET ultima_ejecucion = ? WHERE id_tarea = ?`,
+      [getNowMexico(), task.id_tarea]
+    );
   }
 
 };
