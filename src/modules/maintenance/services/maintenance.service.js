@@ -1,21 +1,36 @@
 import { poolAdmin }     from '../../../config/dbPools/poolAdmin.config.js';
 import { poolOperacion } from '../../../config/dbPools/poolOperacion.config.js';
 
-const TABLAS_MANTENIMIENTO = [
-  'tokensrefresh',
-  'sesionesjwt',
-  'auditoriaeventos',
-  'usuarios',
-  'prestamos',
-  'libros',
-  'trayectoria_academica'
-];
-
 const getNowMexico = () =>
   new Date()
     .toLocaleString('sv-SE', { timeZone: 'America/Mexico_City' })
     .replace('T', ' ')
     .slice(0, 19);
+
+    // ── Detectar tablas que necesitan mantenimiento ───────────────
+export const detectarTablas = async () => {
+  const [rows] = await poolAdmin.execute(`
+    SELECT t.table_name, t.table_rows
+    FROM information_schema.tables t
+    WHERE t.table_schema = ?
+      AND t.engine = 'InnoDB'
+      AND t.table_name NOT IN ('maintenance_log', 'backups_log', 'tareas_programadas')
+      AND (
+        t.table_rows >= 50
+        OR EXISTS (
+          SELECT 1
+          FROM information_schema.statistics s
+          WHERE s.table_schema = t.table_schema
+            AND s.table_name  = t.table_name
+            AND s.cardinality <= 2
+        )
+      )
+    ORDER BY t.table_rows DESC
+  `, [process.env.DB_NAME]);
+
+  return rows.map(r => r.table_name || r.TABLE_NAME);
+};
+
 
 export const runMaintenance = async (origen = 'manual', userId = null) => {
   const startTime  = Date.now();
@@ -29,10 +44,14 @@ export const runMaintenance = async (origen = 'manual', userId = null) => {
     logLines.push(line);
   };
 
-  log('===== INICIO DE OPTIMIZACIÓN DE RENDIMIENTO =====');
-  log(`Tablas a procesar: ${TABLAS_MANTENIMIENTO.length}`);
+  // Detectar tablas dinámicamente
+  const tablasDetectadas = await detectarTablas();
 
-  for (const tabla of TABLAS_MANTENIMIENTO) {
+  log('===== INICIO DE OPTIMIZACIÓN DE RENDIMIENTO =====');
+  log(`Tablas detectadas para mantenimiento: ${tablasDetectadas.length}`);
+  log(`Tablas: ${tablasDetectadas.join(', ')}`);
+
+  for (const tabla of tablasDetectadas) {
     const resultadoTabla = { tabla, analyze: null, optimize: null, error: null };
     log(`→ Procesando: ${tabla}`);
     try {
@@ -66,7 +85,7 @@ export const runMaintenance = async (origen = 'manual', userId = null) => {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       origen,
-      TABLAS_MANTENIMIENTO.length,
+      tablasDetectadas.length,
       tablas_ok,
       tablas_error,
       parseFloat(duracion),
@@ -79,14 +98,14 @@ export const runMaintenance = async (origen = 'manual', userId = null) => {
 
   return {
     id:                result.insertId,
-    tablas_procesadas: TABLAS_MANTENIMIENTO.length,
+    tablas_procesadas: tablasDetectadas.length,
+    tablas_detectadas: tablasDetectadas,
     tablas_ok,
     tablas_error,
     duracion_seg:      duracion,
     detalle
   };
 };
-
 
 export const getMaintenanceStatus = async () => {
   const [rows] = await poolOperacion.execute(
