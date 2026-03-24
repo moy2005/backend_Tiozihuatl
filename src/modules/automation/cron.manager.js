@@ -22,6 +22,7 @@ const scheduleTask = (task) => {
 
 
 const loadTasks = async () => {
+  
   const tasks = await automationService.getActiveTasks();
   tasks.forEach(task => scheduleTask(task)); 
 };
