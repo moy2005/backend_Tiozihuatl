@@ -119,7 +119,11 @@ const runPendingTasks = async (req, res) => {
     }
 
     const tasks = await automationService.getActiveTasks();
-    const now = new Date();
+    const now = new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: "America/Mexico_City"
+      })
+    );
     const pendientes = tasks.filter(t => shouldRunNow(t.cron_expression, now));
 
     // 👇 Este header le dice a Vercel que NO cierre la función todavía
@@ -154,9 +158,9 @@ function shouldRunNow(cronExpr, now) {
 
   const [minCron, horaCron, , , diasCron] = partes;
 
-  const minActual  = now.getUTCMinutes();
-  const horaActual = now.getUTCHours();
-  const diaActual  = now.getUTCDay();
+  const minActual  = now.getMinutes();
+  const horaActual = now.getHours();
+  const diaActual  = now.getDay();
 
   // 👇 LOG TEMPORAL
   console.log(`CRON: ${cronExpr} | UTC actual: ${horaActual}:${minActual} | cronHora: ${horaCron} cronMin: ${minCron}`);
