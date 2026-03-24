@@ -7,6 +7,7 @@ const getNowMexico = () =>
     .replace('T', ' ')
     .slice(0, 19);
 
+
     // ── Detectar tablas que necesitan mantenimiento ───────────────
 export const detectarTablas = async () => {
   const [rows] = await poolAdmin.execute(`
