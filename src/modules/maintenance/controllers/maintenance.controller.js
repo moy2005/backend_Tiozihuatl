@@ -1,4 +1,4 @@
-import {runMaintenance, getMaintenanceStatus, getMaintenanceLogs, getMaintenanceLogDetail} from '../services/maintenance.service.js';
+import { runMaintenance, getMaintenanceStatus, getMaintenanceLogs, getMaintenanceLogDetail, detectarTablas} from '../services/maintenance.service.js';
 
 export const runManual = async (req, res) => {
   try {
@@ -49,5 +49,15 @@ export const runCron = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error' });
+  }
+};
+
+export const getTablasDetectadas = async (req, res) => {
+  try {
+    const tablas = await detectarTablas();
+    res.json({ tablas, total: tablas.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error detectando tablas' });
   }
 };
