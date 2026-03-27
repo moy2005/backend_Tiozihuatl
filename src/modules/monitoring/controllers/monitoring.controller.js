@@ -1,369 +1,204 @@
 import monitoringService from "../services/monitoring.service.js";
 
-
-/* ===============================
-   HELPER – respuesta de error uniforme
-================================ */
-
-const handleError = (res, error, message = "Error en el módulo de monitoreo") => {
-  console.error(message, error);
-  res.status(500).json({ message });
+/* ─────────────────────────────────────────────
+   Helper centralizado de errores
+───────────────────────────────────────────── */
+const handleError = (res, error, message = "Error en monitoreo") => {
+  console.error(`[Monitoring] ${message}:`, error?.message ?? error);
+  res.status(500).json({
+    message,
+    error: process.env.NODE_ENV === "development" ? error?.message : undefined
+  });
 };
 
-
-/* ===============================
-   DASHBOARD – RESUMEN GENERAL
-================================ */
+/* ═══════════════════════════════════════════
+   EXISTENTES
+═══════════════════════════════════════════ */
 
 const getDashboard = async (req, res) => {
   try {
-    const data = await monitoringService.getDashboardSummary();
-    res.json(data);
+    res.json(await monitoringService.getDashboard());
   } catch (error) {
-    handleError(res, error, "Error obteniendo resumen del dashboard");
+    handleError(res, error, "Error obteniendo dashboard");
   }
 };
-
-
-/* ===============================
-   DATABASE STATUS
-================================ */
 
 const getDatabaseStatus = async (req, res) => {
   try {
-    const data = await monitoringService.getDatabaseStatus();
-    res.json(data);
+    res.json(await monitoringService.getDatabaseStatus());
   } catch (error) {
-    handleError(res, error, "Error obteniendo estado de la base de datos");
+    handleError(res, error, "Error obteniendo estado DB");
   }
 };
 
-
-/* ===============================
-   DATABASE SIZE
-================================ */
-
-const getDatabaseSize = async (req, res) => {
+const getStorage = async (req, res) => {
   try {
-    const data = await monitoringService.getDatabaseSize();
-    res.json(data);
+    res.json(await monitoringService.getStorage());
   } catch (error) {
-    handleError(res, error, "Error obteniendo tamaño de la base de datos");
+    handleError(res, error, "Error obteniendo almacenamiento");
   }
 };
-
-
-/* ===============================
-   TABLAS
-================================ */
-
-const getTables = async (req, res) => {
-  try {
-    const data = await monitoringService.getTablesDetail();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo detalle de tablas");
-  }
-};
-
-
-/* ===============================
-   ÍNDICES
-================================ */
 
 const getIndexes = async (req, res) => {
   try {
-    const data = await monitoringService.getIndexesDetail();
-    res.json(data);
+    res.json(await monitoringService.getIndexes());
   } catch (error) {
     handleError(res, error, "Error obteniendo índices");
   }
 };
 
-
-/* ===============================
-   CONEXIONES
-================================ */
-
 const getConnections = async (req, res) => {
   try {
-    const data = await monitoringService.getConnections();
-    res.json(data);
+    res.json(await monitoringService.getConnections());
   } catch (error) {
     handleError(res, error, "Error obteniendo conexiones");
   }
 };
 
-
-/* ===============================
-   CONSULTAS ACTIVAS
-================================ */
-
-const getActiveQueries = async (req, res) => {
+const getQueries = async (req, res) => {
   try {
-    const data = await monitoringService.getActiveQueries();
-    res.json(data);
+    res.json(await monitoringService.getQueries());
   } catch (error) {
-    handleError(res, error, "Error obteniendo consultas activas");
+    handleError(res, error, "Error obteniendo queries");
   }
 };
 
-
-/* ===============================
-   CONSULTAS LENTAS
-================================ */
-
-const getSlowQueries = async (req, res) => {
+const getPerformance = async (req, res) => {
   try {
-    const data = await monitoringService.getSlowQueries();
-    res.json(data);
+    res.json(await monitoringService.getPerformance());
   } catch (error) {
-    handleError(res, error, "Error obteniendo estadísticas de consultas lentas");
+    handleError(res, error, "Error obteniendo performance");
   }
 };
 
-
-/* ===============================
-   RENDIMIENTO – ACTIVIDAD POR TABLA
-================================ */
-
-const getPerformanceTables = async (req, res) => {
+const getSecurity = async (req, res) => {
   try {
-    const data = await monitoringService.getPerformanceTables();
-    res.json(data);
+    res.json(await monitoringService.getSecurity());
   } catch (error) {
-    handleError(res, error, "Error obteniendo rendimiento por tabla");
+    handleError(res, error, "Error obteniendo usuarios DB");
   }
 };
 
-
-/* ===============================
-   CRECIMIENTO DE TABLAS
-================================ */
-
-const getGrowth = async (req, res) => {
+const getBackups = async (req, res) => {
   try {
-    const data = await monitoringService.getGrowth();
-    res.json(data);
+    res.json(await monitoringService.getBackups());
   } catch (error) {
-    handleError(res, error, "Error obteniendo datos de crecimiento");
+    handleError(res, error, "Error obteniendo backups");
   }
 };
 
-
-/* ===============================
-   SEGURIDAD – AUDITORÍA
-================================ */
-
-const getAuditEvents = async (req, res) => {
+const getAlerts = async (req, res) => {
   try {
-    const { limit = 100, offset = 0, userId, action } = req.query;
-    const data = await monitoringService.getAuditEvents({
-      limit:  Number(limit),
-      offset: Number(offset),
-      userId: userId ?? null,
-      action: action ?? null,
+    res.json(await monitoringService.getAlerts());
+  } catch (error) {
+    handleError(res, error, "Error obteniendo alertas");
+  }
+};
+
+/* ═══════════════════════════════════════════
+   NUEVOS
+═══════════════════════════════════════════ */
+
+/**
+ * GET /monitoring/locks
+ * Transacciones bloqueadas, row lock stats y deadlocks
+ */
+const getLocks = async (req, res) => {
+  try {
+    res.json(await monitoringService.getLocks());
+  } catch (error) {
+    handleError(res, error, "Error obteniendo locks");
+  }
+};
+
+/**
+ * GET /monitoring/locks/deadlock
+ * Último deadlock registrado por InnoDB (parseo de INNODB STATUS)
+ */
+const getLastDeadlock = async (req, res) => {
+  try {
+    const { getLocks } = await import("../models/locks.model.js");
+    // Reutilizamos el servicio pero solo queremos el deadlock
+    const data = await monitoringService.getLocks();
+    res.json({
+      deadlock_count: data.deadlock_count,
+      last_deadlock: data.last_deadlock
     });
-    res.json(data);
   } catch (error) {
-    handleError(res, error, "Error obteniendo eventos de auditoría");
+    handleError(res, error, "Error obteniendo último deadlock");
   }
 };
 
-
-/* ===============================
-   SEGURIDAD – SESIONES ACTIVAS
-================================ */
-
-const getActiveSessions = async (req, res) => {
+/**
+ * GET /monitoring/replication
+ * Estado de replicación: replica status, source status, topología
+ */
+const getReplication = async (req, res) => {
   try {
-    const data = await monitoringService.getActiveSessions();
-    res.json(data);
+    res.json(await monitoringService.getReplication());
   } catch (error) {
-    handleError(res, error, "Error obteniendo sesiones activas");
+    handleError(res, error, "Error obteniendo replicación");
   }
 };
 
-
-/* ===============================
-   SEGURIDAD – TOKENS ACTIVOS
-================================ */
-
-const getActiveTokens = async (req, res) => {
+/**
+ * GET /monitoring/performance-schema
+ * Slow queries reales, índices sin uso, hot tables, métricas extendidas
+ * Query params:
+ *   ?limit=20       — top N slow queries (default: 20)
+ *   ?min_avg_ms=10  — umbral mínimo en ms (default: 10)
+ */
+const getPerformanceSchema = async (req, res) => {
   try {
-    const data = await monitoringService.getActiveTokens();
-    res.json(data);
+    const limit      = Math.min(parseInt(req.query.limit)      || 20,  100);
+    const minAvgMs   = Math.min(parseInt(req.query.min_avg_ms) || 10, 5000);
+    res.json(await monitoringService.getPerformanceSchema(limit, minAvgMs));
   } catch (error) {
-    handleError(res, error, "Error obteniendo tokens activos");
+    handleError(res, error, "Error obteniendo performance schema");
   }
 };
 
-
-/* ===============================
-   BACKUPS – HISTORIAL
-================================ */
-
-const getBackupHistory = async (req, res) => {
+/**
+ * GET /monitoring/maintenance
+ * Candidatos a OPTIMIZE/ANALYZE + health score completo
+ */
+const getMaintenance = async (req, res) => {
   try {
-    const { limit = 50, offset = 0 } = req.query;
-    const data = await monitoringService.getBackupHistory({
-      limit:  Number(limit),
-      offset: Number(offset),
-    });
-    res.json(data);
+    res.json(await monitoringService.getMaintenance());
   } catch (error) {
-    handleError(res, error, "Error obteniendo historial de backups");
+    handleError(res, error, "Error obteniendo estado de mantenimiento");
   }
 };
 
-
-/* ===============================
-   TAREAS PROGRAMADAS
-================================ */
-
-const getScheduledJobs = async (req, res) => {
+/**
+ * GET /monitoring/health-score
+ * Score rápido de salud (0–100) con grade y penalizaciones
+ */
+const getHealthScore = async (req, res) => {
   try {
-    const data = await monitoringService.getScheduledJobs();
-    res.json(data);
+    res.json(await monitoringService.getHealthScore());
   } catch (error) {
-    handleError(res, error, "Error obteniendo tareas programadas");
-  }
-};
-
-
-/* ===============================
-   ANÁLISIS DE PRODUCCIÓN
-================================ */
-
-const getAnalysis = async (req, res) => {
-  try {
-    const data = await monitoringService.getAnalysis();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo análisis de producción");
-  }
-};
-
-
-/* ===============================
-   BUSINESS MONITORING – ACTIVIDAD DEL SISTEMA
-================================ */
-
-const getSystemActivity = async (req, res) => {
-  try {
-    const data = await monitoringService.getSystemActivity();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo actividad del sistema");
-  }
-};
-
-
-/* ===============================
-   BUSINESS MONITORING – BIBLIOTECA
-================================ */
-
-const getLibraryStats = async (req, res) => {
-  try {
-    const data = await monitoringService.getLibraryStats();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo estadísticas de biblioteca");
-  }
-};
-
-const getMostBorrowedBooks = async (req, res) => {
-  try {
-    const data = await monitoringService.getMostBorrowedBooks();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo libros más prestados");
-  }
-};
-
-
-/* ===============================
-   BUSINESS MONITORING – REVISTAS / VENTAS
-================================ */
-
-const getSalesStats = async (req, res) => {
-  try {
-    const data = await monitoringService.getSalesStats();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo estadísticas de ventas");
-  }
-};
-
-const getTopSellingMagazines = async (req, res) => {
-  try {
-    const data = await monitoringService.getTopSellingMagazines();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo revistas más vendidas");
-  }
-};
-
-
-/* ===============================
-   BUSINESS MONITORING – USUARIOS
-================================ */
-
-const getUsersByRole = async (req, res) => {
-  try {
-    const data = await monitoringService.getUsersByRole();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo usuarios por rol");
-  }
-};
-
-const getMostActiveUsers = async (req, res) => {
-  try {
-    const data = await monitoringService.getMostActiveUsers();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo usuarios más activos");
-  }
-};
-
-
-/* ===============================
-   BUSINESS MONITORING – SISTEMA ACADÉMICO
-================================ */
-
-const getAcademicStats = async (req, res) => {
-  try {
-    const data = await monitoringService.getAcademicStats();
-    res.json(data);
-  } catch (error) {
-    handleError(res, error, "Error obteniendo estadísticas académicas");
+    handleError(res, error, "Error calculando health score");
   }
 };
 
 export default {
+  // Existentes
   getDashboard,
   getDatabaseStatus,
-  getDatabaseSize,
-  getTables,
+  getStorage,
   getIndexes,
   getConnections,
-  getActiveQueries,
-  getSlowQueries,
-  getPerformanceTables,
-  getGrowth,
-  getAnalysis,
-  getAuditEvents,
-  getActiveSessions,
-  getActiveTokens,
-  getBackupHistory,
-  getScheduledJobs,
-  getSystemActivity,
-  getLibraryStats,
-  getMostBorrowedBooks,
-  getSalesStats,
-  getTopSellingMagazines,
-  getUsersByRole,
-  getMostActiveUsers,
-  getAcademicStats
+  getQueries,
+  getPerformance,
+  getSecurity,
+  getBackups,
+  getAlerts,
+  // Nuevos
+  getLocks,
+  getLastDeadlock,
+  getReplication,
+  getPerformanceSchema,
+  getMaintenance,
+  getHealthScore
 };
