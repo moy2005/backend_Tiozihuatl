@@ -1,234 +1,183 @@
-import monitoringModel from "../../../modules/monitoring/models/monitoring.model.js";
+import databaseModel       from "../models/database.model.js";
+import connectionsModel    from "../models/connections.model.js";
+import queriesModel        from "../models/queries.model.js";
+import performanceModel    from "../models/performance.model.js";
+import storageModel        from "../models/storage.model.js";
+import indexesModel        from "../models/indexes.model.js";
+import securityModel       from "../models/security.model.js";
+import backupsModel        from "../models/backups.model.js";
+import alertsModel         from "../models/alerts.model.js";
+import dashboardModel      from "../models/dashboard.model.js";
+// ── Nuevos modelos ───────────────────────────────────────────
+import locksModel          from "../models/locks.model.js";
+import replicationModel    from "../models/replication.model.js";
+import performanceSchemaModel from "../models/performanceSchema.model.js";
+import maintenanceModel    from "../models/maintenance.model.js";
 
-/* ===============================
-   DASHBOARD
-================================ */
+/* ═══════════════════════════════════════════
+   EXISTENTES
+═══════════════════════════════════════════ */
 
-const getDashboardSummary = async () => {
-  return monitoringModel.getDashboardSummary();
-};
-
-
-/* ===============================
-   DATABASE STATUS
-================================ */
+const getDashboard = async () => dashboardModel.getDashboard();
 
 const getDatabaseStatus = async () => {
   const [status, engines] = await Promise.all([
-    monitoringModel.getDatabaseStatus(),
-    monitoringModel.getDatabaseEngines(),
+    databaseModel.getDatabaseStatus(),
+    databaseModel.getDatabaseEngines()
   ]);
   return { status, engines };
 };
 
-const getDatabaseSize = async () => {
-  return monitoringModel.getDatabaseStatus();
+const getStorage = async () => {
+  const [tables, fragmentation] = await Promise.all([
+    storageModel.getTablesSize(),
+    storageModel.getFragmentation()
+  ]);
+  return { tables, fragmentation };
 };
 
-
-/* ===============================
-   TABLES & INDEXES
-================================ */
-
-const getTablesDetail = async () => {
-  return monitoringModel.getTablesSizeDetail();
+const getIndexes = async () => {
+  const [indexes, noPK, unusedIndexes] = await Promise.all([
+    indexesModel.getIndexes(),
+    indexesModel.getTablesWithoutPK(),
+    performanceSchemaModel.getUnusedIndexes()   // ← nuevo: índices sin uso
+  ]);
+  return { indexes, tables_without_pk: noPK, unused_indexes: unusedIndexes };
 };
-
-const getIndexesDetail = async () => {
-  return monitoringModel.getIndexesDetail();
-};
-
-
-/* ===============================
-   CONNECTIONS
-================================ */
 
 const getConnections = async () => {
   const [stats, processList] = await Promise.all([
-    monitoringModel.getConnectionStats(),
-    monitoringModel.getActiveProcessList(),
+    connectionsModel.getConnectionStats(),
+    connectionsModel.getProcessList()
   ]);
   return { stats, process_list: processList };
 };
 
-
-/* ===============================
-   QUERIES
-================================ */
-
-const getActiveQueries = async () => {
-  return monitoringModel.getActiveQueries();
-};
-
-const getSlowQueries = async () => {
-  return monitoringModel.getSlowQueryStats();
-};
-
-
-/* ===============================
-   PERFORMANCE
-================================ */
-
-const getPerformanceTables = async () => {
-  const [ioStats, globalVars] = await Promise.all([
-    monitoringModel.getTableIOStats(),
-    monitoringModel.getGlobalPerformanceVars(),
+const getQueries = async () => {
+  const [active, slow] = await Promise.all([
+    queriesModel.getActiveQueries(),
+    queriesModel.getSlowQueries()
   ]);
-  return { table_io: ioStats, global_status: globalVars };
+  return { active, slow };
 };
 
+const getPerformance = async () => performanceModel.getGlobalStats();
 
-/* ===============================
-   GROWTH
-================================ */
+const getSecurity = async () => securityModel.getUsers();
 
-const getGrowth = async () => {
-  return monitoringModel.getGrowthByTable();
-};
+const getBackups = async () => backupsModel.getBackupHistory();
 
+const getAlerts = async () => alertsModel.getAlerts();
 
-/* ===============================
-   SECURITY – AUDIT EVENTS
-================================ */
+/* ═══════════════════════════════════════════
+   NUEVOS
+═══════════════════════════════════════════ */
 
-const getAuditEvents = async ({ limit, offset, userId, action } = {}) => {
-  const [rows, total] = await Promise.all([
-    monitoringModel.getAuditEvents({ limit, offset, userId, action }),
-    monitoringModel.getAuditEventCount({ userId, action }),
+/**
+ * Locks e InnoDB: transacciones bloqueadas, row lock stats, deadlocks
+ */
+const getLocks = async () => {
+  const [blocked, active, stats, lastDeadlock, deadlockCount] = await Promise.all([
+    locksModel.getBlockedTransactions(),
+    locksModel.getActiveTransactions(),
+    locksModel.getLockStats(),
+    locksModel.getLastDeadlock(),
+    locksModel.getDeadlockCount()
   ]);
-  return { total, data: rows };
+
+  return {
+    blocked_transactions: blocked,
+    active_transactions: active,
+    lock_stats: stats,
+    last_deadlock: lastDeadlock,
+    deadlock_count: deadlockCount
+  };
 };
 
-
-/* ===============================
-   SECURITY – SESSIONS
-================================ */
-
-const getActiveSessions = async () => {
-  const [sessions, total] = await Promise.all([
-    monitoringModel.getActiveSessions(),
-    monitoringModel.getActiveSessionCount(),
+/**
+ * Replicación: estado de réplica, source status, réplicas conectadas
+ */
+const getReplication = async () => {
+  const [replica, source, connectedReplicas] = await Promise.all([
+    replicationModel.getReplicaStatus(),
+    replicationModel.getSourceStatus(),
+    replicationModel.getConnectedReplicas()
   ]);
-  return { total, data: sessions };
+
+  return {
+    replica_status: replica,
+    source_status: source,
+    connected_replicas: connectedReplicas,
+    topology: replica ? "replica" : source ? "source" : "standalone"
+  };
 };
 
+/**
+ * Performance Schema: slow queries reales, top I/O, métricas extendidas
+ */
+const getPerformanceSchema = async (limit = 20, minAvgMs = 10) => {
+  const enabled = await performanceSchemaModel.isPerformanceSchemaEnabled();
+  if (!enabled) {
+    return {
+      enabled: false,
+      message: "performance_schema está deshabilitado. Actívalo en my.cnf: performance_schema=ON"
+    };
+  }
 
-/* ===============================
-   SECURITY – TOKENS
-================================ */
-
-const getActiveTokens = async () => {
-  const [tokens, total] = await Promise.all([
-    monitoringModel.getActiveTokens(),
-    monitoringModel.getActiveTokenCount(),
+  const [topSlowQueries, unusedIndexes, topTablesByIO, extendedStats] = await Promise.all([
+    performanceSchemaModel.getTopSlowQueries(limit, minAvgMs),
+    performanceSchemaModel.getUnusedIndexes(),
+    performanceSchemaModel.getTopTablesByIO(limit),
+    performanceSchemaModel.getExtendedGlobalStats()
   ]);
-  return { total, data: tokens };
+
+  return {
+    enabled: true,
+    top_slow_queries: topSlowQueries,
+    unused_indexes: unusedIndexes,
+    top_tables_by_io: topTablesByIO,
+    extended_stats: extendedStats
+  };
 };
 
-
-/* ===============================
-   BACKUPS
-================================ */
-
-const getBackupHistory = async ({ limit, offset } = {}) => {
-  return monitoringModel.getBackupHistory({ limit, offset });
-};
-
-
-/* ===============================
-   SCHEDULED JOBS
-================================ */
-
-const getScheduledJobs = async () => {
-  return monitoringModel.getScheduledJobs();
-};
-
-
-/* ===============================
-   ANÁLISIS DE PRODUCCIÓN
-================================ */
-
-// Un solo endpoint que carga todo junto para la tab Análisis
-const getAnalysis = async () => {
-  const [volume, activity, waits, indexAnalysis, health] = await Promise.all([
-    monitoringModel.getTopTablesByVolume(),
-    monitoringModel.getTableActivity(),
-    monitoringModel.getTableWaitTimes(),
-    monitoringModel.getIndexAnalysis(),
-    monitoringModel.getTableHealth(),
+/**
+ * Mantenimiento: candidatos OPTIMIZE/ANALYZE, health score
+ */
+const getMaintenance = async () => {
+  const [optimizeCandidates, analyzeCandidates, healthScore] = await Promise.all([
+    maintenanceModel.getOptimizeCandidates(),
+    maintenanceModel.getAnalyzeCandidates(),
+    maintenanceModel.calculateHealthScore()
   ]);
-  return { volume, activity, waits, index_analysis: indexAnalysis, health };
+
+  return {
+    optimize_candidates: optimizeCandidates,
+    analyze_candidates: analyzeCandidates,
+    health_score: healthScore
+  };
 };
 
-/* ===============================
-   BUSINESS MONITORING
-================================ */
-
-// Actividad general del sistema
-const getSystemActivity = async () => {
-  return monitoringModel.getSystemActivity();
-};
-
-// Estadísticas de biblioteca
-const getLibraryStats = async () => {
-  return monitoringModel.getLibraryStats();
-};
-
-// Libros más prestados
-const getMostBorrowedBooks = async () => {
-  return monitoringModel.getMostBorrowedBooks();
-};
-
-// Estadísticas de ventas
-const getSalesStats = async () => {
-  return monitoringModel.getSalesStats();
-};
-
-// Revistas más vendidas
-const getTopSellingMagazines = async () => {
-  return monitoringModel.getTopSellingMagazines();
-};
-
-// Usuarios por rol
-const getUsersByRole = async () => {
-  return monitoringModel.getUsersByRole();
-};
-
-// Usuarios más activos
-const getMostActiveUsers = async () => {
-  return monitoringModel.getMostActiveUsers();
-};
-
-// Estadísticas académicas
-const getAcademicStats = async () => {
-  return monitoringModel.getAcademicStats();
-};
-
-
+/**
+ * Health Score rápido — solo el score sin todo el detalle
+ */
+const getHealthScore = async () => maintenanceModel.calculateHealthScore();
 
 export default {
-  getDashboardSummary,
+  // Existentes
+  getDashboard,
   getDatabaseStatus,
-  getDatabaseSize,
-  getTablesDetail,
-  getIndexesDetail,
+  getStorage,
+  getIndexes,
   getConnections,
-  getActiveQueries,
-  getSlowQueries,
-  getPerformanceTables,
-  getGrowth,
-  getAnalysis,
-  getAuditEvents,
-  getActiveSessions,
-  getActiveTokens,
-  getBackupHistory,
-  getScheduledJobs,
-  getSystemActivity,
-  getLibraryStats,
-  getMostBorrowedBooks,
-  getSalesStats,
-  getTopSellingMagazines,
-  getUsersByRole,
-  getMostActiveUsers,
-  getAcademicStats
+  getQueries,
+  getPerformance,
+  getSecurity,
+  getBackups,
+  getAlerts,
+  // Nuevos
+  getLocks,
+  getReplication,
+  getPerformanceSchema,
+  getMaintenance,
+  getHealthScore
 };
