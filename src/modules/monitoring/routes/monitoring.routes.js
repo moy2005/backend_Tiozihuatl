@@ -5,66 +5,87 @@ import { roleMiddleware } from "../../../core/middleware/role.middleware.js";
 
 const router = express.Router();
 
-// Acceso restringido solo a Administradores
+// Todos los endpoints son solo para Administrador
 const adminOnly = [authMiddleware, roleMiddleware(["Administrador"])];
 
-// ── Dashboard ────────────────────────────────────────────────────────────────
-router.get("/dashboard",             ...adminOnly, monitoringController.getDashboard);
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+router.get("/dashboard",          ...adminOnly, monitoringController.getDashboard);
 
-// ── Database ─────────────────────────────────────────────────────────────────
-router.get("/database/status",       ...adminOnly, monitoringController.getDatabaseStatus);
-router.get("/database/size",         ...adminOnly, monitoringController.getDatabaseSize);
-router.get("/database/tables",       ...adminOnly, monitoringController.getTables);
-router.get("/database/indexes",      ...adminOnly, monitoringController.getIndexes);
+/* ═══════════════════════════════════════════
+   HEALTH SCORE  ← nuevo (va arriba para que
+   no colisione con subrutas)
+═══════════════════════════════════════════ */
+router.get("/health-score",       ...adminOnly, monitoringController.getHealthScore);
 
-// ── Connections ───────────────────────────────────────────────────────────────
-router.get("/connections",           ...adminOnly, monitoringController.getConnections);
+/* ═══════════════════════════════════════════
+   DATABASE
+═══════════════════════════════════════════ */
+router.get("/database",           ...adminOnly, monitoringController.getDatabaseStatus);
 
-// ── Queries ───────────────────────────────────────────────────────────────────
-router.get("/queries/active",        ...adminOnly, monitoringController.getActiveQueries);
-router.get("/queries/slow",          ...adminOnly, monitoringController.getSlowQueries);
+/* ═══════════════════════════════════════════
+   STORAGE
+═══════════════════════════════════════════ */
+router.get("/storage",            ...adminOnly, monitoringController.getStorage);
 
-// ── Performance ───────────────────────────────────────────────────────────────
-router.get("/performance/tables",    ...adminOnly, monitoringController.getPerformanceTables);
+/* ═══════════════════════════════════════════
+   INDEXES
+   Ahora incluye índices sin uso (performance_schema)
+═══════════════════════════════════════════ */
+router.get("/indexes",            ...adminOnly, monitoringController.getIndexes);
 
-// ── Growth ────────────────────────────────────────────────────────────────────
-router.get("/growth",                ...adminOnly, monitoringController.getGrowth);
+/* ═══════════════════════════════════════════
+   CONNECTIONS
+═══════════════════════════════════════════ */
+router.get("/connections",        ...adminOnly, monitoringController.getConnections);
 
-// ── Security ──────────────────────────────────────────────────────────────────
-// Soporta query params: ?limit=100&offset=0&userId=5&action=LOGIN
-router.get("/security/events",       ...adminOnly, monitoringController.getAuditEvents);
-router.get("/security/sessions",     ...adminOnly, monitoringController.getActiveSessions);
-router.get("/security/tokens",       ...adminOnly, monitoringController.getActiveTokens);
+/* ═══════════════════════════════════════════
+   QUERIES
+═══════════════════════════════════════════ */
+router.get("/queries",            ...adminOnly, monitoringController.getQueries);
 
-// ── Backups ───────────────────────────────────────────────────────────────────
-// Soporta query params: ?limit=50&offset=0
-router.get("/backups",               ...adminOnly, monitoringController.getBackupHistory);
+/* ═══════════════════════════════════════════
+   PERFORMANCE (métricas base originales)
+═══════════════════════════════════════════ */
+router.get("/performance",        ...adminOnly, monitoringController.getPerformance);
 
-// ── Scheduled Jobs ────────────────────────────────────────────────────────────
-router.get("/jobs",                  ...adminOnly, monitoringController.getScheduledJobs);
+/* ═══════════════════════════════════════════
+   PERFORMANCE SCHEMA  ← nuevo
+   ?limit=20&min_avg_ms=10
+═══════════════════════════════════════════ */
+router.get("/performance-schema", ...adminOnly, monitoringController.getPerformanceSchema);
 
-// ── Análisis de producción ────────────────────────────────────────────────────
-router.get("/analysis",              ...adminOnly, monitoringController.getAnalysis);
+/* ═══════════════════════════════════════════
+   LOCKS  ← nuevo
+═══════════════════════════════════════════ */
+router.get("/locks",              ...adminOnly, monitoringController.getLocks);
+router.get("/locks/deadlock",     ...adminOnly, monitoringController.getLastDeadlock);
 
+/* ═══════════════════════════════════════════
+   REPLICATION  ← nuevo
+═══════════════════════════════════════════ */
+router.get("/replication",        ...adminOnly, monitoringController.getReplication);
 
-// ── Business Monitoring ──────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════
+   MAINTENANCE  ← nuevo
+   OPTIMIZE / ANALYZE candidates + health score completo
+═══════════════════════════════════════════ */
+router.get("/maintenance",        ...adminOnly, monitoringController.getMaintenance);
 
-// Actividad general del sistema
-router.get("/system/activity",       ...adminOnly, monitoringController.getSystemActivity);
+/* ═══════════════════════════════════════════
+   SECURITY
+═══════════════════════════════════════════ */
+router.get("/security",           ...adminOnly, monitoringController.getSecurity);
 
-// Biblioteca
-router.get("/library/stats",         ...adminOnly, monitoringController.getLibraryStats);
-router.get("/library/top-borrowed",  ...adminOnly, monitoringController.getMostBorrowedBooks);
+/* ═══════════════════════════════════════════
+   BACKUPS
+═══════════════════════════════════════════ */
+router.get("/backups",            ...adminOnly, monitoringController.getBackups);
 
-// Revistas / ventas
-router.get("/sales/stats",           ...adminOnly, monitoringController.getSalesStats);
-router.get("/sales/top-magazines",   ...adminOnly, monitoringController.getTopSellingMagazines);
-
-// Usuarios
-router.get("/users/by-role",         ...adminOnly, monitoringController.getUsersByRole);
-router.get("/users/most-active",     ...adminOnly, monitoringController.getMostActiveUsers);
-
-// Académico
-router.get("/academic/stats",        ...adminOnly, monitoringController.getAcademicStats);
+/* ═══════════════════════════════════════════
+   ALERTS  (ahora estructuradas con severidad)
+═══════════════════════════════════════════ */
+router.get("/alerts",             ...adminOnly, monitoringController.getAlerts);
 
 export default router;
