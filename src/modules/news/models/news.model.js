@@ -1,16 +1,14 @@
-import {poolPromise} from "../../../config/db.config.js";
+import { poolPromise } from "../../../config/db.config.js";
+
+const LOCAL_NOW_SQL = "DATE_SUB(UTC_TIMESTAMP(), INTERVAL 6 HOUR)";
 
 export const NewsModel = {
 
-  // =======================
-  // ADMIN
-  // =======================
-
   getAllAdmin: async () => {
+    await NewsModel.sincronizarEstados();
+
     const [rows] = await poolPromise.query(
-      `SELECT *
-       FROM noticias
-       ORDER BY fecha_creacion DESC`
+      `SELECT * FROM noticias ORDER BY fecha_creacion DESC`
     );
     return rows;
   },
@@ -23,6 +21,32 @@ export const NewsModel = {
     return rows[0];
   },
 
+  sincronizarEstados: async () => {
+    await poolPromise.query(`
+      UPDATE noticias
+      SET estado = 'Borrador', fecha_actualizacion = UTC_TIMESTAMP()
+      WHERE fecha_publicacion > ${LOCAL_NOW_SQL}
+        AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
+        AND estado != 'Borrador'
+    `);
+
+    await poolPromise.query(`
+      UPDATE noticias
+      SET estado = 'Publicada', fecha_actualizacion = UTC_TIMESTAMP()
+      WHERE estado = 'Borrador'
+        AND fecha_publicacion <= ${LOCAL_NOW_SQL}
+        AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
+    `);
+
+    await poolPromise.query(`
+      UPDATE noticias
+      SET estado = 'Inactiva', fecha_actualizacion = UTC_TIMESTAMP()
+      WHERE fecha_caducidad IS NOT NULL
+        AND fecha_caducidad <= ${LOCAL_NOW_SQL}
+        AND estado != 'Inactiva'
+    `);
+  },
+
   create: async (data) => {
     const {
       titulo,
@@ -32,7 +56,7 @@ export const NewsModel = {
       categoria,
       fecha_publicacion,
       fecha_caducidad,
-      estado
+      estado,
     } = data;
 
     await poolPromise.query(
@@ -48,7 +72,7 @@ export const NewsModel = {
         categoria || null,
         fecha_publicacion,
         fecha_caducidad || null,
-        estado || 'Borrador'
+        estado,
       ]
     );
   },
@@ -62,7 +86,7 @@ export const NewsModel = {
       categoria,
       fecha_publicacion,
       fecha_caducidad,
-      estado
+      estado,
     } = data;
 
     await poolPromise.query(
@@ -75,18 +99,18 @@ export const NewsModel = {
            fecha_publicacion = ?,
            fecha_caducidad = ?,
            estado = ?,
-           fecha_actualizacion = NOW()
+           fecha_actualizacion = UTC_TIMESTAMP()
        WHERE id_noticia = ?`,
       [
         titulo,
         contenido,
-        imagen_url || null,
-        video_url || null,
+        imagen_url ?? null,
+        video_url ?? null,
         categoria || null,
         fecha_publicacion,
         fecha_caducidad || null,
         estado,
-        id
+        id,
       ]
     );
   },
@@ -98,28 +122,18 @@ export const NewsModel = {
     );
   },
 
-  // =======================
-  // PUBLIC
-  // =======================
+  getPublic: async () => {
+    await NewsModel.sincronizarEstados();
 
-getPublic: async () => {
-  try {
-    
-    const query = `
+    const [rows] = await poolPromise.query(`
       SELECT id_noticia, titulo, contenido, imagen_url, video_url,
              categoria, fecha_publicacion
       FROM noticias
       WHERE estado = 'Publicada'
+        AND fecha_publicacion <= ${LOCAL_NOW_SQL}
+        AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
       ORDER BY fecha_publicacion DESC
-    `;
-    
-    const [rows] = await poolPromise.query(query);
-    
-
+    `);
     return rows;
-  } catch (error) {
-    console.error('❌ Error en getPublic:', error);
-    throw error;
   }
-}
 };
