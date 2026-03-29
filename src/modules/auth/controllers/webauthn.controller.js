@@ -213,10 +213,13 @@ static async registerBiometric(req, res) {
    */
   static async getTipo(req, res) {
     try {
-      const { correo } = req.params;
+      const { credential } = req.params;
       const [rows] = await poolPromise.query(
-        "SELECT huella_biometrica AS metodo FROM usuarios WHERE correo = ?",
-        [correo]
+        `SELECT huella_biometrica AS metodo
+         FROM usuarios
+         WHERE correo = ? OR matricula = ?
+         LIMIT 1`,
+        [credential, credential]
       );
 
       if (rows.length === 0)
@@ -240,10 +243,16 @@ static async registerBiometric(req, res) {
    */
   static async authOptions(req, res) {
     try {
-      const { correo } = req.body;
+      const { credential } = req.body;
+      if (!credential) {
+        return res.status(400).json({ error: "Credencial requerida." });
+      }
       const [users] = await poolPromise.query(
-        "SELECT credentialId, huella_biometrica FROM usuarios WHERE correo = ?",
-        [correo]
+        `SELECT credentialId, huella_biometrica
+         FROM usuarios
+         WHERE correo = ? OR matricula = ?
+         LIMIT 1`,
+        [credential, credential]
       );
 
       if (users.length === 0)
@@ -287,9 +296,6 @@ static async authVerify(req, res) {
         .status(400)
         .json({ error: "Faltan credenciales o rol seleccionado." });
 
-    const campoBusqueda =
-      rolSeleccionado === "Visitante" ? "correo" : "matricula";
-
     const base64ToBuffer = (b64) => Buffer.from(b64, "base64");
     const bufferToArrayBuffer = (buf) =>
       buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
@@ -323,8 +329,9 @@ static async authVerify(req, res) {
       `SELECT U.*, R.nombre_rol
        FROM usuarios U
        INNER JOIN roles R ON U.id_rol = R.id_rol
-       WHERE U.${campoBusqueda} = ?`,
-      [credential]
+       WHERE U.correo = ? OR U.matricula = ?
+       LIMIT 1`,
+      [credential, credential]
     );
 
     if (users.length === 0)
@@ -357,7 +364,7 @@ static async authVerify(req, res) {
     await AuditService.logEvent({
       id_usuario: user.id_usuario,
       tipo_evento: "LOGIN_BIOMETRICO_EXITOSO",
-      descripcion: `Inicio de sesión biométrico (${rolSeleccionado}) con ${campoBusqueda}`,
+      descripcion: `Inicio de sesión biométrico (${rolSeleccionado}) con credencial`,
       ip_origen: req.ip,
     });
 

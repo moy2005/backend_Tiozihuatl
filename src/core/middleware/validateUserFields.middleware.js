@@ -1,32 +1,29 @@
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^[0-9]{8,15}$/;
+
+const hasText = (value) =>
+  value !== undefined &&
+  value !== null &&
+  String(value).trim() !== "";
+
 export const validateUserFields = (req, res, next) => {
-  const method = req.method.toUpperCase(); // Detecta si es POST o PUT
-  const { nombre, a_paterno, correo, telefono } = req.body;
+  const method = req.method.toUpperCase();
+  const { nombre, a_paterno, correo, telefono, id_rol } = req.body;
 
-  // ================================================================
-  // VALIDACIÓN PARA CREAR USUARIO (POST)
-  // ================================================================
   if (method === "POST") {
-    if (!nombre || !a_paterno || !correo) {
-      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    if (!hasText(nombre) || !hasText(a_paterno) || !hasText(id_rol)) {
+      return res.status(400).json({ error: "Faltan campos obligatorios." });
     }
 
-    // Validar formato de correo
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correo)) {
-      return res
-        .status(400)
-        .json({ error: "Correo electrónico no válido" });
+    if (hasText(correo) && !emailRegex.test(String(correo).trim())) {
+      return res.status(400).json({ error: "Correo electrÃ³nico no vÃ¡lido." });
     }
 
-    // Validar formato de teléfono (opcional)
-    if (telefono && !/^[0-9]{8,15}$/.test(telefono)) {
-      return res.status(400).json({ error: "Teléfono no válido" });
+    if (hasText(telefono) && !phoneRegex.test(String(telefono).trim())) {
+      return res.status(400).json({ error: "TelÃ©fono no vÃ¡lido." });
     }
   }
 
-  // ================================================================
-  // VALIDACIÓN PARA ACTUALIZAR USUARIO (PUT)
-  // ================================================================
   if (method === "PUT") {
     const camposPermitidos = [
       "nombre",
@@ -37,37 +34,29 @@ export const validateUserFields = (req, res, next) => {
       "id_rol",
       "id_carrera",
       "id_semestre",
+      "id_periodo",
       "matricula",
+      "grupo",
       "estado",
       "contrasena",
     ];
 
     const camposPresentes = Object.keys(req.body).filter(
-      (campo) =>
-        camposPermitidos.includes(campo) &&
-        req.body[campo] !== undefined &&
-        req.body[campo] !== null
+      (campo) => camposPermitidos.includes(campo) && req.body[campo] !== undefined
     );
 
     if (camposPresentes.length === 0) {
       return res
         .status(400)
-        .json({ error: "Faltan campos válidos para actualizar" });
+        .json({ error: "Faltan campos vÃ¡lidos para actualizar." });
     }
 
-    // Si viene correo, valida formato
-    if (req.body.correo) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(req.body.correo)) {
-        return res
-          .status(400)
-          .json({ error: "Correo electrónico no válido" });
-      }
+    if (hasText(req.body.correo) && !emailRegex.test(String(req.body.correo).trim())) {
+      return res.status(400).json({ error: "Correo electrÃ³nico no vÃ¡lido." });
     }
 
-    // Si viene teléfono, valida formato
-    if (req.body.telefono && !/^[0-9]{8,15}$/.test(req.body.telefono)) {
-      return res.status(400).json({ error: "Teléfono no válido" });
+    if (hasText(req.body.telefono) && !phoneRegex.test(String(req.body.telefono).trim())) {
+      return res.status(400).json({ error: "TelÃ©fono no vÃ¡lido." });
     }
   }
 

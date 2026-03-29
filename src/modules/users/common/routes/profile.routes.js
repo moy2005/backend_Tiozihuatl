@@ -7,5 +7,6 @@ const router = Router();
 router.get("/", authMiddleware, UserController.getProfile);
 router.put("/", authMiddleware, UserController.updateProfile);
 router.put("/change-password", authMiddleware, UserController.changePassword);
+router.delete("/", authMiddleware, UserController.deleteAccount);
 
 export default router;

@@ -9,7 +9,7 @@ router.post("/register/options", WebAuthnController.registerOptions);
 router.post("/register/verify", WebAuthnController.registerVerify);
 
 // Consultar tipo biometría
-router.get("/tipo/:correo", WebAuthnController.getTipo);
+router.get("/tipo/:credential", WebAuthnController.getTipo);
 
 // Autenticación con biometría
 router.post("/auth/options", WebAuthnController.authOptions);

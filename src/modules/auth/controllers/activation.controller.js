@@ -57,9 +57,11 @@ export const ActivationController = {
       //const baseUrl     = "http://localhost:4200";
       const excelBuffer = await AdminUserService.generateTokensExcel(
         [{
-          matricula        : result.matricula,
-          nombre           : `Usuario #${id_usuario}`,
-          activation_token : result.activation_token,
+          identificador     : result.identificador,
+          tipo_identificador: result.tipo_identificador,
+          nombre            : `Usuario #${id_usuario}`,
+          rol               : "Pendiente",
+          activation_token  : result.activation_token,
         }],
         baseUrl
       );

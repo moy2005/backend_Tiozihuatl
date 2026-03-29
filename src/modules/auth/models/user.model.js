@@ -112,8 +112,6 @@ export const UserModel = {
  */
 async findByCredential(credential, rolSeleccionado) {
   try {
-    const campo = rolSeleccionado === "Visitante" ? "correo" : "matricula";
-
     const [rows] = await poolPromise.query(
       `SELECT 
         U.id_usuario,
@@ -137,9 +135,13 @@ async findByCredential(credential, rolSeleccionado) {
       INNER JOIN roles R ON U.id_rol = R.id_rol
       LEFT JOIN carreras C ON U.id_carrera = C.id_carrera
       LEFT JOIN semestres S ON U.id_semestre = S.id_semestre
-      WHERE U.${campo} = ?
+      WHERE R.nombre_rol = ?
+        AND (
+          U.correo = ?
+          OR U.matricula = ?
+        )
       LIMIT 1`,
-      [credential]
+      [rolSeleccionado, credential, credential]
     );
 
     return rows[0] || null;

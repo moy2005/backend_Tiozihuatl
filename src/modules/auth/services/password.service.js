@@ -54,17 +54,25 @@ export const PasswordService = {
     if (usuario.estado !== "Activo") return { message: mensajeGeneral };
 
     // === 2) VALIDAR PALABRA SECRETA ===
-    const palabraCorrecta = await bcrypt.compare(
-  palabra_secreta,
-  usuario.palabra_secreta
-);
+    if (!usuario.palabra_secreta) {
+      return {
+        error: true,
+        message:
+          "Tu cuenta aun no tiene palabra secreta configurada. Inicia sesion y registrala desde tu perfil.",
+      };
+    }
 
-if (!palabraCorrecta) {
-  return {
-    error: true,
-    message: "La palabra secreta es incorrecta."
-  };
-}
+    const palabraCorrecta = await bcrypt.compare(
+      palabra_secreta,
+      usuario.palabra_secreta
+    );
+
+    if (!palabraCorrecta) {
+      return {
+        error: true,
+        message: "La palabra secreta es incorrecta.",
+      };
+    }
 
 
     // === 3) GENERAR TOKEN ===
