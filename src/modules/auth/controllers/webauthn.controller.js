@@ -8,6 +8,7 @@ import {
 } from "../services/webauthn.service.js";
 import { AuditService } from "../../../core/services/audit.service.js";
 import { RefreshModel } from "../models/refresh.model.js";
+import { SessionModel } from "../models/session.model.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -352,6 +353,7 @@ static async authVerify(req, res) {
     const refreshToken = crypto.randomUUID();
     // Guardar en la tabla tokensrefresh
     await RefreshModel.save(user.id_usuario, refreshToken, 7);
+    await SessionModel.save(user.id_usuario, token, req.ip);
     await AuditService.logEvent({
       id_usuario: user.id_usuario,
       tipo_evento: "LOGIN_BIOMETRICO_EXITOSO",

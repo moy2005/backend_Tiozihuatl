@@ -2,13 +2,6 @@ import bcrypt from "bcryptjs";
 import { poolPromise } from "../../../config/db.config.js";
 
 export const SessionModel = {
-  /**
-   * Guarda una nueva sesión JWT
-   * @param {number} id_usuario
-   * @param {string} jwtToken
-   * @param {string|null} ip
-   * @param {string|null} dispositivo
-   */
   async save(id_usuario, jwtToken, ip = null, dispositivo = null) {
     try {
       const jwtHash = await bcrypt.hash(jwtToken, 12);
@@ -18,16 +11,10 @@ export const SessionModel = {
         [id_usuario, jwtHash, ip, dispositivo]
       );
     } catch (err) {
-      console.error("❌ Error al guardar sesión JWT:", err.message);
+      console.error("Error al guardar sesión JWT:", err.message);
     }
   },
 
-  /**
-   * Valida si el JWT sigue activo (no expirado ni cerrado)
-   * @param {number} id_usuario
-   * @param {string} jwtToken
-   * @returns {boolean}
-   */
   async validate(id_usuario, jwtToken) {
     const [rows] = await poolPromise.query(
       `SELECT jwt_token, fecha_cierre
@@ -41,16 +28,11 @@ export const SessionModel = {
     if (!rows.length) return false;
 
     const session = rows[0];
-    if (session.fecha_cierre) return false; // sesión ya cerrada
+    if (session.fecha_cierre) return false;
 
-    const valid = await bcrypt.compare(jwtToken, session.jwt_token);
-    return valid;
+    return bcrypt.compare(jwtToken, session.jwt_token);
   },
 
-  /**
-   * Cierra todas las sesiones activas del usuario
-   * @param {number} id_usuario
-   */
   async closeAll(id_usuario) {
     try {
       await poolPromise.query(
@@ -60,7 +42,11 @@ export const SessionModel = {
         [id_usuario]
       );
     } catch (err) {
-      console.error("❌ Error al cerrar sesiones:", err.message);
+      console.error("Error al cerrar sesiones:", err.message);
     }
+  },
+
+  async close(id_usuario) {
+    return this.closeAll(id_usuario);
   },
 };

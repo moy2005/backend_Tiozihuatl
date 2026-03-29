@@ -23,6 +23,18 @@ const getDashboard = async (req, res) => {
   }
 };
 
+const getSnapshot = async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 10, 100);
+    const minAvgMs = Math.min(parseInt(req.query.min_avg_ms) || 5, 5000);
+    const forceRefresh = String(req.query.force || "").toLowerCase() === "true";
+
+    res.json(await monitoringService.getSnapshot(limit, minAvgMs, forceRefresh));
+  } catch (error) {
+    handleError(res, error, "Error obteniendo snapshot");
+  }
+};
+
 const getDatabaseStatus = async (req, res) => {
   try {
     res.json(await monitoringService.getDatabaseStatus());
@@ -117,8 +129,6 @@ const getLocks = async (req, res) => {
  */
 const getLastDeadlock = async (req, res) => {
   try {
-    const { getLocks } = await import("../models/locks.model.js");
-    // Reutilizamos el servicio pero solo queremos el deadlock
     const data = await monitoringService.getLocks();
     res.json({
       deadlock_count: data.deadlock_count,
@@ -126,18 +136,6 @@ const getLastDeadlock = async (req, res) => {
     });
   } catch (error) {
     handleError(res, error, "Error obteniendo último deadlock");
-  }
-};
-
-/**
- * GET /monitoring/replication
- * Estado de replicación: replica status, source status, topología
- */
-const getReplication = async (req, res) => {
-  try {
-    res.json(await monitoringService.getReplication());
-  } catch (error) {
-    handleError(res, error, "Error obteniendo replicación");
   }
 };
 
@@ -185,6 +183,7 @@ const getHealthScore = async (req, res) => {
 export default {
   // Existentes
   getDashboard,
+  getSnapshot,
   getDatabaseStatus,
   getStorage,
   getIndexes,
@@ -197,7 +196,6 @@ export default {
   // Nuevos
   getLocks,
   getLastDeadlock,
-  getReplication,
   getPerformanceSchema,
   getMaintenance,
   getHealthScore

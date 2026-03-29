@@ -2,14 +2,12 @@ import connections from "./connections.model.js";
 import performance from "./performance.model.js";
 import storage from "./storage.model.js";
 import locks from "./locks.model.js";
-import replication from "./replication.model.js";
-import maintenance from "./maintenance.model.js";
 
-/* ─────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
    Cache en memoria para deduplicar alertas.
    En producción sustituir por Redis o tabla DB.
-───────────────────────────────────────────── */
-const alertCache = new Map(); // alertId → timestamp último disparo
+───────────────────────────────────────────────────────────── */
+const alertCache = new Map();
 
 const shouldFire = (alertId, cooldownMinutes = 30) => {
   const last = alertCache.get(alertId);
@@ -23,25 +21,37 @@ const buildAlert = ({ id, severity, category, message, value, threshold, recomme
 
   return {
     id,
-    severity,        // "info" | "warning" | "critical"
+    severity,
     category,
     message,
     value: value !== undefined ? value : null,
     threshold: threshold !== undefined ? threshold : null,
     recommendation,
     timestamp: new Date().toISOString(),
-    is_new: fired    // false = ya fue disparada antes (dentro del cooldown)
+    is_new: fired
   };
 };
 
-/* ─────────────────────────────────────────────
-   Evaluadores individuales — cada uno retorna
-   0 o más alertas según sus umbrales
-───────────────────────────────────────────── */
+const buildAlertsResponse = (groups) => {
+  const alerts = groups.flat();
+  const severityOrder = { critical: 0, warning: 1, info: 2 };
 
-const checkConnections = async () => {
+  alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+  return {
+    total: alerts.length,
+    critical: alerts.filter(a => a.severity === "critical").length,
+    warning: alerts.filter(a => a.severity === "warning").length,
+    info: alerts.filter(a => a.severity === "info").length,
+    alerts,
+    evaluated_at: new Date().toISOString()
+  };
+};
+
+const checkConnectionsFromStats = (conn) => {
+  if (!conn) return [];
+
   const alerts = [];
-  const conn = await connections.getConnectionStats();
   const pct = parseFloat(conn.usage_percent);
 
   if (pct > 90) {
@@ -66,13 +76,13 @@ const checkConnections = async () => {
     }));
   }
 
-  if (conn.threads_running > 20) {
+  if (Number(conn.threads_running) > 20) {
     alerts.push(buildAlert({
       id: "threads_running_high",
       severity: "warning",
       category: "connections",
       message: `Threads_running elevado: ${conn.threads_running}`,
-      value: conn.threads_running,
+      value: Number(conn.threads_running),
       threshold: 20,
       recommendation: "Queries lentas ejecutándose en paralelo. Revisa el proceso list."
     }));
@@ -81,10 +91,10 @@ const checkConnections = async () => {
   return alerts;
 };
 
-const checkBufferPool = async () => {
-  const alerts = [];
-  const perf = await performance.getGlobalStats();
+const checkBufferPoolFromStats = (perf) => {
+  if (!perf) return [];
 
+  const alerts = [];
   const hits = parseInt(perf.Innodb_buffer_pool_read_requests) || 1;
   const reads = parseInt(perf.Innodb_buffer_pool_reads) || 0;
   const ratio = parseFloat(((1 - reads / hits) * 100).toFixed(2));
@@ -114,10 +124,9 @@ const checkBufferPool = async () => {
   return alerts;
 };
 
-const checkFragmentation = async () => {
+const checkFragmentationFromTables = (fragmentation = []) => {
   const alerts = [];
-  const tables = await storage.getFragmentation();
-  const fragmented = tables.filter(t => parseFloat(t.fragmentation) > 30);
+  const fragmented = fragmentation.filter(t => parseFloat(t.fragmentation) > 30);
 
   if (fragmented.length > 5) {
     alerts.push(buildAlert({
@@ -144,154 +153,124 @@ const checkFragmentation = async () => {
   return alerts;
 };
 
+const checkLocksFromSnapshot = (locksData) => {
+  if (!locksData) return [];
+
+  const alerts = [];
+  const lockStats = locksData.lock_stats ?? locksData;
+  const currentWaits = parseInt(lockStats?.Innodb_row_lock_current_waits || 0);
+  const avgLockTime = parseInt(lockStats?.Innodb_row_lock_time_avg || 0);
+  const deadlockCount = Number.isFinite(locksData.deadlock_count)
+    ? locksData.deadlock_count
+    : null;
+
+  if (currentWaits > 10) {
+    alerts.push(buildAlert({
+      id: "locks_critical",
+      severity: "critical",
+      category: "locks",
+      message: `${currentWaits} transacciones esperando por row locks`,
+      value: currentWaits,
+      threshold: 10,
+      recommendation: "Revisa transacciones bloqueadas en /monitoring/locks. Posible deadlock o transacción larga."
+    }));
+  } else if (currentWaits > 3) {
+    alerts.push(buildAlert({
+      id: "locks_warning",
+      severity: "warning",
+      category: "locks",
+      message: `${currentWaits} transacciones en espera por locks`,
+      value: currentWaits,
+      threshold: 3,
+      recommendation: "Revisa el proceso de lock waits para identificar la transacción bloqueante."
+    }));
+  }
+
+  if (avgLockTime > 5000) {
+    alerts.push(buildAlert({
+      id: "lock_time_high",
+      severity: "warning",
+      category: "locks",
+      message: `Tiempo promedio de lock alto: ${(avgLockTime / 1000).toFixed(1)}s`,
+      value: avgLockTime,
+      threshold: 5000,
+      recommendation: "Las transacciones están reteniendo locks por mucho tiempo. Revisa la lógica de negocio."
+    }));
+  }
+
+  if (deadlockCount !== null && deadlockCount > 0) {
+    alerts.push(buildAlert({
+      id: "deadlocks_detected",
+      severity: deadlockCount > 10 ? "critical" : "warning",
+      category: "locks",
+      message: `${deadlockCount} deadlock(s) detectado(s) desde último restart`,
+      value: deadlockCount,
+      threshold: 0,
+      recommendation: "Revisa el último deadlock en /monitoring/locks/deadlock. Asegura orden consistente de acceso a tablas."
+    }));
+  }
+
+  return alerts;
+};
+
+const checkConnections = async () => {
+  const conn = await connections.getConnectionStats();
+  return checkConnectionsFromStats(conn);
+};
+
+const checkBufferPool = async () => {
+  const perf = await performance.getGlobalStats();
+  return checkBufferPoolFromStats(perf);
+};
+
+const checkFragmentation = async () => {
+  const tables = await storage.getFragmentation();
+  return checkFragmentationFromTables(tables);
+};
+
 const checkLocks = async () => {
-  const alerts = [];
-
   try {
-    const lockStats = await locks.getLockStats();
-    const currentWaits = parseInt(lockStats.Innodb_row_lock_current_waits || 0);
-    const avgLockTime = parseInt(lockStats.Innodb_row_lock_time_avg || 0);
+    const [lockStats, deadlockCount] = await Promise.all([
+      locks.getLockStats(),
+      locks.getDeadlockCount()
+    ]);
 
-    if (currentWaits > 10) {
-      alerts.push(buildAlert({
-        id: "locks_critical",
-        severity: "critical",
-        category: "locks",
-        message: `${currentWaits} transacciones esperando por row locks`,
-        value: currentWaits,
-        threshold: 10,
-        recommendation: "Revisa transacciones bloqueadas en /monitoring/locks. Posible deadlock o transacción larga."
-      }));
-    } else if (currentWaits > 3) {
-      alerts.push(buildAlert({
-        id: "locks_warning",
-        severity: "warning",
-        category: "locks",
-        message: `${currentWaits} transacciones en espera por locks`,
-        value: currentWaits,
-        threshold: 3,
-        recommendation: "Revisa el proceso de lock waits para identificar la transacción bloqueante."
-      }));
-    }
-
-    if (avgLockTime > 5000) { // > 5 segundos promedio
-      alerts.push(buildAlert({
-        id: "lock_time_high",
-        severity: "warning",
-        category: "locks",
-        message: `Tiempo promedio de lock alto: ${(avgLockTime / 1000).toFixed(1)}s`,
-        value: avgLockTime,
-        threshold: 5000,
-        recommendation: "Las transacciones están reteniendo locks por mucho tiempo. Revisa la lógica de negocio."
-      }));
-    }
-
-    // Deadlocks
-    const deadlockCount = await locks.getDeadlockCount();
-    if (deadlockCount !== null && deadlockCount > 0) {
-      alerts.push(buildAlert({
-        id: "deadlocks_detected",
-        severity: deadlockCount > 10 ? "critical" : "warning",
-        category: "locks",
-        message: `${deadlockCount} deadlock(s) detectado(s) desde último restart`,
-        value: deadlockCount,
-        threshold: 0,
-        recommendation: "Revisa el último deadlock en /monitoring/locks/deadlock. Asegura orden consistente de acceso a tablas."
-      }));
-    }
-  } catch { /* locks no disponibles en esta versión */ }
-
-  return alerts;
+    return checkLocksFromSnapshot({
+      lock_stats: lockStats,
+      deadlock_count: deadlockCount
+    });
+  } catch {
+    return [];
+  }
 };
 
-const checkReplication = async () => {
-  const alerts = [];
-
-  try {
-    const replica = await replication.getReplicaStatus();
-    if (!replica) return alerts; // No es réplica
-
-    if (replica.replica_io_running !== "Yes") {
-      alerts.push(buildAlert({
-        id: "replica_io_stopped",
-        severity: "critical",
-        category: "replication",
-        message: "Replica IO Thread detenido",
-        value: replica.replica_io_running,
-        threshold: "Yes",
-        recommendation: `Error de IO: ${replica.last_io_error || "Revisa conectividad con source"}. Ejecuta START REPLICA IO_THREAD.`
-      }));
-    }
-
-    if (replica.replica_sql_running !== "Yes") {
-      alerts.push(buildAlert({
-        id: "replica_sql_stopped",
-        severity: "critical",
-        category: "replication",
-        message: "Replica SQL Thread detenido",
-        value: replica.replica_sql_running,
-        threshold: "Yes",
-        recommendation: `Error SQL: ${replica.last_sql_error || "Revisa errores de replicación"}. Ejecuta START REPLICA SQL_THREAD.`
-      }));
-    }
-
-    const lag = parseInt(replica.seconds_behind_source || 0);
-    if (lag > 60) {
-      alerts.push(buildAlert({
-        id: "replication_lag_critical",
-        severity: "critical",
-        category: "replication",
-        message: `Replication lag crítico: ${lag}s`,
-        value: lag,
-        threshold: 60,
-        recommendation: "La réplica está muy atrás. Verifica carga en source y capacidad de red."
-      }));
-    } else if (lag > 10) {
-      alerts.push(buildAlert({
-        id: "replication_lag_warning",
-        severity: "warning",
-        category: "replication",
-        message: `Replication lag: ${lag}s`,
-        value: lag,
-        threshold: 10,
-        recommendation: "Lag creciente. Monitorea tendencia."
-      }));
-    }
-  } catch { /* sin permisos de réplica */ }
-
-  return alerts;
-};
-
-/* ─────────────────────────────────────────────
-   Función principal — corre todos los checks
-───────────────────────────────────────────── */
 const getAlerts = async () => {
   const results = await Promise.allSettled([
     checkConnections(),
     checkBufferPool(),
     checkFragmentation(),
-    checkLocks(),
-    checkReplication()
+    checkLocks()
   ]);
 
-  const alerts = results
-    .filter(r => r.status === "fulfilled")
-    .flatMap(r => r.value);
+  return buildAlertsResponse(
+    results
+      .filter(result => result.status === "fulfilled")
+      .map(result => result.value)
+  );
+};
 
-  // Ordenar: critical primero, luego warning, luego info
-  const severityOrder = { critical: 0, warning: 1, info: 2 };
-  alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+const getAlertsFromSnapshot = async (snapshot = {}) => {
+  const groups = await Promise.all([
+    Promise.resolve(checkConnectionsFromStats(snapshot.connections?.stats ?? snapshot.connectionStats ?? null)),
+    Promise.resolve(checkBufferPoolFromStats(snapshot.performance ?? snapshot.performanceStats ?? null)),
+    Promise.resolve(checkFragmentationFromTables(snapshot.storage?.fragmentation ?? snapshot.fragmentation ?? [])),
+    Promise.resolve(checkLocksFromSnapshot(snapshot.locks ?? null))
+  ]);
 
-  return {
-    total: alerts.length,
-    critical: alerts.filter(a => a.severity === "critical").length,
-    warning: alerts.filter(a => a.severity === "warning").length,
-    info: alerts.filter(a => a.severity === "info").length,
-    alerts,
-    evaluated_at: new Date().toISOString()
-  };
+  return buildAlertsResponse(groups);
 };
 
 export default {
-  getAlerts
+  getAlerts,
+  getAlertsFromSnapshot
 };

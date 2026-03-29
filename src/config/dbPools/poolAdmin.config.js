@@ -29,6 +29,8 @@ export const poolAdmin = mysql.createPool({
 
   waitForConnections: true,
   connectionLimit: 1,
+  maxIdle: 0,
+  idleTimeout: 15000,
   queueLimit: 0,
   connectTimeout: 10000,
   ssl: sslConfig

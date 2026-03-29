@@ -1,22 +1,21 @@
-import databaseModel       from "../models/database.model.js";
-import connectionsModel    from "../models/connections.model.js";
-import queriesModel        from "../models/queries.model.js";
-import performanceModel    from "../models/performance.model.js";
-import storageModel        from "../models/storage.model.js";
-import indexesModel        from "../models/indexes.model.js";
-import securityModel       from "../models/security.model.js";
-import backupsModel        from "../models/backups.model.js";
-import alertsModel         from "../models/alerts.model.js";
-import dashboardModel      from "../models/dashboard.model.js";
-// ── Nuevos modelos ───────────────────────────────────────────
-import locksModel          from "../models/locks.model.js";
-import replicationModel    from "../models/replication.model.js";
+import databaseModel from "../models/database.model.js";
+import connectionsModel from "../models/connections.model.js";
+import queriesModel from "../models/queries.model.js";
+import performanceModel from "../models/performance.model.js";
+import storageModel from "../models/storage.model.js";
+import indexesModel from "../models/indexes.model.js";
+import securityModel from "../models/security.model.js";
+import backupsModel from "../models/backups.model.js";
+import alertsModel from "../models/alerts.model.js";
+import dashboardModel from "../models/dashboard.model.js";
+import locksModel from "../models/locks.model.js";
 import performanceSchemaModel from "../models/performanceSchema.model.js";
-import maintenanceModel    from "../models/maintenance.model.js";
+import maintenanceModel from "../models/maintenance.model.js";
 
-/* ═══════════════════════════════════════════
-   EXISTENTES
-═══════════════════════════════════════════ */
+const SNAPSHOT_CACHE_TTL_MS = 5000;
+let snapshotCache = null;
+let snapshotCacheExpiresAt = 0;
+let snapshotInFlight = null;
 
 const getDashboard = async () => dashboardModel.getDashboard();
 
@@ -25,6 +24,7 @@ const getDatabaseStatus = async () => {
     databaseModel.getDatabaseStatus(),
     databaseModel.getDatabaseEngines()
   ]);
+
   return { status, engines };
 };
 
@@ -33,6 +33,7 @@ const getStorage = async () => {
     storageModel.getTablesSize(),
     storageModel.getFragmentation()
   ]);
+
   return { tables, fragmentation };
 };
 
@@ -40,8 +41,9 @@ const getIndexes = async () => {
   const [indexes, noPK, unusedIndexes] = await Promise.all([
     indexesModel.getIndexes(),
     indexesModel.getTablesWithoutPK(),
-    performanceSchemaModel.getUnusedIndexes()   // ← nuevo: índices sin uso
+    performanceSchemaModel.getUnusedIndexes()
   ]);
+
   return { indexes, tables_without_pk: noPK, unused_indexes: unusedIndexes };
 };
 
@@ -50,6 +52,7 @@ const getConnections = async () => {
     connectionsModel.getConnectionStats(),
     connectionsModel.getProcessList()
   ]);
+
   return { stats, process_list: processList };
 };
 
@@ -58,6 +61,7 @@ const getQueries = async () => {
     queriesModel.getActiveQueries(),
     queriesModel.getSlowQueries()
   ]);
+
   return { active, slow };
 };
 
@@ -69,13 +73,6 @@ const getBackups = async () => backupsModel.getBackupHistory();
 
 const getAlerts = async () => alertsModel.getAlerts();
 
-/* ═══════════════════════════════════════════
-   NUEVOS
-═══════════════════════════════════════════ */
-
-/**
- * Locks e InnoDB: transacciones bloqueadas, row lock stats, deadlocks
- */
 const getLocks = async () => {
   const [blocked, active, stats, lastDeadlock, deadlockCount] = await Promise.all([
     locksModel.getBlockedTransactions(),
@@ -94,27 +91,6 @@ const getLocks = async () => {
   };
 };
 
-/**
- * Replicación: estado de réplica, source status, réplicas conectadas
- */
-const getReplication = async () => {
-  const [replica, source, connectedReplicas] = await Promise.all([
-    replicationModel.getReplicaStatus(),
-    replicationModel.getSourceStatus(),
-    replicationModel.getConnectedReplicas()
-  ]);
-
-  return {
-    replica_status: replica,
-    source_status: source,
-    connected_replicas: connectedReplicas,
-    topology: replica ? "replica" : source ? "source" : "standalone"
-  };
-};
-
-/**
- * Performance Schema: slow queries reales, top I/O, métricas extendidas
- */
 const getPerformanceSchema = async (limit = 20, minAvgMs = 10) => {
   const enabled = await performanceSchemaModel.isPerformanceSchemaEnabled();
   if (!enabled) {
@@ -140,9 +116,6 @@ const getPerformanceSchema = async (limit = 20, minAvgMs = 10) => {
   };
 };
 
-/**
- * Mantenimiento: candidatos OPTIMIZE/ANALYZE, health score
- */
 const getMaintenance = async () => {
   const [optimizeCandidates, analyzeCandidates, healthScore] = await Promise.all([
     maintenanceModel.getOptimizeCandidates(),
@@ -157,13 +130,90 @@ const getMaintenance = async () => {
   };
 };
 
-/**
- * Health Score rápido — solo el score sin todo el detalle
- */
 const getHealthScore = async () => maintenanceModel.calculateHealthScore();
 
+const buildSnapshot = async (limit = 10, minAvgMs = 5) => {
+  const [database, storage, indexes] = await Promise.all([
+    getDatabaseStatus(),
+    getStorage(),
+    getIndexes()
+  ]);
+
+  const [connections, queries, performance] = await Promise.all([
+    getConnections(),
+    getQueries(),
+    getPerformance()
+  ]);
+
+  const [performanceSchema, locks] = await Promise.all([
+    getPerformanceSchema(limit, minAvgMs),
+    getLocks()
+  ]);
+
+  const [maintenance, security, backups] = await Promise.all([
+    getMaintenance(),
+    getSecurity(),
+    getBackups()
+  ]);
+
+  const alerts = await alertsModel.getAlertsFromSnapshot({
+    connections,
+    performance,
+    storage,
+    locks
+  });
+
+  return {
+    dashboard: {
+      database: database.status,
+      connections: connections.stats,
+      slow_queries: queries.slow,
+      performance,
+      alerts
+    },
+    database,
+    storage,
+    indexes,
+    connections,
+    queries,
+    performance,
+    performanceSchema,
+    locks,
+    maintenance,
+    healthScore: maintenance.health_score ?? null,
+    security,
+    backups,
+    alerts,
+    errors: []
+  };
+};
+
+const getSnapshot = async (limit = 10, minAvgMs = 5, forceRefresh = false) => {
+  const now = Date.now();
+
+  if (!forceRefresh && snapshotCache && now < snapshotCacheExpiresAt) {
+    return snapshotCache;
+  }
+
+  if (snapshotInFlight) {
+    return snapshotInFlight;
+  }
+
+  const promise = buildSnapshot(limit, minAvgMs)
+    .then((snapshot) => {
+      snapshotCache = snapshot;
+      snapshotCacheExpiresAt = Date.now() + SNAPSHOT_CACHE_TTL_MS;
+      return snapshot;
+    })
+    .finally(() => {
+      snapshotInFlight = null;
+    });
+
+  snapshotInFlight = promise;
+  return promise;
+};
+
 export default {
-  // Existentes
   getDashboard,
   getDatabaseStatus,
   getStorage,
@@ -174,10 +224,9 @@ export default {
   getSecurity,
   getBackups,
   getAlerts,
-  // Nuevos
   getLocks,
-  getReplication,
   getPerformanceSchema,
   getMaintenance,
-  getHealthScore
+  getHealthScore,
+  getSnapshot
 };

@@ -809,6 +809,7 @@ login: async (req, res) => {
       refreshToken,
       user: {
         id: user.id_usuario,
+        id_usuario: user.id_usuario,
         nombre: user.nombre,
         rol: user.nombre_rol,
         correo: user.correo,
@@ -828,7 +829,6 @@ login: async (req, res) => {
    * ================================================================
    */
 refreshToken: async (req, res) => {
-  console.log('🔄 REFRESH LLAMADO con id_usuario:', req.body.id_usuario);
   try {
     const { id_usuario, refreshToken } = req.body;
     if (!id_usuario || !refreshToken)
@@ -871,6 +871,12 @@ refreshToken: async (req, res) => {
       message: "Tokens renovados correctamente.",
       accessToken: newAccess,
       refreshToken: newRefresh,
+      user: {
+        id: user.id_usuario,
+        id_usuario: user.id_usuario,
+        correo: user.correo,
+        rol: user.nombre_rol,
+      },
     });
   } catch (err) {
     console.error("Error en refreshToken:", err.message);
