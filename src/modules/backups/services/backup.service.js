@@ -1,8 +1,19 @@
 import mysqldump from "mysqldump";
 import { poolAdmin } from "../../../config/dbPools/poolAdmin.config.js";
 import { poolBackup } from "../../../config/dbPools/poolBackup.config.js";
+import { poolOperacion } from "../../../config/dbPools/poolOperacion.config.js";
 import cloudinary from "../../../config/cloudinary.js";
 import JSZip from "jszip";
+
+const AUTOMATIC_BACKUP_FOLDER = "Respaldos_Base_de_Datos/Automaticos";
+const CLOUDINARY_DELETE_BATCH_SIZE = 100;
+const DEFAULT_AUTOMATIC_BACKUP_RETENTION_DAYS = 30;
+const AUTOMATIC_BACKUP_RETENTION_DAYS = (() => {
+  const parsed = Number.parseInt(process.env.BACKUP_AUTOMATIC_RETENTION_DAYS ?? "", 10);
+  return Number.isInteger(parsed) && parsed > 0
+    ? parsed
+    : DEFAULT_AUTOMATIC_BACKUP_RETENTION_DAYS;
+})();
 
 const getTimestamp = () => {
   // Usar hora UTC-6 (México Centro) para el nombre del archivo
@@ -16,6 +27,43 @@ const getTimestamp = () => {
     String(now.getMinutes()).padStart(2, "0") + "-" +
     String(now.getSeconds()).padStart(2, "0");
   return `${fecha}_${hora}`;
+};
+
+const getMexicoDate = () => {
+  return new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" })
+  );
+};
+
+const formatDateTimeSql = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const getAutomaticBackupRetentionCutoff = () => {
+  const cutoff = getMexicoDate();
+  cutoff.setDate(cutoff.getDate() - AUTOMATIC_BACKUP_RETENTION_DAYS);
+  return formatDateTimeSql(cutoff);
+};
+
+const chunkItems = (items, size) => {
+  const chunks = [];
+  for (let index = 0; index < items.length; index += size) {
+    chunks.push(items.slice(index, index + size));
+  }
+  return chunks;
+};
+
+const buildAutomaticBackupPublicId = (fileName) => {
+  if (!fileName) {
+    return null;
+  }
+  return `${AUTOMATIC_BACKUP_FOLDER}/${fileName}`;
 };
 
 
@@ -60,6 +108,72 @@ const uploadToCloudinary = async (sql, baseName, origen) => {
   );
 
   return upload.secure_url;
+};
+
+const enforceAutomaticBackupRetention = async () => {
+  const cutoff = getAutomaticBackupRetentionCutoff();
+  const [rows] = await poolOperacion.execute(
+    `SELECT id_backup, nombre_archivo
+     FROM backups_log
+     WHERE tipo = 'automatico'
+       AND fecha < ?
+     ORDER BY fecha ASC`,
+    [cutoff]
+  );
+
+  const candidates = rows
+    .map((row) => ({
+      id_backup: row.id_backup,
+      public_id: buildAutomaticBackupPublicId(row.nombre_archivo),
+    }))
+    .filter((row) => row.public_id);
+
+  if (candidates.length === 0) {
+    return {
+      retentionDays: AUTOMATIC_BACKUP_RETENTION_DAYS,
+      deletedAssets: 0,
+      deletedLogs: 0,
+    };
+  }
+
+  let deletedAssets = 0;
+  let deletedLogs = 0;
+
+  for (const batch of chunkItems(candidates, CLOUDINARY_DELETE_BATCH_SIZE)) {
+    const publicIds = batch.map((item) => item.public_id);
+    const response = await cloudinary.api.delete_resources(publicIds, {
+      resource_type: "raw",
+      type: "upload",
+      invalidate: true,
+    });
+
+    const deletedMap = response?.deleted ?? {};
+    const removableRows = batch.filter((item) => {
+      const status = String(deletedMap[item.public_id] ?? "").toLowerCase();
+      return status === "deleted" || status === "not_found";
+    });
+
+    if (removableRows.length === 0) {
+      continue;
+    }
+
+    const removableIds = removableRows.map((item) => item.id_backup);
+    const placeholders = removableIds.map(() => "?").join(", ");
+
+    await poolOperacion.execute(
+      `DELETE FROM backups_log WHERE id_backup IN (${placeholders})`,
+      removableIds
+    );
+
+    deletedAssets += removableRows.length;
+    deletedLogs += removableRows.length;
+  }
+
+  return {
+    retentionDays: AUTOMATIC_BACKUP_RETENTION_DAYS,
+    deletedAssets,
+    deletedLogs,
+  };
 };
 
 /* ===============================
@@ -270,4 +384,5 @@ export default {
   backupTable,
   getBackupTables,
   backupDatabaseAutomatic,
+  enforceAutomaticBackupRetention,
 };

@@ -50,6 +50,17 @@ const executeTask = async (task) => {
       [getNowMexico(), task.id_tarea]
     );
 
+    try {
+      const retention = await backupService.enforceAutomaticBackupRetention();
+      if (retention.deletedAssets > 0) {
+        console.log(
+          `Retencion de backups automatica aplicada: ${retention.deletedAssets} respaldo(s) eliminados tras ${retention.retentionDays} dia(s).`
+        );
+      }
+    } catch (retentionError) {
+      console.error("No se pudo aplicar la retencion de respaldos automaticos:", retentionError);
+    }
+
   }
 
   if (task.tipo_tarea === 'maintenance_db') {

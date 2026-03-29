@@ -3,6 +3,30 @@ import bcrypt from "bcryptjs";
 import { transporter } from "../../../config/email.config.js";
 import { poolPromise } from "../../../config/db.config.js";
 
+const getMexicoDate = () => {
+  return new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" })
+  );
+};
+
+const formatDateTimeSql = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const getNowMexicoSql = () => formatDateTimeSql(getMexicoDate());
+
+const getFutureMexicoSql = (minutesAhead) => {
+  const future = getMexicoDate();
+  future.setMinutes(future.getMinutes() + minutesAhead);
+  return formatDateTimeSql(future);
+};
+
 export const PasswordService = {
 
   /**
@@ -77,7 +101,7 @@ export const PasswordService = {
 
     // === 3) GENERAR TOKEN ===
     const token = crypto.randomUUID();
-    const expiracion = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+    const expiracion = getFutureMexicoSql(15);
 
     await poolPromise.query(
       `INSERT INTO recovery_links (id_usuario, token, expiracion)
@@ -449,13 +473,14 @@ const mailOptions = {
    * ================================================================
    */
   async validateRecoveryToken(token) {
+    const nowMexico = getNowMexicoSql();
     const [rows] = await poolPromise.query(
       `SELECT id_usuario
        FROM recovery_links
        WHERE token = ?
-       AND expiracion > NOW()
+       AND expiracion > ?
        LIMIT 1`,
-      [token]
+      [token, nowMexico]
     );
 
     return { valid: rows.length > 0 };
@@ -468,14 +493,15 @@ const mailOptions = {
    * ================================================================
    */
   async resetPasswordByToken(token, nuevaContrasena) {
+    const nowMexico = getNowMexicoSql();
 
     const [rows] = await poolPromise.query(
       `SELECT id_usuario
        FROM recovery_links
        WHERE token = ?
-       AND expiracion > NOW()
+       AND expiracion > ?
        LIMIT 1`,
-      [token]
+      [token, nowMexico]
     );
 
     if (rows.length === 0) {
