@@ -10,7 +10,7 @@ export const createCalendar = async ({
 
   const pool = await poolPromise;
 
-  // Desactivar solo los del mismo tipo (ALUMNO o DOCENTE)
+  // Desactivar solo los del mismo tipo (ESTUDIANTE o DOCENTE)
   await pool.query(
     "UPDATE calendarios SET activo = 0 WHERE tipo_calendario = ?",
     [tipo_calendario]

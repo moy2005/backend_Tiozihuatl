@@ -55,12 +55,12 @@ async createByAdmin(data) {
     data.grupo = null;
   }
 
-  if (nombreRol === "Alumno") {
+  if (nombreRol === "Estudiante") {
     if (!data.grupo || !["A", "B"].includes(data.grupo)) {
-      throw new Error("Alumno requiere grupo válido (A o B).");
+      throw new Error("Estudiante requiere grupo válido (A o B).");
     }
     if (!data.id_periodo) {
-      throw new Error("Alumno requiere periodo.");
+      throw new Error("Estudiante requiere periodo.");
     }
   } else {
     data.grupo = null;
@@ -142,9 +142,9 @@ async updateByAdmin(id_usuario, data) {
   }
 
   // 🔹 Validación grupo
-  if (nombreRol === "Alumno") {
+  if (nombreRol === "Estudiante") {
     if (!data.grupo || !["A", "B"].includes(data.grupo)) {
-      throw new Error("Alumno requiere grupo válido (A o B).");
+      throw new Error("Estudiante requiere grupo válido (A o B).");
     }
   } else {
     data.grupo = null;

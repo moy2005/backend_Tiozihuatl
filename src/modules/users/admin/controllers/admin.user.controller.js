@@ -237,7 +237,7 @@ async downloadTemplate(req, res) {
 
 async avanzarSemestre(req, res) {
   try {
-    const { id_periodo_origen, id_periodo_destino, alumnos } = req.body;
+    const { id_periodo_origen, id_periodo_destino, estudiantes } = req.body;
 
     if (!id_periodo_origen || !id_periodo_destino) {
       return res.status(400).json({ error: "Debe enviar id_periodo_origen e id_periodo_destino." });
@@ -246,7 +246,7 @@ async avanzarSemestre(req, res) {
     const result = await AdminUserService.avanzarSemestrePersonalizado(
       id_periodo_origen,
       id_periodo_destino,
-      alumnos || []
+      estudiantes || []
     );
 
     await AuditService.logEvent({
@@ -272,12 +272,12 @@ async getPreviewAvance(req, res) {
       return res.status(400).json({ error: "Debe enviar id_periodo." });
     }
 
-    const alumnos = await AdminUserService.getAlumnosParaAvance(id_periodo);
-    res.status(200).json(alumnos);
+    const estudiantes = await AdminUserService.getEstudiantesParaAvance(id_periodo);
+    res.status(200).json(estudiantes);
 
   } catch (err) {
     console.error("❌ Error al obtener preview de avance:", err);
-    res.status(500).json({ error: "Error interno al obtener alumnos." });
+    res.status(500).json({ error: "Error interno al obtener estudiantes." });
   }
 },
 

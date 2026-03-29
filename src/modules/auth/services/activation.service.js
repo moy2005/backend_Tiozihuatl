@@ -133,7 +133,7 @@ export const ActivationService = {
     }
 
     // Solo devolvemos lo necesario para que el frontend
-    // pueda mostrar el nombre del alumno en el formulario
+    // pueda mostrar el nombre del estudiante en el formulario
     return {
       valid    : true,
       nombre   : usuario.nombre,
@@ -144,7 +144,7 @@ export const ActivationService = {
 
   /**
    * ================================================================
-   * Regenerar token (el admin lo llama cuando el alumno perdió
+   * Regenerar token (el admin lo llama cuando el estudiante perdió
    * su token o expiró)
    * ================================================================
    */

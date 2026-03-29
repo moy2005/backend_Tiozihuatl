@@ -86,7 +86,7 @@ export const UserModel = {
         valores.push(data.matricula);
       }
     } else {
-      // Alumnos, Docentes y Bibliotecarios
+      // Estudiantes, Docentes y Bibliotecarios
       if (data.correo) campos.push("correo = ?"), valores.push(data.correo);
       if (data.telefono) campos.push("telefono = ?"), valores.push(data.telefono);
     }

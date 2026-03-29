@@ -25,7 +25,7 @@ const uploadCalendar = [
       const { tipo_calendario } = req.body;
 
       // 🔎 Validar tipo
-      if (!['ALUMNO', 'DOCENTE'].includes(tipo_calendario)) {
+      if (!['ESTUDIANTE', 'DOCENTE'].includes(tipo_calendario)) {
         return res.status(400).json({
           message: 'Tipo inválido'
         });

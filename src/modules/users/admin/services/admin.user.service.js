@@ -43,13 +43,13 @@ export const AdminUserService = {
 
     const { insertId } = await AdminUserModel.createByAdmin(data);
 
-    // Crear trayectoria inicial si es alumno
+    // Crear trayectoria inicial si es estudiante
     const [rol] = await connection.query(
       "SELECT nombre_rol FROM roles WHERE id_rol = ?",
       [data.id_rol]
     );
 
-    if (rol[0].nombre_rol === "Alumno") {
+    if (rol[0].nombre_rol === "Estudiante") {
 
       await connection.query(`
         INSERT INTO trayectoria_academica
@@ -112,14 +112,14 @@ export const AdminUserService = {
       [usuarioActual[0].id_rol]
     );
 
-    const esAlumno = rol[0].nombre_rol === "Alumno";
+    const esEstudiante = rol[0].nombre_rol === "Estudiante";
 
     // 🔹 Actualizar snapshot
     await AdminUserModel.updateByAdmin(id_usuario, data);
 
-    // 🔥 Si es alumno y cambió semestre, grupo o periodo → actualizar trayectoria
+    // 🔥 Si es estudiante y cambió semestre, grupo o periodo → actualizar trayectoria
     // ✅ CAMBIO: añadido data.id_periodo a la condición
-    if (esAlumno && (data.id_semestre || data.grupo || data.id_periodo)) {
+    if (esEstudiante && (data.id_semestre || data.grupo || data.id_periodo)) {
 
       // Obtener último registro de trayectoria
       const [ultimaTrayectoria] = await connection.query(`
@@ -233,11 +233,11 @@ async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_perio
 
     const nombreRol = rolResult[0].nombre_rol;
 
-    if (nombreRol === "Alumno") {
+    if (nombreRol === "Estudiante") {
       if (!id_carrera || !id_semestre || !id_periodo)
-        throw new Error("Alumno requiere carrera, semestre y periodo.");
+        throw new Error("Estudiante requiere carrera, semestre y periodo.");
       if (!grupo || !["A", "B"].includes(grupo))
-        throw new Error("Alumno requiere grupo válido (A o B).");
+        throw new Error("Estudiante requiere grupo válido (A o B).");
     }
 
     const workbook = XLSX.read(buffer, { type: "buffer" });
@@ -299,8 +299,8 @@ async importFromExcel({ buffer, id_rol, id_carrera, id_semestre, grupo, id_perio
         ]
       );
 
-      // Trayectoria académica si es Alumno
-      if (nombreRol === "Alumno") {
+      // Trayectoria académica si es Estudiante
+      if (nombreRol === "Estudiante") {
         await connection.query(
           `INSERT INTO trayectoria_academica
             (id_usuario, id_periodo, id_semestre, grupo, estado, repite)
@@ -363,7 +363,7 @@ async generateTokensExcel(tokens, baseUrl) {
   return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 },
 
-async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumnos = []) {
+async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, estudiantes = []) {
 
   const pool = await poolPromise;
   const connection = await pool.getConnection();
@@ -386,38 +386,38 @@ async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumno
     `, [id_periodo_origen]);
 
     if (!registros.length) {
-      throw new Error("No hay alumnos activos para procesar en ese periodo.");
+      throw new Error("No hay estudiantes activos para procesar en ese periodo.");
     }
 
     // 🔹 Mapear acciones individuales
     const mapaAcciones = new Map();
-    if (alumnos.length > 0) {
-      alumnos.forEach(a => {
+    if (estudiantes.length > 0) {
+      estudiantes.forEach(a => {
         mapaAcciones.set(Number(a.id_usuario), a.accion);
       });
     }
 
     let procesados = 0;
 
-    for (const alumno of registros) {
+    for (const estudiante of registros) {
 
       let accion = "AVANZAR";
 
       if (mapaAcciones.size > 0) {
-        accion = mapaAcciones.get(alumno.id_usuario);
+        accion = mapaAcciones.get(estudiante.id_usuario);
         if (!accion) continue; // no seleccionado
       }
 
-      let nuevoSemestre = alumno.id_semestre;
+      let nuevoSemestre = estudiante.id_semestre;
       let nuevoEstado = "Activo";
       let repite = false;
 
       if (accion === "AVANZAR") {
-        nuevoSemestre = alumno.id_semestre + 1;
+        nuevoSemestre = estudiante.id_semestre + 1;
       }
 
       if (accion === "REPETIR") {
-        nuevoSemestre = alumno.id_semestre;
+        nuevoSemestre = estudiante.id_semestre;
         repite = true;
       }
 
@@ -435,10 +435,10 @@ async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumno
         (id_usuario, id_periodo, id_semestre, grupo, estado, repite)
         VALUES (?, ?, ?, ?, ?, ?)
       `, [
-        alumno.id_usuario,
+        estudiante.id_usuario,
         id_periodo_destino,
         nuevoSemestre,
-        alumno.grupo,
+        estudiante.grupo,
         nuevoEstado,
         repite
       ]);
@@ -449,7 +449,7 @@ async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumno
           UPDATE usuarios
           SET id_semestre = ?
           WHERE id_usuario = ?
-        `, [nuevoSemestre, alumno.id_usuario]);
+        `, [nuevoSemestre, estudiante.id_usuario]);
       }
 
       procesados++;
@@ -459,7 +459,7 @@ async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumno
 
     return {
       message: "Proceso ejecutado correctamente.",
-      alumnosProcesados: procesados
+      estudiantesProcesados: procesados
     };
 
   } catch (error) {
@@ -470,7 +470,7 @@ async avanzarSemestrePersonalizado(id_periodo_origen, id_periodo_destino, alumno
   }
 },
 
-async getAlumnosParaAvance(id_periodo) {
+async getEstudiantesParaAvance(id_periodo) {
   const pool = await poolPromise;
   const [rows] = await pool.query(`
     SELECT

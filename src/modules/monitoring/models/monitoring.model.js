@@ -658,7 +658,7 @@ const getAcademicStats = async () => {
     SELECT
       (SELECT COUNT(*) FROM carreras WHERE estado='Activa') AS carreras_activas,
       (SELECT COUNT(*) FROM semestres) AS total_semestres,
-      (SELECT COUNT(*) FROM trayectoria_academica WHERE estado='Activo') AS alumnos_activos
+      (SELECT COUNT(*) FROM trayectoria_academica WHERE estado='Activo') AS estudiantes_activos
   `);
 
   return rows[0];
