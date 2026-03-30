@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import { transporter } from "../../../config/email.config.js";
+import { sendMail } from "../../../core/services/mail.service.js";
 import { poolPromise } from "../../../config/db.config.js";
 
 const getMexicoDate = () => {
@@ -111,10 +111,8 @@ export const PasswordService = {
 
     const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    // === 4) ENVIAR CORREO ===
    // === 4) ENVIAR CORREO ===
 const mailOptions = {
-  from: `"Instituto de Estudios Superiores Tiozihuatl" <${process.env.SMTP_USER}>`,
   to: correo,
   subject: "🔐 Recuperación de contraseña - Enlace seguro",
   html: `
@@ -447,7 +445,7 @@ const mailOptions = {
             </div>
             <p>© ${new Date().getFullYear()} Todos los derechos reservados</p>
             <div class="footer-links">
-              <a href="https://frontiozihuatl.netlify.app/">Visitar Portal Institucional</a>
+              <a href="${process.env.FRONTEND_URL}">Visitar Portal Institucional</a>
             </div>
             <div class="social-links">
               <p>Este es un correo automático, por favor no responder.</p>
@@ -460,7 +458,11 @@ const mailOptions = {
   `
 };
 
-    await transporter.sendMail(mailOptions);
+    const mailResult = await sendMail(mailOptions);
+
+    if (!mailResult.success) {
+      throw new Error(mailResult.error || "No se pudo enviar el correo de recuperacion.");
+    }
 
     return { message: mensajeGeneral };
   },

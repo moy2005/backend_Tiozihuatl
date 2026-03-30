@@ -1,31 +1,66 @@
-import nodemailer from "nodemailer";
+import { emailFrom, emailReplyTo, resend } from "../../config/email.config.js";
+
+const normalizeEmailError = (error) => {
+  const rawMessage = String(error?.message || "").trim();
+
+  if (!rawMessage) {
+    return "No se pudo enviar el correo en este momento.";
+  }
+
+  if (rawMessage.includes("You can only send testing emails to your own email address")) {
+    return "Resend aun esta en modo de prueba. Solo puede enviar correos a la direccion propietaria de la cuenta hasta que verifiques un dominio propio.";
+  }
+
+  if (rawMessage.includes("domain is not verified")) {
+    return "El dominio configurado para enviar correos aun no esta verificado en Resend.";
+  }
+
+  return rawMessage;
+};
 
 /**
- * Servicio para enviar correos SMTP
+ * Servicio para enviar correos por Resend
  */
-export const sendMail = async ({ to, subject, html }) => {
+export const sendMail = async ({ to, subject, html, from = emailFrom }) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,        // smtp.gmail.com
-      port: process.env.SMTP_PORT,        // 465
-      secure: true,                       // Gmail requiere SSL en puerto 465
-      auth: {
-        user: process.env.SMTP_USER,      // tu correo
-        pass: process.env.SMTP_PASS,      // contraseña de app (NO la normal)
-      },
-    });
+    if (!resend) {
+      return {
+        success: false,
+        error: "El proveedor de correo no esta configurado.",
+      };
+    }
 
-    const info = await transporter.sendMail({
-      from: `"Instituto de Estudios Superiores Tiozihuatl" <${process.env.SMTP_USER}>`,
+    const payload = {
+      from,
       to,
       subject,
       html,
-    });
+    };
 
-    console.log("📧 Email enviado:", info.messageId);
-    return { success: true };
+    if (emailReplyTo) {
+      payload.replyTo = emailReplyTo;
+    }
+
+    const { data, error } = await resend.emails.send(payload);
+
+    if (error) {
+      console.error("Error enviando correo con Resend:", error);
+      return {
+        success: false,
+        error: normalizeEmailError(error),
+      };
+    }
+
+    console.log("Email enviado con Resend:", data?.id || "sin-id");
+    return {
+      success: true,
+      id: data?.id || null,
+    };
   } catch (err) {
-    console.error("❌ Error enviando correo:", err);
-    return { success: false, error: err.message };
+    console.error("Error enviando correo con Resend:", err);
+    return {
+      success: false,
+      error: normalizeEmailError(err),
+    };
   }
 };

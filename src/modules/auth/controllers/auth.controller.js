@@ -61,7 +61,7 @@ export const AuthController = {
 
       const link = `${process.env.FRONTEND_URL}/verificar-correo?token=${token}`;
 
-   await sendMail({
+   const mailResult = await sendMail({
   to: correo,
   subject: "Verifica tu correo",
   html: `
@@ -442,7 +442,7 @@ export const AuthController = {
             </div>
             <p>© ${new Date().getFullYear()} Todos los derechos reservados</p>
             <div class="footer-links">
-              <a href="https://frontiozihuatl.netlify.app/">Visitar Portal Institucional</a>
+              <a href="${process.env.FRONTEND_URL}">Visitar Portal Institucional</a>
             </div>
             <div class="social-links">
               <p>Este es un correo automático, por favor no responder.</p>
@@ -454,6 +454,10 @@ export const AuthController = {
     </html>
   `,
 });
+
+      if (!mailResult.success) {
+        throw new Error(mailResult.error || "No se pudo enviar el correo de verificacion.");
+      }
 
       await AuditService.logEvent({
         tipo_evento: "PRE_REGISTRO",
