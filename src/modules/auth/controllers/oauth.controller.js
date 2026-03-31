@@ -40,7 +40,7 @@ export const OAuthController = {
       const refreshToken = crypto.randomUUID();
 
       await SessionModel.save(sessionUser.id_usuario, accessToken, req.ip);
-      await RefreshModel.save(sessionUser.id_usuario, refreshToken, 7);
+      await RefreshModel.save(sessionUser.id_usuario, refreshToken);
 
       const redirectUrl = new URL(`${process.env.FRONTEND_URL}/login`);
       redirectUrl.searchParams.set("accessToken", accessToken);

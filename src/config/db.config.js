@@ -27,6 +27,8 @@ const pool = mysql.createPool({
   idleTimeout: 30000,
   queueLimit: 0,
   connectTimeout: 10000,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
   ssl: sslConfig,
   timezone: '-06:00'
 });

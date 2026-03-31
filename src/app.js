@@ -8,7 +8,7 @@ import passport from "./modules/auth/services/oauth.service.js";
 import "./config/db.config.js";
 import cronManager from "./modules/automation/cron.manager.js";
 
-// 🔹 Importar rutas
+// Importar rutas
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import oauthRoutes from "./modules/auth/routes/oauth.routes.js";
 import webauthnRoutes from "./modules/auth/routes/webauthn.routes.js";
@@ -30,6 +30,7 @@ import backupRoutes from "./modules/backups/index.js";
 import automationRoutes from "./modules/automation/index.js"; 
 import monitoringAdminRouter from "./modules/monitoring/index.js";
 import maintenanceRoutes from './modules/maintenance/index.js';
+import predictionRoutes from './modules/prediction/index.js';
 
 dotenv.config();
 const app = express();
@@ -37,7 +38,7 @@ const isProduction = process.env.NODE_ENV === "production";
 const PORT = process.env.PORT || 4000;
 
 // ================================================================
-// 🧠 Proxy y Middlewares básicos
+// Proxy y Middlewares básicos
 // ================================================================
 if (isProduction) app.set("trust proxy", true);
 app.use(express.json());
@@ -46,7 +47,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/uploads', express.static('uploads'));
 
 // ================================================================
-// 🛡️ Helmet
+// Helmet
 // ================================================================
 app.use(
   helmet({
@@ -60,7 +61,7 @@ app.use(
 );
 
 // ================================================================
-// 🌐 CORS
+// CORS
 // ================================================================
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
@@ -80,7 +81,7 @@ app.use(
 );
 
 // ================================================================
-// 💾 Sesiones
+// Sesiones
 // ================================================================
 app.use(
   session({
@@ -100,7 +101,7 @@ app.use(passport.session());
 app.use(sanitizeXSS);
 
 // ================================================================
-// 🚦 Rate Limiter
+// Rate Limiter
 // ================================================================
 const limiter = rateLimit({
   windowMs: 60 * 1000,
@@ -112,22 +113,22 @@ const limiter = rateLimit({
     const ip = forwarded ? forwarded.split(",")[0].trim() : req.ip;
     return ipKeyGenerator(ip);
   },
-  message: "⚠️ Demasiadas peticiones desde esta IP. Intenta más tarde.",
+  message: "Demasiadas peticiones desde esta IP. Intenta más tarde.",
 });
 app.use(limiter);
 
 await cronManager.loadTasks();
 
 // ================================================================
-// 📡 Rutas base
+// Rutas base
 // ================================================================
 app.get("/", (req, res) => {
-  res.send(`🚀 API funcionando en entorno ${isProduction ? "producción" : "local"}`);
+  res.send(`API funcionando en entorno ${isProduction ? "producción" : "local"}`);
 });
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // ================================================================
-// 🔗 Módulos
+// Módulos
 // ================================================================
 app.use("/api/auth", authRoutes);
 app.use("/api/oauth", oauthRoutes);
@@ -149,5 +150,6 @@ app.use("/api/backups", backupRoutes);
 app.use("/api/automation", automationRoutes); 
 app.use("/api/monitoring", monitoringAdminRouter);
 app.use("/api/maintenance", maintenanceRoutes);
+app.use("/api/prediction", predictionRoutes);
 
 export default app;

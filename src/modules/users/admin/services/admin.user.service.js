@@ -11,11 +11,108 @@ const normalizeText = (value) => {
   return trimmed === "" ? null : trimmed;
 };
 
+const normalizeUpperText = (value) => {
+  const normalized = normalizeText(value);
+  return normalized ? normalized.toUpperCase() : null;
+};
+
+const normalizeIdentifierByRole = (value, esEstudiante) => {
+  const normalized = normalizeText(value);
+  if (!normalized) return null;
+  return esEstudiante ? normalized.toUpperCase() : normalized.toLowerCase();
+};
+
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 const isStudentRole = (roleName) => roleName === "Estudiante";
 
 const buildFullName = ({ a_paterno, a_materno, nombre }) =>
   [a_paterno, a_materno, nombre].filter(Boolean).join(" ");
+
+const buildExistingUserKey = ({ identificador, a_paterno, a_materno, nombre }) =>
+  [identificador, a_paterno, a_materno, nombre]
+    .map((value) => String(value || "").trim())
+    .join("||");
+
+const buildComparableImportRow = (row, esEstudiante, index = -1) => {
+  const identificador = normalizeIdentifierByRole(
+    esEstudiante ? row?.matricula : row?.correo,
+    esEstudiante
+  );
+  const a_paterno = normalizeUpperText(row?.a_paterno);
+  const a_materno = normalizeUpperText(row?.a_materno);
+  const nombre = normalizeUpperText(row?.nombre);
+  const valido = !!identificador && !!a_paterno && !!a_materno && !!nombre;
+
+  return {
+    index,
+    row,
+    identificador,
+    a_paterno,
+    a_materno,
+    nombre,
+    valido,
+    key: valido
+      ? buildExistingUserKey({ identificador, a_paterno, a_materno, nombre })
+      : null,
+  };
+};
+
+async function findExistingImportRows(connection, rows, esEstudiante) {
+  const comparableRows = rows
+    .map((row, index) => buildComparableImportRow(row, esEstudiante, index))
+    .filter((item) => item.valido);
+
+  if (!comparableRows.length) {
+    return [];
+  }
+
+  const identifiers = Array.from(
+    new Set(comparableRows.map((item) => item.identificador).filter(Boolean))
+  );
+
+  if (!identifiers.length) {
+    return [];
+  }
+
+  const placeholders = identifiers.map(() => "?").join(",");
+  const identifierSelect = esEstudiante
+    ? "UPPER(TRIM(matricula))"
+    : "LOWER(TRIM(correo))";
+  const identifierWhere = esEstudiante
+    ? "UPPER(TRIM(matricula))"
+    : "LOWER(TRIM(correo))";
+
+  const [existingRows] = await connection.query(
+    `
+      SELECT ${identifierSelect} AS identificador,
+             UPPER(TRIM(a_paterno)) AS a_paterno,
+             UPPER(TRIM(a_materno)) AS a_materno,
+             UPPER(TRIM(nombre)) AS nombre
+      FROM usuarios
+      WHERE ${esEstudiante ? "matricula" : "correo"} IS NOT NULL
+        AND ${identifierWhere} IN (${placeholders})
+    `,
+    identifiers
+  );
+
+  const existingKeys = new Set(
+    existingRows.map((item) =>
+      buildExistingUserKey({
+        identificador: item.identificador,
+        a_paterno: item.a_paterno,
+        a_materno: item.a_materno,
+        nombre: item.nombre,
+      })
+    )
+  );
+
+  return comparableRows
+    .filter((item) => existingKeys.has(item.key))
+    .map((item) => ({
+      ...item,
+      nombre_completo: buildFullName(item),
+    }));
+}
 
 async function getRoleName(connection, id_rol) {
   const [rows] = await connection.query(
@@ -339,6 +436,42 @@ export const AdminUserService = {
     return await AdminUserModel.findAllSemestres();
   },
 
+  async previewImportFromExcel({ buffer, id_rol }) {
+    const pool = await poolPromise;
+    const connection = await pool.getConnection();
+
+    try {
+      if (!id_rol) {
+        throw new Error("Debe seleccionar un rol.");
+      }
+
+      const nombreRol = await getRoleName(connection, id_rol);
+      const esEstudiante = isStudentRole(nombreRol);
+      const workbook = XLSX.read(buffer, { type: "buffer" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+
+      if (!rows.length) {
+        throw new Error("El archivo esta vacio.");
+      }
+
+      const existingRows = await findExistingImportRows(connection, rows, esEstudiante);
+
+      return {
+        total_filas: rows.length,
+        existentes: existingRows.length,
+        keys: existingRows.map((item) => item.key),
+        detalle_existentes: existingRows.map((item) => ({
+          fila_numero: item.index + 1,
+          identificador: item.identificador,
+          nombre_completo: item.nombre_completo,
+        })),
+      };
+    } finally {
+      connection.release();
+    }
+  },
+
   async importFromExcel({
     buffer,
     id_rol,
@@ -346,6 +479,7 @@ export const AdminUserService = {
     id_semestre,
     grupo,
     id_periodo,
+    omit_existing,
     adminId,
     ip,
   }) {
@@ -378,6 +512,9 @@ export const AdminUserService = {
 
       const insertados = [];
       const omitidos = [];
+      const existingRows = await findExistingImportRows(connection, rows, esEstudiante);
+      const existingKeys = new Set(existingRows.map((item) => item.key));
+      let existentesOmitidos = 0;
 
       for (const row of rows) {
         const a_paterno = row.a_paterno?.toString().trim().toUpperCase() || null;
@@ -385,6 +522,7 @@ export const AdminUserService = {
         const nombre = row.nombre?.toString().trim().toUpperCase() || null;
         const matricula = normalizeText(row.matricula);
         const correo = normalizeText(row.correo)?.toLowerCase() || null;
+        const comparableRow = buildComparableImportRow(row, esEstudiante);
 
         const identificador = esEstudiante ? matricula : correo;
         const labelIdentificador = esEstudiante ? "matrÃ­cula" : "correo";
@@ -394,6 +532,15 @@ export const AdminUserService = {
             fila: row,
             razon: `Faltan campos obligatorios (nombre, apellidos y ${labelIdentificador}).`,
           });
+          continue;
+        }
+
+        if (omit_existing && comparableRow.key && existingKeys.has(comparableRow.key)) {
+          omitidos.push({
+            fila: row,
+            razon: "El usuario ya existe en la base de datos.",
+          });
+          existentesOmitidos += 1;
           continue;
         }
 
@@ -467,6 +614,7 @@ export const AdminUserService = {
         message: "ImportaciÃ³n completada.",
         insertados: insertados.length,
         omitidos: omitidos.length,
+        existentes_omitidos: existentesOmitidos,
         detalle_omitidos: omitidos,
         _tokens: insertados,
       };

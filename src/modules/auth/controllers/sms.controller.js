@@ -107,7 +107,7 @@ export class SMSController {
       });
       const refreshToken = crypto.randomUUID();
 
-      await RefreshModel.save(user.id_usuario, refreshToken, 7);
+      await RefreshModel.save(user.id_usuario, refreshToken);
       await SessionModel.save(user.id_usuario, accessToken, req.ip);
 
       res.json({

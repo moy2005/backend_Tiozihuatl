@@ -116,7 +116,7 @@ export const AdminUserController = {
   async importUsers(req, res) {
     try {
       const file = req.file;
-      const { id_rol, id_carrera, id_semestre, grupo, id_periodo } = req.body;
+      const { id_rol, id_carrera, id_semestre, grupo, id_periodo, omit_existing } = req.body;
 
       if (!file) {
         return res.status(400).json({ error: "Archivo Excel requerido." });
@@ -129,6 +129,11 @@ export const AdminUserController = {
         id_semestre,
         grupo,
         id_periodo,
+        omit_existing:
+          omit_existing === true ||
+          omit_existing === "true" ||
+          omit_existing === 1 ||
+          omit_existing === "1",
         adminId: req.user?.id || null,
         ip: req.ip,
       });
@@ -144,6 +149,7 @@ export const AdminUserController = {
           message: result.message,
           insertados: result.insertados,
           omitidos: result.omitidos,
+          existentes_omitidos: result.existentes_omitidos,
           detalle_omitidos: result.detalle_omitidos,
           tokens_excel_b64: excelBuffer.toString("base64"),
         });
@@ -153,11 +159,33 @@ export const AdminUserController = {
         message: result.message,
         insertados: result.insertados,
         omitidos: result.omitidos,
+        existentes_omitidos: result.existentes_omitidos,
         detalle_omitidos: result.detalle_omitidos,
       });
     } catch (err) {
       console.error("Error al importar usuarios:", err);
       res.status(400).json({ error: err.message });
+    }
+  },
+
+  async previewImportUsers(req, res) {
+    try {
+      const file = req.file;
+      const { id_rol } = req.body;
+
+      if (!file) {
+        return res.status(400).json({ error: "Archivo Excel requerido." });
+      }
+
+      const result = await AdminUserService.previewImportFromExcel({
+        buffer: file.buffer,
+        id_rol,
+      });
+
+      res.status(200).json(result);
+    } catch (err) {
+      console.error("Error al validar importacion:", err);
+      res.status(400).json({ error: err.message || "No se pudo validar el archivo." });
     }
   },
 

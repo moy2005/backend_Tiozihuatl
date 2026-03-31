@@ -797,7 +797,7 @@ login: async (req, res) => {
     );
     const refreshToken = uuidv4();
 
-    await RefreshModel.save(user.id_usuario, refreshToken, 7);
+    await RefreshModel.save(user.id_usuario, refreshToken);
     await SessionModel.save(user.id_usuario, accessToken, req.ip);
 
     await AuditService.logEvent({
@@ -838,8 +838,8 @@ refreshToken: async (req, res) => {
     if (!id_usuario || !refreshToken)
       return res.status(400).json({ error: "Faltan datos." });
 
-    const valid = await RefreshModel.validate(id_usuario, refreshToken);
-    if (!valid)
+    const sessionRecord = await RefreshModel.validate(id_usuario, refreshToken);
+    if (!sessionRecord)
       return res.status(401).json({ error: "Token inválido o expirado." });
 
     // ✅ Recuperar el usuario para incluir el rol en el nuevo token
@@ -866,7 +866,7 @@ refreshToken: async (req, res) => {
     });
     const newRefresh = uuidv4();
 
-    await RefreshModel.save(id_usuario, newRefresh, 7);
+    await RefreshModel.rotate(id_usuario, sessionRecord.id_token, newRefresh);
 
     // ✅ Actualizar la sesión activa
     await SessionModel.save(id_usuario, newAccess, req.ip);
@@ -945,5 +945,9 @@ refreshToken: async (req, res) => {
     } catch {
       res.status(401).json({ error: "Token inválido o expirado." });
     }
+  },
+
+  touchActivity: async (_req, res) => {
+    res.status(204).send();
   },
 };

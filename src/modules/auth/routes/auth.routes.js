@@ -13,6 +13,7 @@ router.post('/login', AuthController.login);
 router.post("/refresh", AuthController.refreshToken);
 router.post('/logout', AuthController.logout);
 router.get("/me", authMiddleware, AuthController.me);
+router.post("/activity", authMiddleware, AuthController.touchActivity);
 router.post("/pre-registro",validateRegisterData, AuthController.preRegistro);
 router.get("/verify-email", AuthController.verifyEmail);
 router.post("/finalizar-registro",validateRegisterData, AuthController.finalizarRegistro);

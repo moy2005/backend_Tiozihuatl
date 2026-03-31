@@ -359,7 +359,7 @@ static async authVerify(req, res) {
     // 🔹 Generar RefreshToken compatible con flujo de login normal
     const refreshToken = crypto.randomUUID();
     // Guardar en la tabla tokensrefresh
-    await RefreshModel.save(user.id_usuario, refreshToken, 7);
+    await RefreshModel.save(user.id_usuario, refreshToken);
     await SessionModel.save(user.id_usuario, token, req.ip);
     await AuditService.logEvent({
       id_usuario: user.id_usuario,

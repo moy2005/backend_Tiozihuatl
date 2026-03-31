@@ -18,6 +18,7 @@ router.delete("/:id", authMiddleware, roleMiddleware(["Administrador"]), AdminUs
 router.get("/roles/all", authMiddleware, roleMiddleware(["Administrador"]), AdminUserController.getRoles);
 router.get("/carreras",authMiddleware,roleMiddleware(["Administrador"]),AdminUserController.getCarreras);
 router.get("/semestres",authMiddleware,roleMiddleware(["Administrador"]),AdminUserController.getSemestres);
+router.post("/import-preview",authMiddleware,roleMiddleware(["Administrador"]),uploadExcel.single("file"),AdminUserController.previewImportUsers);
 router.post("/import",authMiddleware,roleMiddleware(["Administrador"]),uploadExcel.single("file"),AdminUserController.importUsers);
 router.get("/template",authMiddleware,roleMiddleware(["Administrador"]),AdminUserController.downloadTemplate);
 router.post("/avanzar-semestre",authMiddleware,roleMiddleware(["Administrador"]),AdminUserController.avanzarSemestre);
