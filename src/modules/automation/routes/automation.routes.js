@@ -14,11 +14,8 @@ router.post(
   automationController.runPendingTasks
   // Sin authMiddleware — lo protege el secret header
 );
-//NUEVI
-router.get(
-  "/run-pending",
-  automationController.runPendingTasks
-);
+//NUEVO
+router.get("/run-pending", automationController.runPendingTasks);
 
 export default router;
 
