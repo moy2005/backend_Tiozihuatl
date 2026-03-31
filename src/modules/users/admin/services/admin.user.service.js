@@ -100,8 +100,10 @@ export const AdminUserService = {
 
       const nombreRol = await getRoleName(connection, data.id_rol);
       const esEstudiante = isStudentRole(nombreRol);
+      const activationToken = randomBytes(32).toString("hex");
+      const activationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-      data.correo = normalizeText(data.correo);
+      data.correo = normalizeText(data.correo)?.toLowerCase() || null;
       data.telefono = normalizeText(data.telefono);
       data.matricula = normalizeText(data.matricula);
       data.grupo = normalizeText(data.grupo);
@@ -112,7 +114,8 @@ export const AdminUserService = {
 
       if (esEstudiante) {
         await ensureUniqueMatricula(connection, data.matricula);
-        await ensureUniqueEmail(connection, data.correo);
+        data.correo = null;
+        data.telefono = null;
       } else {
         if (!data.correo) {
           throw new Error(`${nombreRol} requiere correo electrÃ³nico.`);
@@ -125,8 +128,10 @@ export const AdminUserService = {
         await ensureUniqueEmail(connection, data.correo);
       }
 
-      const hash = await bcrypt.hash(data.contrasena, 12);
-      data.contrasena = hash;
+      data.contrasena = null;
+      data.estado = "pending_activation";
+      data.token_verificacion = activationToken;
+      data.token_expira = activationExpires;
 
       const { insertId } = await AdminUserModel.createByAdmin(data, connection);
 
@@ -143,7 +148,19 @@ export const AdminUserService = {
 
       await connection.commit();
 
-      return { message: "Usuario creado correctamente." };
+      return {
+        message: "Usuario creado correctamente. Se generó su enlace de activación.",
+        _tokens: [
+          {
+            id_usuario: insertId,
+            identificador: esEstudiante ? data.matricula : data.correo,
+            tipo_identificador: esEstudiante ? "Matrícula" : "Correo",
+            nombre: buildFullName(data),
+            rol: nombreRol,
+            activation_token: activationToken,
+          },
+        ],
+      };
     } catch (error) {
       await connection.rollback();
       throw error;

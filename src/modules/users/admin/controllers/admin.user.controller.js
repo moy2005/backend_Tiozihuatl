@@ -25,6 +25,19 @@ export const AdminUserController = {
         ip_origen: req.ip,
       });
 
+      if (result._tokens?.length > 0) {
+        const baseUrl = process.env.FRONTEND_URL;
+        const excelBuffer = await AdminUserService.generateTokensExcel(
+          result._tokens,
+          baseUrl
+        );
+
+        return res.status(201).json({
+          message: result.message,
+          tokens_excel_b64: excelBuffer.toString("base64"),
+        });
+      }
+
       res.status(201).json(result);
     } catch (err) {
       console.error("Error al crear usuario:", err);

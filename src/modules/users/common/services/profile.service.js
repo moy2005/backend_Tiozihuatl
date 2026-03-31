@@ -45,8 +45,8 @@ export const UserService = {
       ? data.palabra_secreta.trim()
       : "";
 
-    if (palabraSecreta && (palabraSecreta.length < 4 || palabraSecreta.length > 30)) {
-      throw new Error("La palabra secreta debe tener entre 4 y 30 caracteres.");
+    if (palabraSecreta && (palabraSecreta.length < 4 || palabraSecreta.length > 10)) {
+      throw new Error("La palabra secreta debe tener entre 4 y 10 caracteres.");
     }
 
     try {

@@ -123,9 +123,11 @@ export const AdminUserModel = {
         grupo,
         contrasena,
         estado,
+        token_verificacion,
+        token_expira,
         fecha_registro
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Activo', NOW())
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
       `,
       [
         data.id_rol,
@@ -138,7 +140,10 @@ export const AdminUserModel = {
         data.telefono,
         data.matricula,
         data.grupo,
-        data.contrasena,
+        data.contrasena || null,
+        data.estado || 'Activo',
+        data.token_verificacion || null,
+        data.token_expira || null,
       ]
     );
 

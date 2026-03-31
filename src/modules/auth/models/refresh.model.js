@@ -4,7 +4,6 @@ import { poolPromise } from "../../../config/db.config.js";
 export const RefreshModel = {
   async save(id_usuario, refreshToken, duracionDias = 7) {
     const hash = await bcrypt.hash(refreshToken, 10);
-    const exp = new Date(Date.now() + duracionDias * 24 * 60 * 60 * 1000);
 
     await poolPromise.query(
       "UPDATE tokensrefresh SET estado = 'Revocado' WHERE id_usuario = ?",
@@ -12,9 +11,9 @@ export const RefreshModel = {
     );
 
     await poolPromise.query(
-      `INSERT INTO tokensrefresh (id_usuario, refresh_token, fecha_expiracion, estado)
-       VALUES (?, ?, ?, 'Activo')`,
-      [id_usuario, hash, exp]
+      `INSERT INTO tokensrefresh (id_usuario, refresh_token, fecha_emision, fecha_expiracion, estado)
+       VALUES (?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY), 'Activo')`,
+      [id_usuario, hash, duracionDias]
     );
   },
 
@@ -22,9 +21,11 @@ export const RefreshModel = {
     if (!id_usuario || !token) return false;
 
     const [rows] = await poolPromise.query(
-      `SELECT *
+      `SELECT refresh_token
        FROM tokensrefresh
-       WHERE id_usuario = ? AND estado = 'Activo'
+       WHERE id_usuario = ?
+         AND estado = 'Activo'
+         AND fecha_expiracion > UTC_TIMESTAMP()
        ORDER BY fecha_emision DESC
        LIMIT 1`,
       [id_usuario]
@@ -35,10 +36,7 @@ export const RefreshModel = {
     const record = rows[0];
     const match = await bcrypt.compare(token, record.refresh_token);
 
-    if (!match) return false;
-    if (new Date() > new Date(record.fecha_expiracion)) return false;
-
-    return true;
+    return match;
   },
 
   async revoke(id_usuario) {
