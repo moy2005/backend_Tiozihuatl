@@ -4,8 +4,6 @@ import queriesModel from "../models/queries.model.js";
 import performanceModel from "../models/performance.model.js";
 import storageModel from "../models/storage.model.js";
 import indexesModel from "../models/indexes.model.js";
-import securityModel from "../models/security.model.js";
-import backupsModel from "../models/backups.model.js";
 import alertsModel from "../models/alerts.model.js";
 import dashboardModel from "../models/dashboard.model.js";
 import locksModel from "../models/locks.model.js";
@@ -66,10 +64,6 @@ const getQueries = async () => {
 };
 
 const getPerformance = async () => performanceModel.getGlobalStats();
-
-const getSecurity = async () => securityModel.getUsers();
-
-const getBackups = async () => backupsModel.getBackupHistory();
 
 const getAlerts = async () => alertsModel.getAlerts();
 
@@ -150,11 +144,7 @@ const buildSnapshot = async (limit = 10, minAvgMs = 5) => {
     getLocks()
   ]);
 
-  const [maintenance, security, backups] = await Promise.all([
-    getMaintenance(),
-    getSecurity(),
-    getBackups()
-  ]);
+  const maintenance = await getMaintenance();
 
   const alerts = await alertsModel.getAlertsFromSnapshot({
     connections,
@@ -181,8 +171,6 @@ const buildSnapshot = async (limit = 10, minAvgMs = 5) => {
     locks,
     maintenance,
     healthScore: maintenance.health_score ?? null,
-    security,
-    backups,
     alerts,
     errors: []
   };
@@ -221,8 +209,6 @@ export default {
   getConnections,
   getQueries,
   getPerformance,
-  getSecurity,
-  getBackups,
   getAlerts,
   getLocks,
   getPerformanceSchema,

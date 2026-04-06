@@ -19,8 +19,6 @@ router.get("/performance-schema", ...adminOnly, monitoringController.getPerforma
 router.get("/locks", ...adminOnly, monitoringController.getLocks);
 router.get("/locks/deadlock", ...adminOnly, monitoringController.getLastDeadlock);
 router.get("/maintenance", ...adminOnly, monitoringController.getMaintenance);
-router.get("/security", ...adminOnly, monitoringController.getSecurity);
-router.get("/backups", ...adminOnly, monitoringController.getBackups);
 router.get("/alerts", ...adminOnly, monitoringController.getAlerts);
 
 export default router;

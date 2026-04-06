@@ -83,22 +83,6 @@ const getPerformance = async (req, res) => {
   }
 };
 
-const getSecurity = async (req, res) => {
-  try {
-    res.json(await monitoringService.getSecurity());
-  } catch (error) {
-    handleError(res, error, "Error obteniendo usuarios DB");
-  }
-};
-
-const getBackups = async (req, res) => {
-  try {
-    res.json(await monitoringService.getBackups());
-  } catch (error) {
-    handleError(res, error, "Error obteniendo backups");
-  }
-};
-
 const getAlerts = async (req, res) => {
   try {
     res.json(await monitoringService.getAlerts());
@@ -190,8 +174,6 @@ export default {
   getConnections,
   getQueries,
   getPerformance,
-  getSecurity,
-  getBackups,
   getAlerts,
   // Nuevos
   getLocks,
