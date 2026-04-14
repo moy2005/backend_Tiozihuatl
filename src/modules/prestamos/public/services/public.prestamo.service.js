@@ -1,62 +1,77 @@
 import { poolPromise } from "../../../../config/db.config.js";
 import { PrestamoModel } from "../../models/prestamo.model.js";
+import {
+  assertLoanWindowOpen,
+  getCurrentLoanDateTimes,
+  MAX_PENDING_LOANS,
+} from "../../utils/prestamo.datetime.js";
 
-const validarHorario = () => {
-  const now = new Date();
-  const day = now.getDay(); // 0 domingo
+const ensureStudentEligible = async (conn, usuario_id) => {
+  const usuario = await PrestamoModel.validarUsuarioPrestamo(conn, usuario_id);
 
-  const hour = now.getHours();
-
-  if (day === 0 || day === 6) {
-    throw new Error("Solo se puede prestar de lunes a viernes");
+  if (!usuario) {
+    throw new Error("Usuario no encontrado");
   }
 
-  if (hour < 10 || hour >= 16) {
-    throw new Error("Horario permitido de 10:00 a 16:00");
+  if (usuario.nombre_rol !== "Estudiante") {
+    throw new Error("Solo los estudiantes pueden solicitar prestamos");
   }
+
+  if (usuario.estado !== "Activo") {
+    throw new Error("Tu cuenta debe estar activa para solicitar prestamos");
+  }
+
+  return usuario;
 };
 
 export const PublicPrestamoService = {
-
   obtenerMisPrestamos: async (usuario_id) => {
+    await PrestamoModel.sincronizarVencidos();
     return await PrestamoModel.obtenerPorUsuario(usuario_id);
   },
 
-   solicitarPrestamo: async (usuario_id, libro_id) => {
-
-    validarHorario();
-
+  solicitarPrestamo: async (usuario_id, libro_id) => {
+    assertLoanWindowOpen();
     const conn = await poolPromise.getConnection();
 
     try {
       await conn.beginTransaction();
 
-      // ✅ Validar límite de préstamos activos
-      const prestamosActivos = await PrestamoModel.contarPrestamosActivos(conn, usuario_id);
-      if (prestamosActivos >= 3) {
-        throw new Error("Has alcanzado el límite de 3 libros prestados simultáneamente");
+      await PrestamoModel.sincronizarVencidos(conn);
+      await ensureStudentEligible(conn, usuario_id);
+
+      const libro = await PrestamoModel.validarLibroPrestamo(conn, libro_id);
+      if (!libro) {
+        throw new Error("Libro fisico no encontrado");
+      }
+
+      if (Number(libro.activo) !== 1) {
+        throw new Error("El libro seleccionado esta inactivo");
+      }
+
+      const prestamosPendientes = await PrestamoModel.contarPrestamosPendientes(conn, usuario_id);
+      if (prestamosPendientes >= MAX_PENDING_LOANS) {
+        throw new Error("Has alcanzado el limite de 3 prestamos pendientes");
       }
 
       await PrestamoModel.descontarStock(conn, libro_id);
 
-      const fecha_vencimiento = new Date();
-      fecha_vencimiento.setHours(16, 0, 0, 0);
+      const { fechaPrestamo, fechaVencimiento } = getCurrentLoanDateTimes();
 
       const id = await PrestamoModel.crearPrestamo(conn, {
         id_usuario: usuario_id,
         libro_id,
-        fecha_vencimiento
+        fecha_prestamo: fechaPrestamo,
+        fecha_vencimiento: fechaVencimiento,
       });
 
       await conn.commit();
       return id;
-
     } catch (err) {
       await conn.rollback();
       throw err;
     } finally {
       conn.release();
     }
-  }
-
+  },
 };
