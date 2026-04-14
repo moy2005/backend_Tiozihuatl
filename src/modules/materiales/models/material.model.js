@@ -54,8 +54,9 @@ export const MaterialModel = {
   return rows;
 },
 
-  async findById(id_material) {
-    const [rows] = await poolOperacion.query(
+  async findById(id_material, conn = null) {
+    const db = conn || poolOperacion;
+    const [rows] = await db.query(
       `SELECT * FROM materiales WHERE id_material = ?`,
       [id_material]
     );
