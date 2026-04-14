@@ -16,14 +16,8 @@ export const PeriodoService = {
     return periodo;
   },
 
-  async getPeriodoActivo() {
-    const periodo = await PeriodoModel.findActivo();
-
-    if (!periodo) {
-      throw new Error("No existe un periodo activo.");
-    }
-
-    return periodo;
+  async getPeriodosActivos() {
+    return await PeriodoModel.findActivos();
   }
 
 };
