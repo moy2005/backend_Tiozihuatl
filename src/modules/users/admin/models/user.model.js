@@ -87,20 +87,20 @@ export const AdminUserModel = {
 
     if (esEstudiante) {
       if (!data.matricula) {
-        throw new Error("Estudiante requiere matrÃ­cula.");
+        throw new Error("Estudiante requiere matrí­cula.");
       }
       if (!data.id_carrera || !data.id_semestre) {
         throw new Error("Estudiante requiere carrera y semestre.");
       }
       if (!data.grupo || !["A", "B"].includes(data.grupo)) {
-        throw new Error("Estudiante requiere grupo vÃ¡lido (A o B).");
+        throw new Error("Estudiante requiere grupo válido (A o B).");
       }
       if (!data.id_periodo) {
         throw new Error("Estudiante requiere periodo.");
       }
     } else {
       if (!data.correo) {
-        throw new Error(`${nombreRol} requiere correo electrÃ³nico.`);
+        throw new Error(`${nombreRol} requiere correo electrónico.`);
       }
       data.id_carrera = null;
       data.id_semestre = null;
@@ -225,17 +225,17 @@ export const AdminUserModel = {
 
     if (esEstudiante) {
       if (!camposActualizar.matricula) {
-        throw new Error("Estudiante requiere matrÃ­cula.");
+        throw new Error("Estudiante requiere matrícula.");
       }
       if (!camposActualizar.id_carrera || !camposActualizar.id_semestre) {
         throw new Error("Estudiante requiere carrera y semestre.");
       }
       if (!camposActualizar.grupo || !["A", "B"].includes(camposActualizar.grupo)) {
-        throw new Error("Estudiante requiere grupo vÃ¡lido (A o B).");
+        throw new Error("Estudiante requiere grupo válido (A o B).");
       }
     } else {
       if (!camposActualizar.correo) {
-        throw new Error(`${nombreRol} requiere correo electrÃ³nico.`);
+        throw new Error(`${nombreRol} requiere correo electrónico.`);
       }
       camposActualizar.id_carrera = null;
       camposActualizar.id_semestre = null;
