@@ -153,7 +153,7 @@ async function ensureUniqueMatricula(connection, matricula, excludeUserId = null
   const [rows] = await connection.query(query, params);
 
   if (rows.length > 0) {
-    throw new Error("La matrÃ­cula ya estÃ¡ registrada.");
+    throw new Error("La matrícula ya está registrada.");
   }
 }
 
@@ -525,7 +525,7 @@ export const AdminUserService = {
         const comparableRow = buildComparableImportRow(row, esEstudiante);
 
         const identificador = esEstudiante ? matricula : correo;
-        const labelIdentificador = esEstudiante ? "matrÃ­cula" : "correo";
+        const labelIdentificador = esEstudiante ? "matrícula" : "correo";
 
         if (!a_paterno || !a_materno || !nombre || !identificador) {
           omitidos.push({
