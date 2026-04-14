@@ -19,7 +19,7 @@ export const AdminUserController = {
       await AuditService.logEvent({
         id_usuario: req.user?.id || null,
         tipo_evento: "CREACION_USUARIO_ADMIN",
-        descripcion: `El administrador #${req.user?.id || "N/A"} creÃ³ al usuario ${
+        descripcion: `El administrador #${req.user?.id || "N/A"} creó al usuario ${
           req.body.correo || req.body.matricula || "sin identificador"
         }`,
         ip_origen: req.ip,
