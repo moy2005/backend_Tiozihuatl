@@ -6,11 +6,14 @@ import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 const router = Router();
 const guard = [authMiddleware, roleMiddleware(["Administrador"])];
 
-router.get("/",               ...guard, AdminPrestamoController.listar);
-router.post("/",              ...guard, AdminPrestamoController.registrar);
+router.get("/", ...guard, AdminPrestamoController.listar);
+router.post("/", ...guard, AdminPrestamoController.registrar);
+router.put("/:id", ...guard, AdminPrestamoController.actualizar);
+router.delete("/:id", ...guard, AdminPrestamoController.eliminar);
 router.patch("/:id/devolver", ...guard, AdminPrestamoController.devolver);
 router.patch("/:id/cancelar", ...guard, AdminPrestamoController.cancelar);
-router.patch("/:id/vencido",  ...guard, AdminPrestamoController.marcarVencido);
+router.patch("/:id/vencido", ...guard, AdminPrestamoController.marcarVencido);
+router.patch("/:id/activar", ...guard, AdminPrestamoController.activar);
 router.patch("/:id/observaciones", ...guard, AdminPrestamoController.actualizarObservaciones);
 
 export default router;
