@@ -23,14 +23,16 @@ export const PeriodoController = {
   async getActivo(req, res) {
     try {
 
-      const periodo = await PeriodoService.getPeriodoActivo();
+      const periodos = await PeriodoService.getPeriodosActivos();
 
-      res.status(200).json(periodo);
+      res.status(200).json(periodos);
 
     } catch (error) {
 
-      res.status(404).json({
-        error: error.message
+      console.error("Error al obtener periodos activos:", error);
+
+      res.status(500).json({
+        error: "Error interno al obtener periodos activos"
       });
 
     }
