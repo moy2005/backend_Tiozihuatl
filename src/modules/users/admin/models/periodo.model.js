@@ -30,17 +30,22 @@ export const PeriodoModel = {
     return rows[0] || null;
   },
 
-  async findActivo() {
+  async findActivos() {
     const pool = await poolPromise;
 
     const [rows] = await pool.query(`
-      SELECT *
+      SELECT
+        id_periodo,
+        nombre,
+        fecha_inicio,
+        fecha_fin,
+        estado
       FROM periodos
       WHERE estado = 'Activo'
-      LIMIT 1
+      ORDER BY fecha_inicio DESC
     `);
 
-    return rows[0] || null;
+    return rows;
   }
 
 };
