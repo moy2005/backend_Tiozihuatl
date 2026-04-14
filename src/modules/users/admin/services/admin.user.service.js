@@ -206,7 +206,7 @@ export const AdminUserService = {
       data.grupo = normalizeText(data.grupo);
 
       if (data.correo && !isValidEmail(data.correo)) {
-        throw new Error("Correo electrÃ³nico no vÃ¡lido.");
+        throw new Error("Correo electrónico no válido.");
       }
 
       if (esEstudiante) {
@@ -215,7 +215,7 @@ export const AdminUserService = {
         data.telefono = null;
       } else {
         if (!data.correo) {
-          throw new Error(`${nombreRol} requiere correo electrÃ³nico.`);
+          throw new Error(`${nombreRol} requiere correo electrónico.`);
         }
         data.id_carrera = null;
         data.id_semestre = null;
@@ -296,7 +296,7 @@ export const AdminUserService = {
         data.matricula !== undefined ? data.matricula : normalizeText(usuarioActual.matricula);
 
       if (correoFinal && !isValidEmail(correoFinal)) {
-        throw new Error("Correo electrÃ³nico no vÃ¡lido.");
+        throw new Error("Correo electrónico no válido.");
       }
 
       if (esEstudianteFinal) {
@@ -304,7 +304,7 @@ export const AdminUserService = {
         await ensureUniqueEmail(connection, correoFinal, id_usuario);
       } else {
         if (!correoFinal) {
-          throw new Error(`${nombreRolFinal} requiere correo electrÃ³nico.`);
+          throw new Error(`${nombreRolFinal} requiere correo electrónico.`);
         }
         await ensureUniqueEmail(connection, correoFinal, id_usuario);
         data.id_carrera = null;
@@ -372,7 +372,7 @@ export const AdminUserService = {
         } else {
           if (!data.id_periodo) {
             throw new Error(
-              "Estudiante requiere periodo para crear su trayectoria acadÃ©mica."
+              "Estudiante requiere periodo para crear su trayectoria académica."
             );
           }
 
@@ -500,7 +500,7 @@ export const AdminUserService = {
           throw new Error("Estudiante requiere carrera, semestre y periodo.");
         }
         if (!grupoNormalizado || !["A", "B"].includes(grupoNormalizado)) {
-          throw new Error("Estudiante requiere grupo vÃ¡lido (A o B).");
+          throw new Error("Estudiante requiere grupo válido (A o B).");
         }
       }
 
@@ -547,7 +547,7 @@ export const AdminUserService = {
         if (correo && !isValidEmail(correo)) {
           omitidos.push({
             fila: row,
-            razon: "El correo electrÃ³nico no tiene un formato vÃ¡lido.",
+            razon: "El correo electrónico no tiene un formato válido.",
           });
           continue;
         }
@@ -601,7 +601,7 @@ export const AdminUserService = {
         insertados.push({
           id_usuario: result.insertId,
           identificador,
-          tipo_identificador: esEstudiante ? "MatrÃ­cula" : "Correo",
+          tipo_identificador: esEstudiante ? "Matrícula" : "Correo",
           nombre: buildFullName({ a_paterno, a_materno, nombre }),
           rol: nombreRol,
           activation_token,
@@ -611,7 +611,7 @@ export const AdminUserService = {
       await connection.commit();
 
       return {
-        message: "ImportaciÃ³n completada.",
+        message: "Importación completada.",
         insertados: insertados.length,
         omitidos: omitidos.length,
         existentes_omitidos: existentesOmitidos,
