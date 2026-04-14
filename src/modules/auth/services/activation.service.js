@@ -5,7 +5,7 @@ import { AuditService } from "../../../core/services/audit.service.js";
 
 const getIdentifier = (usuario) => usuario.matricula || usuario.correo || null;
 const getIdentifierLabel = (usuario) =>
-  usuario.matricula ? "MatrÃ­cula" : "Correo";
+  usuario.matricula ? "Matrí­cula" : "Correo";
 
 export const ActivationService = {
   /**
@@ -15,15 +15,15 @@ export const ActivationService = {
    */
   async activateAccount({ token, password, confirm_password }) {
     if (!token || !password || !confirm_password) {
-      throw new Error("Token, contraseÃ±a y confirmaciÃ³n son requeridos.");
+      throw new Error("Token, contraseña y confirmación son requeridos.");
     }
 
     if (password !== confirm_password) {
-      throw new Error("Las contraseÃ±as no coinciden.");
+      throw new Error("Las contraseñas no coinciden.");
     }
 
     if (password.length < 8) {
-      throw new Error("La contraseÃ±a debe tener al menos 8 caracteres.");
+      throw new Error("La contraseña debe tener al menos 8 caracteres.");
     }
 
     const pool = await poolPromise;
