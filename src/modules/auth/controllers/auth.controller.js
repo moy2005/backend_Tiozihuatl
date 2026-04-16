@@ -792,7 +792,8 @@ login: async (req, res) => {
         id: user.id_usuario,
         id_usuario: user.id_usuario,
         correo: user.correo,
-        rol: user.nombre_rol 
+        rol: user.nombre_rol,
+        id_semestre: user.id_semestre ?? null //Nuevo 
       },
     );
     const refreshToken = uuidv4();
@@ -817,6 +818,7 @@ login: async (req, res) => {
         nombre: user.nombre,
         rol: user.nombre_rol,
         correo: user.correo,
+        id_semestre: user.id_semestre ?? null, //Nuevo
       },
     });
 
@@ -844,7 +846,7 @@ refreshToken: async (req, res) => {
 
     // ✅ Recuperar el usuario para incluir el rol en el nuevo token
     const [rows] = await poolPromise.query(
-      `SELECT U.id_usuario, U.correo, R.nombre_rol
+      `SELECT U.id_usuario, U.correo, U.id_semestre, R.nombre_rol
        FROM usuarios U
        INNER JOIN roles R ON U.id_rol = R.id_rol
        WHERE U.id_usuario = ?
@@ -863,6 +865,7 @@ refreshToken: async (req, res) => {
       id_usuario: user.id_usuario,
       correo: user.correo,
       rol: user.nombre_rol,
+      id_semestre: user.id_semestre ?? null,  //Nuevo
     });
     const newRefresh = uuidv4();
 
@@ -876,10 +879,11 @@ refreshToken: async (req, res) => {
       accessToken: newAccess,
       refreshToken: newRefresh,
       user: {
-        id: user.id_usuario,
+        id: user.id_usuario, 
         id_usuario: user.id_usuario,
         correo: user.correo,
         rol: user.nombre_rol,
+        id_semestre: user.id_semestre ?? null, //Nuevo
       },
     });
   } catch (err) {
