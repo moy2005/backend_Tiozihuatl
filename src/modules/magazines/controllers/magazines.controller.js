@@ -368,9 +368,6 @@ export const toggleMagazineStatus = async (req, res) => {
 
  export const completePurchase = async (req, res) => {
 
-  console.log("USER:", req.user);
-  console.log("BODY:", req.body);
-
   const userId = req.user.id_usuario;
   const items = req.body.items;
 
