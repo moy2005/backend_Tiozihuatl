@@ -33,6 +33,7 @@ import maintenanceRoutes from './modules/maintenance/index.js';
 import predictionRoutes from './modules/prediction/index.js';
 import periodosRoutes  from "./modules/periodos/index.js";
 import materiasRoutes from "./modules/materias/index.js"
+import materialesRoutes from "./modules/materiales/index.js";
 
 dotenv.config();
 const app = express();
@@ -155,5 +156,7 @@ app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/prediction", predictionRoutes);
 app.use("/api/periodos", periodosRoutes);
 app.use("/api/materias", materiasRoutes);
+app.use("/api/docente/materiales", materialesRoutes);
+app.use("/api/material", materialesRoutes);
 
 export default app;
