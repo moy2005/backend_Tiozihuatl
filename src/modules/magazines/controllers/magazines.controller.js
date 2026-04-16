@@ -215,7 +215,7 @@ export const uploadMagazine = async (req, res) => {
     res.json({ message: 'Magazine uploaded successfully' });
 
   } catch (error) {
-    console.error("❌ ERROR DETALLADO uploadMagazine:");
+    console.error("ERROR DETALLADO uploadMagazine:");
     console.error("Mensaje:", error.message);
     console.error("Stack:", error.stack);
     res.status(500).json({ error: error.message });
@@ -227,37 +227,60 @@ export const uploadMagazine = async (req, res) => {
 export const getMyPurchases = async (req, res) => {
   try {
     const userId = req.user.id_usuario;
-
     const data = await service.getMyPurchases(userId);
 
+    console.log("Resultado:", data); // para verificar que filtra inactivas
     res.json(data);
 
-  } catch (error) {
-    console.error("Error en getMyPurchases:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-
-export const getAllMagazines = async (req, res) => {
-  try {
-    const data = await service.getAllMagazines();
-    res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-export const saveProgress = async (req, res) => {
+  export const getAllMagazines = async (req, res) => {
+    try {
+      const data = await service.getAllMagazines();
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
-  const id_usuario = req.user.id_usuario;
-  const { id_magazine, page } = req.body;
+  export const saveProgress = async (req, res) => {
+    try {
+      const id_usuario = req.user.id_usuario;
+      const { id_revista, pagina } = req.body;
 
-  await service.saveReadingProgress(id_usuario, id_magazine, page);
+      await poolPromise.query(`
+        INSERT INTO progreso_lectura (id_usuario, id_revista, pagina)
+        VALUES (?, ?, ?)
+        ON DUPLICATE KEY UPDATE pagina = ?
+      `, [id_usuario, id_revista, pagina, pagina]);
 
-  res.json({ success: true });
-};
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error guardando progreso:', error);
+      res.status(500).json({ error: error.message });
+    }
+  };
 
+  //  getProgress
+  export const getProgress = async (req, res) => {
+    try {
+      const id_usuario = req.user.id_usuario;
+      const { id } = req.params;
+
+      const [rows] = await poolPromise.query(`
+        SELECT pagina FROM progreso_lectura
+        WHERE id_usuario = ? AND id_revista = ?
+      `, [id_usuario, id]);
+
+      res.json(rows[0] || { pagina: 1 });
+    } catch (error) {
+      console.error('Error obteniendo progreso:', error);
+      res.status(500).json({ error: error.message });
+    }
+  };
 export const saveProgressController = async (req, res) => {
   const { id_magazine, page } = req.body;
   const userId = req.user.id;
