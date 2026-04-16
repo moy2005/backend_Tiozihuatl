@@ -127,6 +127,7 @@ async findByCredential(credential, rolSeleccionado) {
         -- 👇 CAMPOS FALTANTES PARA BLOQUEO
         U.intentos_fallidos,
         U.bloqueado_hasta,
+        U.id_semestre,
 
         R.nombre_rol,
         C.nombre_carrera AS carrera,
