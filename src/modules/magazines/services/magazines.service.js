@@ -219,27 +219,30 @@ export const processPurchase = async ({
   }
 };
 
-  export const getMyPurchases = async (userId) => {
+export const getMyPurchases = async (userId) => {
 
-    const pool = await poolPromise;
+  const [rows] = await poolPromise.query(`
+    SELECT 
+        r.id_revista,
+        r.titulo,
+        r.precio,
+        r.estado,
+        r.pdf_public_id,
+        MAX(c.created_at) AS fecha_compra
+    FROM compras c
+    INNER JOIN detalle_compra dc 
+        ON dc.id_compra = c.id_compra
+    INNER JOIN revistas r 
+        ON r.id_revista = dc.id_revista
+        AND r.estado = 'Activa'  
+    WHERE c.id_usuario = ?
+    AND c.estado = 'pagado'
+    GROUP BY r.id_revista, r.titulo, r.precio, r.estado, r.pdf_public_id
+    ORDER BY fecha_compra DESC
+  `, [userId]);
 
-    const [rows] = await pool.query(
-      `SELECT 
-          r.id_revista,
-          r.titulo,
-          r.precio,
-          MAX(c.created_at) AS fecha_compra
-      FROM compras c
-      INNER JOIN detalle_compra dc ON dc.id_compra = c.id_compra
-      INNER JOIN revistas r ON r.id_revista = dc.id_revista
-      WHERE c.id_usuario = ?
-      GROUP BY r.id_revista, r.titulo, r.precio
-      ORDER BY fecha_compra DESC`,
-      [userId]
-    );
-
-    return rows;
-  };
+  return rows;
+};
 
 /* =====================================
    SECURE PDF ACCESS
