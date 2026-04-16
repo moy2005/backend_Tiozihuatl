@@ -244,6 +244,7 @@ export const getMyPurchases = async (userId) => {
   return rows;
 };
 
+
 /* =====================================
    SECURE PDF ACCESS
 ===================================== */
@@ -418,7 +419,7 @@ export const savePurchase = async (req, res) => {
 export const saveReadingProgress = async (id_usuario, id_magazine, page) => {
 
   await poolPromise.query(`
-    INSERT INTO lectura_progreso (id_usuario, id_revista, pagina)
+    INSERT INTO progreso_lectura (id_usuario, id_revista, pagina)
     VALUES (?, ?, ?)
     ON DUPLICATE KEY UPDATE pagina = ?
   `, [id_usuario, id_magazine, page, page]);
