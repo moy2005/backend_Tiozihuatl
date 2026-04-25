@@ -27,6 +27,7 @@ router.get('/secure-pdf/:id',authMiddleware,controller.getSecurePdf);
 router.post('/complete-purchase',authMiddleware,controller.completePurchase);
 // Guardar progreso de lectura
 router.post('/progress', authMiddleware, controller.saveProgress);
+//Agregar este GET
 router.get('/progress/:id', authMiddleware, controller.getProgress);
 
 
