@@ -135,5 +135,25 @@ export const NewsModel = {
       ORDER BY fecha_publicacion DESC
     `);
     return rows;
+  },
+
+  getPublicById: async (id) => {
+    await NewsModel.sincronizarEstados();
+
+    const [rows] = await poolPromise.query(
+      `
+      SELECT id_noticia, titulo, contenido, imagen_url, video_url,
+             categoria, fecha_publicacion
+      FROM noticias
+      WHERE id_noticia = ?
+        AND estado = 'Publicada'
+        AND fecha_publicacion <= ${LOCAL_NOW_SQL}
+        AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
+      LIMIT 1
+      `,
+      [id]
+    );
+
+    return rows[0] || null;
   }
 };

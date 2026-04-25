@@ -4,9 +4,9 @@ import adminNewsRoutes from "./admin/routes/admin.news.routes.js";
 
 const router = express.Router();
 
-// Rutas públicas (Noticias)
-router.use("/", publicNewsRoutes);
-// Rutas administrativas (gestión de Noticias)
+// Rutas administrativas (gestion de noticias)
 router.use("/admin", adminNewsRoutes);
+// Rutas publicas (noticias)
+router.use("/", publicNewsRoutes);
 
 export default router;
