@@ -1,6 +1,7 @@
 import { poolPromise } from '../../../config/db.config.js';
 
 export const getUserPurchases = async (id_usuario) => {
+console.log("✅ purchases.service correcto");
   const [rows] = await poolPromise.query(`
   SELECT 
     r.id_revista,
