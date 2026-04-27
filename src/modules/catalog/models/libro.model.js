@@ -7,8 +7,6 @@ const searchBooks = async ({ search, autor, materia, formato, ordenAutor, semest
     l.id,
     l.titulo,
     GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
-    COALESCE(e.nombre, 'Sin editorial') AS editorial,
-
     GROUP_CONCAT(DISTINCT m.nombre) AS materias,
     GROUP_CONCAT(DISTINCT s.nombre_semestre) AS semestres,
     GROUP_CONCAT(DISTINCT s.id_semestre) AS semestres_ids,
@@ -24,7 +22,6 @@ const searchBooks = async ({ search, autor, materia, formato, ordenAutor, semest
   FROM libros l
   LEFT JOIN libro_semestre ls ON ls.libro_id = l.id
   LEFT JOIN semestres s ON s.id_semestre = ls.semestre_id
-  LEFT JOIN editoriales e ON e.id_editorial = l.id_editorial
   LEFT JOIN libro_autor la ON la.libro_id = l.id
   LEFT JOIN autores a ON a.id = la.autor_id
 
@@ -71,7 +68,6 @@ const searchBooks = async ({ search, autor, materia, formato, ordenAutor, semest
   query += ` GROUP BY 
   l.id,
   l.titulo,
-  e.nombre,
   l.activo`;
 
   if (ordenAutor === 'ASC') {
@@ -93,7 +89,6 @@ const searchBooksAdmin = async ({ search, materia, formato, ordenAutor, activo, 
       l.id,
       l.titulo,
       GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
-      COALESCE(e.nombre, 'Sin editorial') AS editorial,
       l.activo,
       GROUP_CONCAT(DISTINCT m.nombre) AS materias,
       GROUP_CONCAT(DISTINCT s.nombre_semestre) AS semestres,
@@ -110,7 +105,6 @@ const searchBooksAdmin = async ({ search, materia, formato, ordenAutor, activo, 
     FROM libros l
     LEFT JOIN libro_semestre ls ON ls.libro_id = l.id
     LEFT JOIN semestres s ON s.id_semestre = ls.semestre_id
-    LEFT JOIN editoriales e ON e.id_editorial = l.id_editorial
     LEFT JOIN libro_autor la ON la.libro_id = l.id
     LEFT JOIN autores a ON a.id = la.autor_id
     LEFT JOIN libro_materia lm ON lm.libro_id = l.id
@@ -163,14 +157,12 @@ const searchBooksAdmin = async ({ search, materia, formato, ordenAutor, activo, 
 
   return rows;
 };
-/** ➕ Crear libro (admin) */
+
 const createLibro = async (data) => {
 
   const {
     titulo,
     autor,
-    id_editorial,
-    editorial,
     materias,
     formatos,
     semestres
@@ -186,51 +178,20 @@ const createLibro = async (data) => {
 
     await conn.beginTransaction();
 
-    let editorialId = id_editorial;
-
     // ================================
-    // 🔹 BUSCAR O CREAR EDITORIAL
-    // ================================
-
-    if (!editorialId && editorial) {
-
-      const [rows] = await conn.execute(
-        `SELECT id_editorial FROM editoriales WHERE nombre = ?`,
-        [editorial]
-      );
-
-      if (rows.length > 0) {
-
-        editorialId = rows[0].id_editorial;
-
-      } else {
-
-        const [nuevaEditorial] = await conn.execute(
-          `INSERT INTO editoriales (nombre, activo)
-           VALUES (?,1)`,
-          [editorial]
-        );
-
-        editorialId = nuevaEditorial.insertId;
-
-      }
-
-    }
-
-    // ================================
-    // 1️⃣ CREAR LIBRO
+    //  CREAR LIBRO
     // ================================
 
     const [result] = await conn.execute(
-      `INSERT INTO libros (titulo, id_editorial)
-       VALUES (?, ?)`,
-      [titulo, editorialId]
+      `INSERT INTO libros (titulo)
+       VALUES (?)`,
+      [titulo]
     );
 
     const libroId = result.insertId;
 
     // ================================
-    // 2️⃣ PROCESAR AUTORES
+    //  PROCESAR AUTORES
     // ================================
 
     const autores = autor.split(';').map(a => a.trim()).filter(a => a);
@@ -268,7 +229,7 @@ const createLibro = async (data) => {
     }
 
     // ================================
-    // 3️⃣ INSERTAR MATERIAS
+    //  INSERTAR MATERIAS
     // ================================
 
     for (const materiaId of materias) {
@@ -282,7 +243,7 @@ const createLibro = async (data) => {
     }
 
     // ================================
-    // 4️⃣ INSERTAR FORMATOS
+    //  INSERTAR FORMATOS
     // ================================
 
     for (const f of formatos) {
@@ -303,7 +264,7 @@ const createLibro = async (data) => {
     }
 
     // ================================
-    // 4️⃣ INSERTAR SEMESTRES
+    //  INSERTAR SEMESTRES
     // ================================
 
     if (semestres && semestres.length > 0) {
@@ -333,14 +294,12 @@ const createLibro = async (data) => {
 
 };
 
-
 const getAll = async () => {
   const [rows] = await poolPromise.execute(`
       SELECT
       l.id,
       l.titulo,
       GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
-      COALESCE(e.nombre, 'Sin editorial') AS editorial
       GROUP_CONCAT(DISTINCT m.nombre) AS materias,
 
       MAX(CASE WHEN f.tipo = 'FISICO' THEN f.total END) AS total,
@@ -352,7 +311,6 @@ const getAll = async () => {
       MAX(CASE WHEN f.tipo = 'FISICO' THEN 1 ELSE 0 END) AS tiene_fisico
 
     FROM libros l
-    LEFT JOIN editoriales e ON e.id_editorial = l.id_editorial
     LEFT JOIN libro_materia lm ON lm.libro_id = l.id
     LEFT JOIN materias m ON m.id = lm.materia_id
     LEFT JOIN libro_formatos f ON f.libro_id = l.id
@@ -372,11 +330,9 @@ const getAllAdmin = async () => {
       l.id,
       l.titulo,
       GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
-      COALESCE(e.nombre, 'Sin editorial') AS editorial
       IFNULL(l.activo, 0) AS activo,
       GROUP_CONCAT(DISTINCT m.nombre) AS materias
      FROM libros l
-     LEFT JOIN editoriales e ON e.id_editorial = l.id_editorial
      LEFT JOIN libro_materia lm ON lm.libro_id = l.id
      LEFT JOIN materias m ON m.id = lm.materia_id
      LEFT JOIN libro_autor la ON la.libro_id = l.id
@@ -412,10 +368,10 @@ const getAllAdmin = async () => {
       }
     }
 
-    // 🔹 Guardamos también formatos completos si los necesitas
+    // Guardamos también formatos completos si los necesitas
     libro.formatos = formatos;
 
-    // 🔹 Normalización estricta activo
+    //  Normalización estricta activo
     libro.activo = Number(libro.activo) === 1 ? 1 : 0;
   }
 
@@ -427,8 +383,6 @@ const updateLibro = async (id, data) => {
   const {
     titulo,
     autor,
-    id_editorial = null,
-    editorial = null, 
     materias,
     semestres,
     tiene_fisico,
@@ -443,42 +397,15 @@ const updateLibro = async (id, data) => {
 
     await conn.beginTransaction();
 
-    let editorialId = id_editorial;
-
-    if (!editorialId && editorial) {
-
-      const [rows] = await conn.execute(
-        `SELECT id_editorial FROM editoriales WHERE nombre = ?`,
-        [editorial]
-      );
-
-      if (rows.length > 0) {
-
-        editorialId = rows[0].id_editorial;
-
-      } else {
-
-        const [nuevaEditorial] = await conn.execute(
-          `INSERT INTO editoriales (nombre, activo)
-           VALUES (?,1)`,
-          [editorial]
-        );
-
-        editorialId = nuevaEditorial.insertId;
-
-      }
-
-    }
-
-    // 1️⃣ Actualizar libro base
+    //  Actualizar libro base
     await conn.execute(
       `UPDATE libros
-       SET titulo = ?, id_editorial = ?
+       SET titulo = ?
        WHERE id = ?`,
-      [titulo, editorialId, id]
+      [titulo, id]
     );
 
-    // 2️⃣ Actualizar autores
+    //  Actualizar autores
     await conn.execute(
       `DELETE FROM libro_autor WHERE libro_id = ?`,
       [id]
@@ -518,7 +445,7 @@ const updateLibro = async (id, data) => {
 
     }
 
-    // 3️⃣ Actualizar materias
+    //  Actualizar materias
     if (materias && materias.length > 0 && materias[0]) {
 
       await conn.execute(
@@ -558,7 +485,7 @@ const updateLibro = async (id, data) => {
       }
     }
 
-    // 4️⃣ FÍSICO
+    //  FÍSICO
     if (tiene_fisico !== undefined) {
 
       if (tiene_fisico == 1) {
@@ -584,7 +511,7 @@ const updateLibro = async (id, data) => {
 
     }
 
-    // 5️⃣ DIGITAL
+    //  DIGITAL
     if (tiene_digital !== undefined) {
 
       if (tiene_digital == 1) {
@@ -635,6 +562,7 @@ const getMaterias = async () => {
   const [rows] = await poolPromise.execute(`
     SELECT id, nombre          
     FROM materias
+    WHERE activo = 1
     ORDER BY nombre ASC
   `);
   return rows;
@@ -666,6 +594,7 @@ const getLibroDigitalById = async (id) => {
 
   return rows[0] || null;
 };
+
 const getAllAutores = async () => {
   const [rows] = await poolPromise.execute(
     `SELECT id, nombre FROM autores ORDER BY nombre ASC`
@@ -673,26 +602,36 @@ const getAllAutores = async () => {
   return rows;
 };
 
-const getEditoriales = async (search) => {
+const deleteLibro = async (id) => {
+  const conn = await poolPromise.getConnection();
+  try {
+    await conn.beginTransaction();
 
-  let query = `
-    SELECT id_editorial, nombre
-    FROM editoriales
-    WHERE activo = 1
-  `;
+    // Obtener pdf_url antes de borrar
+    const [formatos] = await conn.execute(
+      `SELECT pdf_url FROM libro_formatos 
+       WHERE libro_id = ? AND tipo = 'DIGITAL'`,
+      [id]
+    );
 
-  const params = [];
+    // Borrar relaciones
+    await conn.execute(`DELETE FROM libro_autor    WHERE libro_id = ?`, [id]);
+    await conn.execute(`DELETE FROM libro_materia  WHERE libro_id = ?`, [id]);
+    await conn.execute(`DELETE FROM libro_semestre WHERE libro_id = ?`, [id]);
+    await conn.execute(`DELETE FROM libro_formatos WHERE libro_id = ?`, [id]);
+    await conn.execute(`DELETE FROM libros         WHERE id = ?`,       [id]);
 
-  if (search) {
-    query += ` AND nombre LIKE ?`;
-    params.push(`%${search}%`);
+    await conn.commit();
+
+    // Devolver public_id del PDF si existía
+    return formatos.length > 0 ? formatos[0].pdf_url : null;
+
+  } catch (error) {
+    await conn.rollback();
+    throw error;
+  } finally {
+    conn.release();
   }
-
-  query += ` ORDER BY nombre ASC LIMIT 10`;
-
-  const [rows] = await poolPromise.execute(query, params);
-
-  return rows;
 };
 
 export default {
@@ -706,6 +645,6 @@ export default {
   getMaterias,
   getLibroDigitalById,
   getAllAutores,
-  getEditoriales,
-  getSemestres
+  getSemestres,
+  deleteLibro
 };
