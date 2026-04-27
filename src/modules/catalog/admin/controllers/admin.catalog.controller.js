@@ -6,7 +6,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 } // 10MB opcional
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB opcional
 });
 
 const subirPdf = [
@@ -118,27 +118,6 @@ const listarAutores = async (req, res) => {
   }
 };
 
-
-const getEditoriales = async (req, res) => {
-  try {
-
-    const { search } = req.query;
-
-    const editoriales = await service.getEditoriales(search);
-
-    res.json(editoriales);
-
-  } catch (error) {
-
-    console.error("Error obteniendo editoriales", error);
-
-    res.status(500).json({
-      message: "Error obteniendo editoriales"
-    });
-
-  }
-}
-
 const getSemestres = async (req, res) => {
     try {
       const semestres = await service.obtenerSemestres();
@@ -149,6 +128,17 @@ const getSemestres = async (req, res) => {
     }
 }
 
+const eliminarLibro = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await service.eliminarLibro(id);
+    res.json({ message: 'Libro eliminado correctamente' });
+  } catch (error) {
+    console.error('❌ Error eliminarLibro:', error);
+    res.status(500).json({ message: 'Error al eliminar el libro' });
+  }
+};
+
 export default {
   crearLibro,
   listarLibros,
@@ -156,6 +146,6 @@ export default {
   cambiarEstado,
   subirPdf, 
   listarAutores,
-  getEditoriales,
-  getSemestres
+  getSemestres,
+  eliminarLibro
 };
