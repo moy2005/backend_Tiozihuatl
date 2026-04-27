@@ -8,7 +8,7 @@ const getNowMexico = () =>
     .slice(0, 19);
 
 
-    // ── Detectar tablas que necesitan mantenimiento ───────────────
+    // Detectar tablas que necesitan mantenimiento ───────────────
 export const detectarTablas = async () => {
   const [rows] = await poolAdmin.execute(`
     SELECT t.table_name, t.table_rows
@@ -32,6 +32,15 @@ export const detectarTablas = async () => {
   return rows.map(r => r.table_name || r.TABLE_NAME);
 };
 
+// Limpiar logs antiguos (retención 90 días) ─────────────────
+const limpiarLogsAntiguos = async (diasRetension = 90) => {
+  const [result] = await poolOperacion.execute(
+    `DELETE FROM maintenance_log 
+     WHERE fecha < DATE_SUB(NOW(), INTERVAL ? DAY)`,
+    [diasRetension]
+  );
+  return result.affectedRows;
+};
 
 export const runMaintenance = async (origen = 'manual', userId = null) => {
   const startTime  = Date.now();
@@ -45,7 +54,6 @@ export const runMaintenance = async (origen = 'manual', userId = null) => {
     logLines.push(line);
   };
 
-  // Detectar tablas dinámicamente
   const tablasDetectadas = await detectarTablas();
 
   log('===== INICIO DE OPTIMIZACIÓN DE RENDIMIENTO =====');
@@ -97,14 +105,27 @@ export const runMaintenance = async (origen = 'manual', userId = null) => {
     ]
   );
 
+  //  Limpieza automatica, conservar últimos 90 días ──────────
+  let registrosEliminados = 0;
+  try {
+    registrosEliminados = await limpiarLogsAntiguos(90);
+    if (registrosEliminados > 0) {
+      console.log(`[Mantenimiento] Limpieza automática: ${registrosEliminados} log(s) eliminado(s) (>90 días)`);
+    }
+  } catch (cleanErr) {
+    // No interrumpe el flujo si falla la limpieza
+    console.error('[Mantenimiento] Error en limpieza automática:', cleanErr.message);
+  }
+
   return {
-    id:                result.insertId,
-    tablas_procesadas: tablasDetectadas.length,
-    tablas_detectadas: tablasDetectadas,
+    id:                    result.insertId,
+    tablas_procesadas:     tablasDetectadas.length,
+    tablas_detectadas:     tablasDetectadas,
     tablas_ok,
     tablas_error,
-    duracion_seg:      duracion,
-    detalle
+    duracion_seg:          duracion,
+    detalle,
+    registros_eliminados:  registrosEliminados
   };
 };
 
