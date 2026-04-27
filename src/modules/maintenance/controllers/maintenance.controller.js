@@ -61,3 +61,27 @@ export const getTablasDetectadas = async (req, res) => {
     res.status(500).json({ message: 'Error detectando tablas' });
   }
 };
+
+
+// ── Limpieza manual desde el panel ───────────────────────────
+export const limpiarLogs = async (req, res) => {
+  try {
+    const dias = parseInt(req.query.dias) || 90;
+
+    if (dias < 30) {
+      return res.status(400).json({ 
+        message: 'El período mínimo de retención es 30 días.' 
+      });
+    }
+
+    const eliminados = await limpiarLogsAntiguos(dias);
+    res.json({ 
+      message: `Limpieza completada. ${eliminados} registro(s) eliminado(s).`,
+      eliminados,
+      dias_retencion: dias
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error al limpiar logs.' });
+  }
+};
