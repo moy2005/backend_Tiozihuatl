@@ -33,6 +33,20 @@ const uploadPdf = async (fileBuffer) => {
   });
 }; 
 
+const deletePdf = async (publicId) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(
+      publicId,
+      { resource_type: 'image' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
+
 export default { 
-  uploadPdf
+  uploadPdf, 
+  deletePdf
 };
