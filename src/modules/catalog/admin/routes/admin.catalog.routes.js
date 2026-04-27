@@ -11,8 +11,8 @@ router.put("/libros/:id", authMiddleware, roleMiddleware(["Administrador"]), con
 router.patch("/libros/:id/estado",authMiddleware,roleMiddleware(["Administrador"]), controller.cambiarEstado);
 router.post( "/upload-pdf",authMiddleware,roleMiddleware(["Administrador"]), controller.subirPdf);
 router.get('/autores', authMiddleware, roleMiddleware(["Administrador"]), controller.listarAutores);
-router.get("/editoriales",authMiddleware, roleMiddleware(["Administrador"]), controller.getEditoriales);
-router.get("/semestres",authMiddleware,roleMiddleware(["Administrador"]), controller.getSemestres);
+router.get("/semestres", authMiddleware,roleMiddleware(["Administrador"]), controller.getSemestres);
+router.delete('/libros/:id', authMiddleware, roleMiddleware(['Administrador']), controller.eliminarLibro);
 
 export default router;
 
