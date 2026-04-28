@@ -16,43 +16,30 @@ export const AdminMaterialService = {
         throw new Error("Archivo no proporcionado");
       }
 
-      // 🔍 DEBUG — quítalo después de confirmar
-      console.log("=== DEBUG UPLOAD ===");
-      console.log("mimetype:", file.mimetype);
-      console.log("originalname:", file.originalname);
-      console.log("====================");
-
-      //  1. Tipo de archivo (detección robusta)
+      //  1. Tipo de archivo 
       let tipo = "OTRO";
       const mime = file.mimetype.toLowerCase();
-      //  PDF
       if (mime === "application/pdf") {
         tipo = "PDF";
-      //  WORD (doc, docx)
       } else if (
         mime === "application/msword" ||
         mime.includes("officedocument.wordprocessingml")
       ) {
         tipo = "WORD";
-      // EXCEL (xls, xlsx)
       } else if (
         mime === "application/vnd.ms-excel" ||
         mime.includes("officedocument.spreadsheetml")
       ) {
         tipo = "EXCEL";
-      // POWERPOINT (ppt, pptx)
       } else if (
         mime === "application/vnd.ms-powerpoint" ||
         mime.includes("officedocument.presentationml")
       ) {
         tipo = "PPT";
-      // IMÁGENES (png, jpg, jpeg, webp, etc)
       } else if (mime.startsWith("image/")) {
         tipo = "IMAGEN";
-      //  VIDEO (mp4, webm, mov, etc)
       } else if (mime.startsWith("video/")) {
         tipo = "VIDEO";
-      //  ARCHIVOS COMPRIMIDOS (opcional futuro)
       } else if (
         mime.includes("zip") ||
         mime.includes("rar") ||
@@ -157,7 +144,7 @@ export const AdminMaterialService = {
     try {
       await conn.beginTransaction();
 
-      // 🔥 1. detectar resource_type
+      //  1. detectar resource_type
       let resource_type = "raw";
 
       if (material.tipo === "IMAGEN") {
@@ -168,7 +155,7 @@ export const AdminMaterialService = {
       if (material.tipo === "PDF") 
         resource_type = "image";
 
-      // 🔥 2. eliminar archivo en Cloudinary (PRIMERO)
+      //  2. eliminar archivo en Cloudinary (PRIMERO)
       try {
         await cloudinary.uploader.destroy(material.public_id, {
           resource_type:
@@ -183,7 +170,7 @@ export const AdminMaterialService = {
         throw new Error("Error eliminando archivo en la nube");
       }
 
-      // 🔥 3. eliminar relaciones
+      //  3. eliminar relaciones
       await conn.query(
         `DELETE FROM material_materia WHERE id_material = ?`,
         [id_material]
@@ -194,7 +181,7 @@ export const AdminMaterialService = {
         [id_material]
       );
 
-      // 🔥 4. eliminar material
+      //  4. eliminar material
       await conn.query(
         `DELETE FROM materiales WHERE id_material = ?`,
         [id_material]
@@ -421,7 +408,7 @@ export const AdminMaterialService = {
 
     const params = [user.id_usuario];
 
-    // 🔍 BUSCADOR
+    //  BUSCADOR
     if (filters.search && filters.search.trim().length > 0) {
       query += ` AND (
         m.titulo LIKE ?
@@ -434,7 +421,7 @@ export const AdminMaterialService = {
       );
     }
 
-    // 📚 MATERIA
+    //  MATERIA
     if (filters.materia) {
       query += ` AND m.id_material IN (
         SELECT id_material 
@@ -444,7 +431,7 @@ export const AdminMaterialService = {
       params.push(filters.materia);
     }
 
-    // 🎓 SEMESTRE
+    //  SEMESTRE
     if (filters.semestre) {
       query += ` AND m.id_material IN (
         SELECT id_material 
@@ -454,7 +441,7 @@ export const AdminMaterialService = {
       params.push(filters.semestre);
     }
 
-    // 🧩 TIPO
+    //  TIPO
     if (filters.tipo) {
       query += ` AND m.tipo = ?`;
       params.push(filters.tipo);
@@ -462,7 +449,7 @@ export const AdminMaterialService = {
 
     query += ` GROUP BY m.id_material`;
 
-    // 📄 PAGINACIÓN
+    //  PAGINACIÓN
     const limit = parseInt(filters.limit) || 6;
     const page = parseInt(filters.page) || 1;
     const offset = (page - 1) * limit;
@@ -478,53 +465,53 @@ export const AdminMaterialService = {
 
 
   async getAllMaterials(filters) {
-  let query = `
-    SELECT 
-      m.*,
-      u.nombre AS nombre_docente,
-      GROUP_CONCAT(DISTINCT mat.nombre) AS materias,
-      GROUP_CONCAT(DISTINCT s.nombre_semestre) AS semestres
-    FROM materiales m
-    LEFT JOIN usuarios u ON m.id_usuario = u.id_usuario
-    LEFT JOIN material_materia mm ON m.id_material = mm.id_material
-    LEFT JOIN materias mat ON mm.id_materia = mat.id
-    LEFT JOIN material_semestre ms ON m.id_material = ms.id_material
-    LEFT JOIN semestres s ON ms.id_semestre = s.id_semestre
-    WHERE 1=1
-  `;
+    let query = `
+      SELECT 
+        m.*,
+        u.nombre AS nombre_docente,
+        GROUP_CONCAT(DISTINCT mat.nombre) AS materias,
+        GROUP_CONCAT(DISTINCT s.nombre_semestre) AS semestres
+      FROM materiales m
+      LEFT JOIN usuarios u ON m.id_usuario = u.id_usuario
+      LEFT JOIN material_materia mm ON m.id_material = mm.id_material
+      LEFT JOIN materias mat ON mm.id_materia = mat.id
+      LEFT JOIN material_semestre ms ON m.id_material = ms.id_material
+      LEFT JOIN semestres s ON ms.id_semestre = s.id_semestre
+      WHERE 1=1
+    `;
 
-  const params = [];
+    const params = [];
 
-  if (filters.search?.trim().length > 0) {
-    query += ` AND (m.titulo LIKE ? OR m.descripcion LIKE ?)`;
-    params.push(`%${filters.search.trim()}%`, `%${filters.search.trim()}%`);
+    if (filters.search?.trim().length > 0) {
+      query += ` AND (m.titulo LIKE ? OR m.descripcion LIKE ?)`;
+      params.push(`%${filters.search.trim()}%`, `%${filters.search.trim()}%`);
+    }
+
+    if (filters.materia) {
+      query += ` AND m.id_material IN (SELECT id_material FROM material_materia WHERE id_materia = ?)`;
+      params.push(filters.materia);
+    }
+
+    if (filters.semestre) {
+      query += ` AND m.id_material IN (SELECT id_material FROM material_semestre WHERE id_semestre = ?)`;
+      params.push(filters.semestre);
+    }
+
+    if (filters.tipo) {
+      query += ` AND m.tipo = ?`;
+      params.push(filters.tipo);
+    }
+
+    query += ` GROUP BY m.id_material ORDER BY m.fecha_creacion DESC`;
+
+    const limit = parseInt(filters.limit) || 10;
+    const page = parseInt(filters.page) || 1;
+    const offset = (page - 1) * limit;
+
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    const [rows] = await poolOperacion.query(query, params);
+    return rows;
   }
-
-  if (filters.materia) {
-    query += ` AND m.id_material IN (SELECT id_material FROM material_materia WHERE id_materia = ?)`;
-    params.push(filters.materia);
-  }
-
-  if (filters.semestre) {
-    query += ` AND m.id_material IN (SELECT id_material FROM material_semestre WHERE id_semestre = ?)`;
-    params.push(filters.semestre);
-  }
-
-  if (filters.tipo) {
-    query += ` AND m.tipo = ?`;
-    params.push(filters.tipo);
-  }
-
-  query += ` GROUP BY m.id_material ORDER BY m.fecha_creacion DESC`;
-
-  const limit = parseInt(filters.limit) || 10;
-  const page = parseInt(filters.page) || 1;
-  const offset = (page - 1) * limit;
-
-  query += ` LIMIT ? OFFSET ?`;
-  params.push(limit, offset);
-
-  const [rows] = await poolOperacion.query(query, params);
-  return rows;
-}
 };
