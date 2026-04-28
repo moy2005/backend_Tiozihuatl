@@ -9,12 +9,11 @@ import {
   updateMaterial, 
   changeStatus, 
   getMaterialById, 
-  getAllMaterials  // ← solo agrega esto al import existente
+  getAllMaterials  
 } from "../controllers/admin.material.controller.js";
 const router = Router();
 
 router.use((req, res, next) => {
-  console.log("🚦 Entrando al router admin, path:", req.path);
   next();
 });
 router.use(authMiddleware);
