@@ -89,7 +89,7 @@ export const getAllMaterials = async (req, res) => {
 export const changeStatus = async (req, res) => {
   try {
     const { activo } = req.body;
-    await DocenteMaterialService.changeStatus(req.params.id, activo, req.user);
+    await AdminMaterialService.changeStatus(req.params.id, activo, req.user);
     res.json({ ok: true });
   } catch (error) {
     console.error("❌ changeStatus:", error.message);
