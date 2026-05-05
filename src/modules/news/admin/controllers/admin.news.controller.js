@@ -2,12 +2,41 @@ import { NewsModel } from "../../models/news.model.js";
 import { uploadToCloudinary } from "../../../../core/utils/cloudinaryUpload.js";
 
 const MAX_ANOS_FUTURO = 2;
+const TIME_ZONE_MEXICO = "America/Mexico_City";
+const TOLERANCIA_PASADO_MS = 5 * 60 * 1000;
 const MODO_PUBLICACION_AHORA = "ahora";
 const MODO_PUBLICACION_PROGRAMADA = "programada";
 
 function obtenerFechaActualMexicoMysql() {
-  const ahoraMexico = new Date(Date.now() - 6 * 60 * 60 * 1000);
-  return ahoraMexico.toISOString().slice(0, 19).replace("T", " ");
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIME_ZONE_MEXICO,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = Object.fromEntries(
+    formatter.formatToParts(new Date()).map((part) => [part.type, part.value])
+  );
+
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+}
+
+function parseFechaLocal(fecha) {
+  if (!fecha) return null;
+
+  const normalizada = String(fecha).trim().replace(" ", "T");
+  const parsed = new Date(normalizada);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function obtenerFechaActualMexicoDate() {
+  return parseFechaLocal(obtenerFechaActualMexicoMysql()) || new Date();
 }
 
 function normalizarModoPublicacion(modo_publicacion, fecha_publicacion) {
@@ -41,12 +70,19 @@ function resolverPublicacion({ modo_publicacion, fecha_publicacion }) {
 }
 
 function validarFechas(fecha_publicacion, fecha_caducidad) {
-  const ahora = new Date();
-  const pub = new Date(fecha_publicacion);
-  const cad = fecha_caducidad ? new Date(fecha_caducidad) : null;
+  const ahora = obtenerFechaActualMexicoDate();
+  const pub = parseFechaLocal(fecha_publicacion);
+  const cad = fecha_caducidad ? parseFechaLocal(fecha_caducidad) : null;
 
-  const tolerancia = 5 * 60 * 1000;
-  if (pub < new Date(ahora.getTime() - tolerancia)) {
+  if (!pub) {
+    return "La fecha de publicación no es válida.";
+  }
+
+  if (fecha_caducidad && !cad) {
+    return "La fecha de caducidad no es válida.";
+  }
+
+  if (pub < new Date(ahora.getTime() - TOLERANCIA_PASADO_MS)) {
     return "La fecha de publicación no puede ser en el pasado.";
   }
 
