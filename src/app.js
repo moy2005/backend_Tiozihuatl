@@ -35,6 +35,8 @@ import periodosRoutes  from "./modules/periodos/index.js";
 import materiasRoutes from "./modules/materias/index.js"
 import materialesRoutes from "./modules/materiales/index.js";
 import eventsRoutes from "./modules/events/index.js";
+import privacidadRoutes from "./modules/privacidad/index.js";
+import terminosRoutes from "./modules/terminos/index.js";
 
 dotenv.config();
 const app = express();
@@ -160,5 +162,7 @@ app.use("/api/materias", materiasRoutes);
 app.use("/api/docente/materiales", materialesRoutes);
 app.use("/api/material", materialesRoutes);
 app.use("/api/events", eventsRoutes);
+app.use("/api/privacidad", privacidadRoutes);
+app.use("/api/terminos", terminosRoutes);
 
 export default app;
