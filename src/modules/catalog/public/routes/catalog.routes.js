@@ -5,10 +5,10 @@ import { roleMiddleware } from "../../../../core/middleware/role.middleware.js";
 
 const router = express.Router();
 
-router.get( "/", authMiddleware,roleMiddleware(["Estudiante", "Docente", "Bibliotecario", "Administrador"]), catalogController.getCatalog);
-router.get("/materias", authMiddleware,roleMiddleware(["Estudiante", "Docente", "Bibliotecario", "Administrador"]), catalogController.getMaterias);
-router.get("/libros/:id/pdf-url", authMiddleware, roleMiddleware(["Estudiante", "Docente", "Bibliotecario", "Administrador"]), catalogController.getPdfUrl);
-router.get("/libros/:id/preview", authMiddleware,roleMiddleware(["Estudiante", "Docente", "Bibliotecario", "Administrador"]), catalogController.preview);
-router.get("/semestres", authMiddleware, roleMiddleware(["Estudiante", "Docente", "Bibliotecario", "Administrador"]), catalogController.getSemestres);
+router.get( "/", catalogController.getCatalog);
+router.get("/materias", catalogController.getMaterias);
+router.get("/libros/:id/pdf-url", catalogController.getPdfUrl);
+router.get("/libros/:id/preview",  catalogController.preview);
+router.get("/semestres", catalogController.getSemestres);
 
 export default router;
