@@ -3,6 +3,37 @@ import cloudinary from '../../../config/cloudinary.js';
 import { processPayment } from './payment.service.js';
 import { registerAudit } from './audit.service.js';
 
+const activeDiscountJoin = `
+  LEFT JOIN (
+    SELECT
+      rd.id_revista,
+      MAX(
+        CASE
+          WHEN d.tipo = 'porcentaje' THEN r2.precio * (d.valor / 100)
+          ELSE d.valor
+        END
+      ) AS descuento_monto
+    FROM revista_descuento rd
+    INNER JOIN descuentos d ON d.id_descuento = rd.id_descuento
+    INNER JOIN revistas r2 ON r2.id_revista = rd.id_revista
+    WHERE d.estado = 'Activo'
+      AND CURDATE() BETWEEN d.fecha_inicio AND d.fecha_fin
+    GROUP BY rd.id_revista
+  ) best_discount ON best_discount.id_revista = r.id_revista
+`;
+
+const discountSelect = `
+  COALESCE(ROUND(LEAST(r.precio, best_discount.descuento_monto), 2), 0) AS descuento_aplicado,
+  ROUND(
+    GREATEST(
+      r.precio - COALESCE(LEAST(r.precio, best_discount.descuento_monto), 0),
+      0
+    ),
+    2
+  ) AS precio_final,
+  CASE WHEN best_discount.descuento_monto IS NULL THEN 0 ELSE 1 END AS descuento_activo
+`;
+
 /* =====================================
    SIMULACIÓN PASARELA DE PAGO
 ===================================== */
@@ -57,15 +88,18 @@ export const updateMagazine = async ({
 export const getCatalog = async () => {
 
   const [rows] = await poolPromise.query(`
-    SELECT id_revista AS id_magazine,
-       titulo,
-       descripcion,
-       precio,
-       pdf_public_id,
-       stock
-    FROM revistas
-    WHERE estado = 'Activa'
-      AND stock > 0
+    SELECT
+      r.id_revista AS id_magazine,
+      r.titulo,
+      r.descripcion,
+      r.precio,
+      ${discountSelect},
+      r.pdf_public_id,
+      r.stock
+    FROM revistas r
+    ${activeDiscountJoin}
+    WHERE r.estado = 'Activa'
+    ORDER BY r.titulo ASC
   `);
 
   return rows;
@@ -122,7 +156,7 @@ export const processPurchase = async ({
 
     /* 3️⃣ Calcular descuento */
     const [[discount]] = await connection.query(`
-      SELECT d.valor
+      SELECT d.tipo, d.valor
       FROM descuentos d
       JOIN revista_descuento rd
         ON d.id_descuento = rd.id_descuento
@@ -248,7 +282,7 @@ export const getMyPurchases = async (userId) => {
 /* =====================================
    SECURE PDF ACCESS
 ===================================== */
-export const getSecurePdf = async (id_usuario, id_magazine) => {
+export const getSecurePdf = async (id_usuario, id_revista) => {
 
   const [rows] = await poolPromise.query(`
     SELECT r.pdf_public_id
@@ -258,17 +292,19 @@ export const getSecurePdf = async (id_usuario, id_magazine) => {
     WHERE c.id_usuario = ?
     AND dc.id_revista = ?
     AND c.estado = 'pagado'
-  `, [id_usuario, id_magazine]);
+  `, [id_usuario, id_revista]);
 
   if (!rows.length) {
     throw new Error('Access denied');
   }
 
-  const publicId = rows[0].pdf_public_id;
+  const pdfId = String(rows[0].pdf_public_id || '').replace(/\.pdf$/i, '');
 
-  const pdfUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${publicId}.pdf`;
-
-  return pdfUrl;
+  return cloudinary.url(pdfId, {
+    resource_type: 'image',
+    secure: true,
+    format: 'pdf'
+  });
 };
 /*export const getSecurePdf = async (id_usuario, id_magazine) => {
   
@@ -369,9 +405,19 @@ export const getAuditoriaCompras = async ({ usuario, fecha_inicio, fecha_fin }) 
 
 export const getAllMagazines = async () => {
   const [rows] = await poolPromise.query(`
-    SELECT id_revista, titulo, descripcion, precio, stock, estado, pdf_public_id
-    FROM revistas
-    ORDER BY created_at DESC
+    SELECT
+      r.id_revista,
+      r.titulo,
+      r.descripcion,
+      r.precio,
+      ${discountSelect},
+      r.stock,
+      r.estado,
+      r.pdf_public_id
+    FROM revistas r
+    ${activeDiscountJoin}
+    WHERE r.estado = 'Activa'
+    ORDER BY r.titulo ASC
   `);
 
   return rows;
@@ -431,38 +477,46 @@ export const getFilteredMagazines = async (search, sort, letter) => {
   const pool = await poolPromise;
 
   let query = `
-    SELECT *
-    FROM revistas
-    WHERE estado = 'Activa'
+    SELECT
+      r.id_revista AS id_magazine,
+      r.titulo,
+      r.descripcion,
+      r.precio,
+      ${discountSelect},
+      r.pdf_public_id,
+      r.stock
+    FROM revistas r
+    ${activeDiscountJoin}
+    WHERE r.estado = 'Activa'
   `;
 
   const params = [];
 
   // 🔎 búsqueda por título
   if (search) {
-    query += ` AND titulo LIKE ?`;
+    query += ` AND r.titulo LIKE ?`;
     params.push(`%${search}%`);
   }
 
   // 🔤 filtro por letra inicial
   if (letter) {
-    query += ` AND titulo LIKE ?`;
+    query += ` AND r.titulo LIKE ?`;
     params.push(`${letter}%`);
   }
 
   // 🔡 ordenamiento
     if (sort === 'asc') {
-      query += ` ORDER BY titulo ASC`;
+      query += ` ORDER BY r.titulo ASC`;
     } else if (sort === 'desc') {
-      query += ` ORDER BY titulo DESC`;
+      query += ` ORDER BY r.titulo DESC`;
     } else if (sort === 'price_asc') {
-      query += ` ORDER BY precio ASC`;
+      query += ` ORDER BY precio_final ASC`;
     } else if (sort === 'price_desc') {
-      query += ` ORDER BY precio DESC`;
+      query += ` ORDER BY precio_final DESC`;
     } else if (sort === 'recent') {
-      query += ` ORDER BY created_at DESC`;
+      query += ` ORDER BY r.created_at DESC`;
     } else {
-      query += ` ORDER BY created_at DESC`;
+      query += ` ORDER BY r.titulo ASC`;
     }
 
   const [rows] = await pool.query(query, params);
