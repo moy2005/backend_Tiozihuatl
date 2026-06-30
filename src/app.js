@@ -37,7 +37,10 @@ import materialesRoutes from "./modules/materiales/index.js";
 import eventsRoutes from "./modules/events/index.js";
 import privacidadRoutes from "./modules/privacidad/index.js";
 import terminosRoutes from "./modules/terminos/index.js";
-
+import discountsRoutes from "./modules/discounts/index.js";
+//stripe
+import { stripeWebhook } from './modules/payments/controllers/payments.webhook.js';
+import paymentsRoutes from "./modules/payments/index.js";
 dotenv.config();
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -47,7 +50,8 @@ const PORT = process.env.PORT || 4000;
 // Proxy y Middlewares básicos
 // ================================================================
 if (isProduction) app.set("trust proxy", true);
-app.use(express.json());
+
+//app.use(express.json());
 app.use('/uploads', express.static('uploads')); 
 
 app.use('/uploads', express.static('uploads'));
@@ -71,6 +75,8 @@ app.use(
 // ================================================================
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean)
   : ["http://localhost:4200"];
 
 app.use(
@@ -85,6 +91,23 @@ app.use(
     credentials: true,
   })
 );
+
+app.options(/.*/, cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+// ================================================================
+// STRIPE WEBHOOK (ANTES DE JSON)
+// ================================================================
+app.post(
+  '/api/payments/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
+app.use(express.json());
+//STRIPE WEBHOOK
+app.use('/api/magazines', magazinesModule);
+app.use('/api/payments', paymentsRoutes);
 
 // ================================================================
 // Sesiones
@@ -164,5 +187,6 @@ app.use("/api/material", materialesRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/privacidad", privacidadRoutes);
 app.use("/api/terminos", terminosRoutes);
+app.use("/api/discounts", discountsRoutes);
 
 export default app;

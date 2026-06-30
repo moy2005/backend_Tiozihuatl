@@ -79,10 +79,11 @@ export const purchaseMagazine = async (req, res) => {
 /* =====================================
    SECURE PDF ACCESS
 ===================================== */
+
 export const getSecurePdf = async (req, res) => {
   try {
 
-    const id_usuario = req.user.id_usuario;
+    const id_usuario = req.user?.id_usuario || 1;
     const id_magazine = Number(req.params.id);
 
     const url = await service.getSecurePdf(id_usuario, id_magazine);
@@ -95,7 +96,7 @@ export const getSecurePdf = async (req, res) => {
       return res.status(403).json({ error: error.message });
     }
 
-    console.error(error);
+    console.error('ERROR SECURE PDF:', error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
