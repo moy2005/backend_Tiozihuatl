@@ -38,8 +38,6 @@ import eventsRoutes from "./modules/events/index.js";
 import privacidadRoutes from "./modules/privacidad/index.js";
 import terminosRoutes from "./modules/terminos/index.js";
 import discountsRoutes from "./modules/discounts/index.js";
-//stripe
-import { stripeWebhook } from './modules/payments/controllers/payments.webhook.js';
 import paymentsRoutes from "./modules/payments/index.js";
 dotenv.config();
 const app = express();
@@ -96,18 +94,8 @@ app.options(/.*/, cors({
   origin: allowedOrigins,
   credentials: true
 }));
-// ================================================================
-// STRIPE WEBHOOK (ANTES DE JSON)
-// ================================================================
-app.post(
-  '/api/payments/webhook',
-  express.raw({ type: 'application/json' }),
-  stripeWebhook
-);
+
 app.use(express.json());
-//STRIPE WEBHOOK
-app.use('/api/magazines', magazinesModule);
-app.use('/api/payments', paymentsRoutes);
 
 // ================================================================
 // Sesiones
@@ -188,5 +176,6 @@ app.use("/api/events", eventsRoutes);
 app.use("/api/privacidad", privacidadRoutes);
 app.use("/api/terminos", terminosRoutes);
 app.use("/api/discounts", discountsRoutes);
+app.use("/api/payments", paymentsRoutes);
 
 export default app;

@@ -85,7 +85,7 @@ export const getAdminPurchases = async (req, res) => {
         COALESCE(c.total, p.monto, 0) AS total_compra,
         COALESCE(p.monto, c.total, 0) AS monto_pagado,
         COALESCE(detalle.descuento_total, 0) AS descuento_total,
-        COALESCE(p.metodo, 'stripe') AS metodo,
+        COALESCE(p.metodo, 'mercado_pago') AS metodo,
         p.referencia,
         c.estado AS estado_compra,
         COALESCE(p.estado, 'pendiente') AS estado_pago,

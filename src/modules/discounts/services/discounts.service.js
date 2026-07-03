@@ -33,7 +33,7 @@ const normalizeDiscount = (body = {}) => {
     throw httpError('El valor del descuento debe ser mayor a 0.');
   }
   if (tipo === 'porcentaje' && valor >= 100) {
-    throw httpError('El porcentaje debe ser menor a 100 para pagos con Stripe.');
+    throw httpError('El porcentaje debe ser menor a 100 para procesar pagos.');
   }
   if (!fecha_inicio || !fecha_fin) {
     throw httpError('Las fechas de inicio y fin son obligatorias.');
