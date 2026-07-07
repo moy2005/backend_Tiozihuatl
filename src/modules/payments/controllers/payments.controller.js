@@ -19,11 +19,12 @@ export const createPaymentPreference = async (req, res) => {
 
     return res.json(preference);
   } catch (error) {
-    const statusCode = error.statusCode || 500;
+    const statusCode = error.statusCode || error.status || 500;
 
     console.error('[mp.preference.error]', {
       message: error.message,
       statusCode,
+      cause: error.cause,
     });
 
     return res.status(statusCode).json({

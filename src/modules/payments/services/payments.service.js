@@ -243,24 +243,33 @@ const getNotificationUrl = () => {
   return `${backendUrl}/api/payments/webhook`;
 };
 
-const buildPreferenceBody = ({ pendingPurchase, magazines, revistaIds, checkoutUser, idUsuario }) => ({
-  items: buildPreferenceItems(magazines),
-  payer: checkoutUser.correo ? { email: checkoutUser.correo } : undefined,
-  external_reference: String(pendingPurchase.idCompra),
-  metadata: {
-    id_usuario: String(idUsuario),
-    id_compra: String(pendingPurchase.idCompra),
-    id_pago: String(pendingPurchase.idPago),
-    id_revistas: revistaIds.join(','),
-  },
-  notification_url: getNotificationUrl(),
-  back_urls: {
-    success: `${process.env.FRONT_URL}/magazines?payment=success`,
-    failure: `${process.env.FRONT_URL}/magazines?payment=failure`,
-    pending: `${process.env.FRONT_URL}/magazines?payment=pending`,
-  },
-  auto_return: 'approved',
-});
+const shouldAutoReturn = () => String(process.env.FRONT_URL || '').startsWith('https://');
+
+const buildPreferenceBody = ({ pendingPurchase, magazines, revistaIds, checkoutUser, idUsuario }) => {
+  const body = {
+    items: buildPreferenceItems(magazines),
+    payer: checkoutUser.correo ? { email: checkoutUser.correo } : undefined,
+    external_reference: String(pendingPurchase.idCompra),
+    metadata: {
+      id_usuario: String(idUsuario),
+      id_compra: String(pendingPurchase.idCompra),
+      id_pago: String(pendingPurchase.idPago),
+      id_revistas: revistaIds.join(','),
+    },
+    notification_url: getNotificationUrl(),
+    back_urls: {
+      success: `${process.env.FRONT_URL}/magazines?payment=success`,
+      failure: `${process.env.FRONT_URL}/magazines?payment=failure`,
+      pending: `${process.env.FRONT_URL}/magazines?payment=pending`,
+    },
+  };
+
+  if (shouldAutoReturn()) {
+    body.auto_return = 'approved';
+  }
+
+  return body;
+};
 
 export const createPreferenceForPurchase = async ({ idUsuario, body }) => {
   assertMercadoPagoConfig();
