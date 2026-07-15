@@ -60,16 +60,15 @@ export const updateMagazine = async ({
   titulo,
   descripcion,
   precio,
-  stock,
   pdf_public_id
 }) => {
 
   let query = `
     UPDATE revistas
-    SET titulo = ?, descripcion = ?, precio = ?, stock = ?
+    SET titulo = ?, descripcion = ?, precio = ?
   `;
 
-  const params = [titulo, descripcion, precio, stock];
+  const params = [titulo, descripcion, precio];
 
   if (pdf_public_id) {
     query += `, pdf_public_id = ?`;
@@ -340,7 +339,6 @@ export const createMagazine = async ({
   titulo,
   descripcion,
   precio,
-  stock,
   pdf_public_id
 }) => {
 
@@ -352,7 +350,7 @@ export const createMagazine = async ({
     titulo,
     descripcion,
     precio,
-    stock,
+    0,
     pdf_public_id,
     'Activa'
   ]);

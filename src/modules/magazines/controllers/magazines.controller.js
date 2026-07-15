@@ -152,7 +152,7 @@ export const viewMagazine = async (req, res) => {
 export const updateMagazine = async (req, res) => {
   try {
     const id = req.params.id;
-    const { titulo, descripcion, precio, stock } = req.body;
+    const { titulo, descripcion, precio } = req.body;
 
     let pdf_public_id = null;
 
@@ -174,7 +174,7 @@ export const updateMagazine = async (req, res) => {
       user_agent: req.headers['user-agent']
     });
 
-    await service.updateMagazine({ id, titulo, descripcion, precio, stock, pdf_public_id });
+    await service.updateMagazine({ id, titulo, descripcion, precio, pdf_public_id });
 
     res.json({ message: 'Magazine updated' });
 
@@ -189,9 +189,9 @@ export const updateMagazine = async (req, res) => {
 ===================================== */
 export const uploadMagazine = async (req, res) => {
   try {
-    const { titulo, descripcion, precio, stock } = req.body;
+    const { titulo, descripcion, precio } = req.body;
 
-    if (!titulo || !precio || !stock) {
+    if (!titulo || precio == null || precio === '') {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     if (!req.files || !req.files.pdf) {
@@ -209,7 +209,6 @@ export const uploadMagazine = async (req, res) => {
       titulo,
       descripcion,
       precio: Number(precio),
-      stock: Number(stock),
       pdf_public_id: pdfResult.public_id
     });
 

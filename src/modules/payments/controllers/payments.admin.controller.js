@@ -1,5 +1,7 @@
 import { poolPromise } from '../../../config/db.config.js';
 
+const MP_COMMISSION_ESTIMATE = 5.25;
+
 const normalizeEstado = (estado) => {
   const allowed = ['aprobado', 'pendiente', 'cancelado'];
   return allowed.includes(estado) ? estado : '';
@@ -86,6 +88,12 @@ export const getAdminPurchases = async (req, res) => {
         COALESCE(p.monto, c.total, 0) AS monto_pagado,
         COALESCE(detalle.descuento_total, 0) AS descuento_total,
         COALESCE(p.metodo, 'mercado_pago') AS metodo,
+        CASE
+          WHEN COALESCE(p.metodo, 'mercado_pago') = 'mercado_pago'
+            AND p.estado = 'aprobado'
+          THEN ?
+          ELSE 0
+        END AS comision_mp_estimada,
         p.referencia,
         c.estado AS estado_compra,
         COALESCE(p.estado, 'pendiente') AS estado_pago,
@@ -94,13 +102,13 @@ export const getAdminPurchases = async (req, res) => {
           WHEN p.estado = 'cancelado' OR c.estado = 'cancelado' THEN 'cancelado'
           ELSE 'pendiente'
         END AS estado,
-        COALESCE(p.fecha_pago, c.created_at) AS fecha
+        DATE_FORMAT(COALESCE(p.fecha_pago, c.created_at), '%Y-%m-%d %H:%i:%s') AS fecha
       ${paymentsBaseQuery}
       WHERE ${whereSql}
       ORDER BY fecha DESC, c.id_compra DESC
       LIMIT ?
       `,
-      [...params, limit]
+      [MP_COMMISSION_ESTIMATE, ...params, limit]
     );
 
     return res.json(rows);
@@ -122,11 +130,13 @@ export const getAdminPaymentStats = async (req, res) => {
         COALESCE(SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END), 0) AS pendientes,
         COALESCE(SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END), 0) AS canceladas,
         COALESCE(SUM(CASE WHEN estado = 'aprobado' THEN monto ELSE 0 END), 0) AS ingresos,
+        COALESCE(SUM(CASE WHEN estado = 'aprobado' AND metodo = 'mercado_pago' THEN ? ELSE 0 END), 0) AS comisiones_mp,
         COALESCE(SUM(descuento_total), 0) AS descuentos
       FROM (
         SELECT
           c.id_compra,
           COALESCE(p.monto, c.total, 0) AS monto,
+          COALESCE(p.metodo, 'mercado_pago') AS metodo,
           COALESCE(detalle.descuento_total, 0) AS descuento_total,
           CASE
             WHEN p.estado = 'aprobado' AND c.estado = 'pagado' THEN 'aprobado'
@@ -137,7 +147,7 @@ export const getAdminPaymentStats = async (req, res) => {
         WHERE ${whereSql}
       ) resumen
       `,
-      params
+      [MP_COMMISSION_ESTIMATE, ...params]
     );
 
     return res.json(rows[0] || {
@@ -146,6 +156,7 @@ export const getAdminPaymentStats = async (req, res) => {
       pendientes: 0,
       canceladas: 0,
       ingresos: 0,
+      comisiones_mp: 0,
       descuentos: 0,
     });
   } catch (error) {
