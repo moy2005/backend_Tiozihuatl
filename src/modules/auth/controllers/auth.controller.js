@@ -12,6 +12,9 @@ import { buildVerificationEmail } from "../../../core/templates/auth-email.templ
 
 dotenv.config();
 
+const VERIFICATION_TOKEN_TTL_MS = 60 * 60 * 1000;
+const VERIFICATION_EMAIL_COOLDOWN_SECONDS = 5 * 60;
+
 export const AuthController = {
 
   // ============================================================
@@ -43,15 +46,46 @@ export const AuthController = {
       if (usrReal.length > 0)
         return res.status(409).json({ error: "Este correo ya está registrado." });
 
-      // validar que NO exista pre-registro
+      // Evitar reenvios consecutivos: Brevo ya reintenta las entregas diferidas.
       const [preExist] = await poolPromise.query(
-        "SELECT id_pre FROM pre_registros WHERE correo = ?",
+        "SELECT id_pre, token_expira, verificado FROM pre_registros WHERE correo = ?",
         [correo]
       );
-      if (preExist.length > 0)
+
+      if (preExist.length > 0) {
+        if (Number(preExist[0].verificado) === 1) {
+          return res.status(409).json({
+            code: "EMAIL_ALREADY_VERIFIED",
+            error:
+              "Este correo ya fue verificado. Continúa con la creación de tu contraseña.",
+          });
+        }
+
+        const tokenExpiresAt = new Date(preExist[0].token_expira).getTime();
+        const lastSentAt = tokenExpiresAt - VERIFICATION_TOKEN_TTL_MS;
+        const elapsedSeconds = Math.max(
+          0,
+          Math.floor((Date.now() - lastSentAt) / 1000)
+        );
+        const retryAfterSeconds = Math.max(
+          0,
+          VERIFICATION_EMAIL_COOLDOWN_SECONDS - elapsedSeconds
+        );
+
+        if (retryAfterSeconds > 0) {
+          res.set("Retry-After", String(retryAfterSeconds));
+          return res.status(429).json({
+            code: "VERIFICATION_EMAIL_COOLDOWN",
+            error:
+              "Ya enviamos un enlace de verificación. Espera antes de solicitar otro.",
+            retryAfterSeconds,
+          });
+        }
+
         await poolPromise.query("DELETE FROM pre_registros WHERE correo = ?", [
           correo,
-        ]); // limpiar registro previo
+        ]);
+      }
 
       const token = crypto.randomUUID();
       const tokenExpira = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
@@ -106,7 +140,8 @@ export const AuthController = {
 
       res.json({
         message:
-          "Te enviamos un enlace a tu correo para continuar con el registro como visitante.",
+          "Te enviamos un enlace para verificar tu correo. Puede tardar unos minutos; no es necesario solicitarlo nuevamente.",
+        retryAfterSeconds: VERIFICATION_EMAIL_COOLDOWN_SECONDS,
       });
 
     } catch (err) {

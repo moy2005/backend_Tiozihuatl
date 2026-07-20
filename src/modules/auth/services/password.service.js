@@ -99,6 +99,22 @@ export const PasswordService = {
       };
     }
 
+    // Si ya existe un enlace vigente, Brevo se encargara de reintentar su entrega.
+    // No generar otro correo evita empeorar limites temporales del proveedor destino.
+    const nowMexico = getNowMexicoSql();
+    const [activeRecoveryLinks] = await poolPromise.query(
+      `SELECT token
+       FROM recovery_links
+       WHERE id_usuario = ?
+       AND expiracion > ?
+       LIMIT 1`,
+      [usuario.id_usuario, nowMexico]
+    );
+
+    if (activeRecoveryLinks.length > 0) {
+      return { message: mensajeGeneral };
+    }
+
 
     // === 3) GENERAR TOKEN ===
     const token = crypto.randomUUID();
