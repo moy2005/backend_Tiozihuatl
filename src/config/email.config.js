@@ -1,20 +1,54 @@
 import dotenv from "dotenv";
-import { Resend } from "resend";
 
 dotenv.config();
 
-export const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const parseBoolean = (value, fallback = false) => {
+  if (value === undefined || value === null || value === "") return fallback;
+  return ["1", "true", "yes", "si", "on"].includes(
+    String(value).trim().toLowerCase()
+  );
+};
 
-export const emailFrom =
-  process.env.EMAIL_FROM ||
-  '"Instituto de Estudios Superiores Tiozihuatl" <onboarding@resend.dev>';
+const parsePositiveInteger = (value, fallback) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
 
-export const emailReplyTo = process.env.EMAIL_REPLY_TO || undefined;
+export const brevoConfig = Object.freeze({
+  apiKey: String(process.env.BREVO_API_KEY || "").trim(),
+  apiUrl:
+    String(process.env.BREVO_API_URL || "").trim() ||
+    "https://api.brevo.com/v3/smtp/email",
+  sender: {
+    email: String(process.env.BREVO_SENDER_EMAIL || "").trim(),
+    name:
+      String(process.env.BREVO_SENDER_NAME || "").trim() ||
+      "Instituto de Estudios Superiores Tiozihuatl",
+  },
+  replyTo: process.env.BREVO_REPLY_TO_EMAIL
+    ? {
+        email: String(process.env.BREVO_REPLY_TO_EMAIL).trim(),
+        name:
+          String(process.env.BREVO_REPLY_TO_NAME || "").trim() ||
+          "Atencion Tiozihuatl",
+      }
+    : undefined,
+  sandbox: parseBoolean(process.env.BREVO_SANDBOX_MODE, false),
+  timeoutMs: parsePositiveInteger(process.env.BREVO_REQUEST_TIMEOUT_MS, 10000),
+});
 
-if (resend) {
-  console.log("Proveedor de correo configurado con Resend");
+export const isEmailConfigured = Boolean(
+  brevoConfig.apiKey && brevoConfig.sender.email
+);
+
+if (isEmailConfigured) {
+  console.log(
+    `Proveedor de correo configurado con Brevo${
+      brevoConfig.sandbox ? " (modo sandbox)" : ""
+    }`
+  );
 } else {
-  console.warn("RESEND_API_KEY no configurada. El envio de correos esta deshabilitado.");
+  console.warn(
+    "Brevo no esta configurado. Define BREVO_API_KEY y BREVO_SENDER_EMAIL para habilitar el envio de correos."
+  );
 }

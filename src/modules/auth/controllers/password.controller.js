@@ -22,6 +22,10 @@ async forgotPassword(req, res) {
       palabra_secreta
     );
 
+    if (result.serviceUnavailable) {
+      return res.status(503).json({ error: result.message });
+    }
+
     if (result.error) {
       return res.status(200).json(result); // palabra secreta incorrecta
     }

@@ -39,6 +39,10 @@ import privacidadRoutes from "./modules/privacidad/index.js";
 import terminosRoutes from "./modules/terminos/index.js";
 import discountsRoutes from "./modules/discounts/index.js";
 import paymentsRoutes from "./modules/payments/index.js";
+import reportsRoutes from "./modules/reports/index.js";
+import assistantRoutes from "./modules/assistant/index.js";
+
+
 dotenv.config();
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
@@ -177,5 +181,7 @@ app.use("/api/privacidad", privacidadRoutes);
 app.use("/api/terminos", terminosRoutes);
 app.use("/api/discounts", discountsRoutes);
 app.use("/api/payments", paymentsRoutes);
+app.use("/api/reports", reportsRoutes);
+app.use("/api/assistant", assistantRoutes);
 
 export default app;
