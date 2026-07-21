@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "modelType": "association_rules_apriori",
+  "source": "Reglas_Asociacion_Apriori_Tiozihuatl",
+  "trainingSummary": {
+    "transactions": 2079,
+    "uniqueBooks": 101,
+    "periodStart": "2023-02-06",
+    "periodEnd": "2025-12-29"
+  },
+  "parameters": {
+    "minTransactionsExploratory": 15,
+    "minTransactionsConsolidated": 20,
+    "minConfidence": 0.2,
+    "minLift": 1.1,
+    "maxItemsetLength": 3
+  },
+  "rules": [
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado"],
+      "consequent": "Protocolos de atención en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "CONSOLIDADA",
+      "support": 0.0101,
+      "confidence": 0.23077,
+      "lift": 6.757,
+      "transactionCount": 21,
+      "score": 0.01575
+    },
+    {
+      "antecedents": ["Protocolos de atención en Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "CONSOLIDADA",
+      "support": 0.0101,
+      "confidence": 0.29577,
+      "lift": 6.757,
+      "transactionCount": 21,
+      "score": 0.02019
+    },
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado"],
+      "consequent": "Intervenciones de enfermería en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "CONSOLIDADA",
+      "support": 0.0101,
+      "confidence": 0.23077,
+      "lift": 6.151,
+      "transactionCount": 21,
+      "score": 0.01434
+    },
+    {
+      "antecedents": ["Intervenciones de enfermería en Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "CONSOLIDADA",
+      "support": 0.0101,
+      "confidence": 0.26923,
+      "lift": 6.151,
+      "transactionCount": 21,
+      "score": 0.01673
+    },
+    {
+      "antecedents": ["Protocolos de atención en Enfermería Médico-Quirúrgica"],
+      "consequent": "Anatomía Aplicada para Estudiantes de Odontología",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00866,
+      "confidence": 0.25352,
+      "lift": 8.109,
+      "transactionCount": 18,
+      "score": 0.0178
+    },
+    {
+      "antecedents": ["Anatomía Aplicada para Estudiantes de Odontología"],
+      "consequent": "Protocolos de atención en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00866,
+      "confidence": 0.27692,
+      "lift": 8.109,
+      "transactionCount": 18,
+      "score": 0.01944
+    },
+    {
+      "antecedents": ["Seguridad del paciente en Enfermería Médico-Quirúrgica"],
+      "consequent": "Procedimientos esenciales de Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.28814,
+      "lift": 7.987,
+      "transactionCount": 17,
+      "score": 0.01882
+    },
+    {
+      "antecedents": ["Procedimientos esenciales de Enfermería Médico-Quirúrgica"],
+      "consequent": "Seguridad del paciente en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.22667,
+      "lift": 7.987,
+      "transactionCount": 17,
+      "score": 0.0148
+    },
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería"],
+      "consequent": "Procedimientos esenciales de Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.25,
+      "lift": 6.93,
+      "transactionCount": 17,
+      "score": 0.01417
+    },
+    {
+      "antecedents": ["Procedimientos esenciales de Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.22667,
+      "lift": 6.93,
+      "transactionCount": 17,
+      "score": 0.01284
+    },
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica basada en evidencia"],
+      "consequent": "Intervenciones de enfermería en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00722,
+      "confidence": 0.25862,
+      "lift": 6.893,
+      "transactionCount": 15,
+      "score": 0.01286
+    },
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería"],
+      "consequent": "Protocolos de atención en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.0077,
+      "confidence": 0.23529,
+      "lift": 6.89,
+      "transactionCount": 16,
+      "score": 0.01248
+    },
+    {
+      "antecedents": ["Protocolos de atención en Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.0077,
+      "confidence": 0.22535,
+      "lift": 6.89,
+      "transactionCount": 16,
+      "score": 0.01195
+    },
+    {
+      "antecedents": ["Anatomía Aplicada para Estudiantes de Odontología"],
+      "consequent": "Intervenciones de enfermería en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.0077,
+      "confidence": 0.24615,
+      "lift": 6.561,
+      "transactionCount": 16,
+      "score": 0.01243
+    },
+    {
+      "antecedents": ["Intervenciones de enfermería en Enfermería Médico-Quirúrgica"],
+      "consequent": "Anatomía Aplicada para Estudiantes de Odontología",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.0077,
+      "confidence": 0.20513,
+      "lift": 6.561,
+      "transactionCount": 16,
+      "score": 0.01036
+    },
+    {
+      "antecedents": ["Anatomía Aplicada para Estudiantes de Odontología"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00866,
+      "confidence": 0.27692,
+      "lift": 6.327,
+      "transactionCount": 18,
+      "score": 0.01517
+    },
+    {
+      "antecedents": ["Procedimientos esenciales de Enfermería Médico-Quirúrgica"],
+      "consequent": "Intervenciones de enfermería en Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.22667,
+      "lift": 6.042,
+      "transactionCount": 17,
+      "score": 0.0112
+    },
+    {
+      "antecedents": ["Intervenciones de enfermería en Enfermería Médico-Quirúrgica"],
+      "consequent": "Procedimientos esenciales de Enfermería Médico-Quirúrgica",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.21795,
+      "lift": 6.042,
+      "transactionCount": 17,
+      "score": 0.01077
+    },
+    {
+      "antecedents": ["Seguridad del paciente en Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00722,
+      "confidence": 0.25424,
+      "lift": 5.808,
+      "transactionCount": 15,
+      "score": 0.01065
+    },
+    {
+      "antecedents": ["Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.25,
+      "lift": 5.712,
+      "transactionCount": 17,
+      "score": 0.01168
+    },
+    {
+      "antecedents": ["Guía práctica de Enfermería Médico-Quirúrgica"],
+      "consequent": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "evidenceLevel": "EXPLORATORIA",
+      "support": 0.00818,
+      "confidence": 0.20732,
+      "lift": 4.736,
+      "transactionCount": 17,
+      "score": 0.00803
+    }
+  ]
+}

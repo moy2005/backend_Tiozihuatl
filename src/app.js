@@ -41,6 +41,7 @@ import discountsRoutes from "./modules/discounts/index.js";
 import paymentsRoutes from "./modules/payments/index.js";
 import reportsRoutes from "./modules/reports/index.js";
 import assistantRoutes from "./modules/assistant/index.js";
+import recommendationRoutes from "./modules/recommendations/index.js";
 
 
 dotenv.config();
@@ -183,5 +184,6 @@ app.use("/api/discounts", discountsRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/assistant", assistantRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 export default app;
