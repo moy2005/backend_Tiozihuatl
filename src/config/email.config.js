@@ -2,18 +2,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const parseBoolean = (value, fallback = false) => {
-  if (value === undefined || value === null || value === "") return fallback;
-  return ["1", "true", "yes", "si", "on"].includes(
-    String(value).trim().toLowerCase()
-  );
-};
-
-const parsePositiveInteger = (value, fallback) => {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-};
-
 const firstDefinedValue = (...keys) => {
   for (const key of keys) {
     const value = String(process.env[key] || "").trim();
@@ -50,8 +38,6 @@ export const brevoConfig = Object.freeze({
           "Atencion Tiozihuatl",
       }
     : undefined,
-  sandbox: parseBoolean(process.env.BREVO_SANDBOX_MODE, false),
-  timeoutMs: parsePositiveInteger(process.env.BREVO_REQUEST_TIMEOUT_MS, 10000),
 });
 
 export const isEmailConfigured = Boolean(
@@ -59,11 +45,7 @@ export const isEmailConfigured = Boolean(
 );
 
 if (isEmailConfigured) {
-  console.log(
-    `Proveedor de correo configurado con Brevo${
-      brevoConfig.sandbox ? " (modo sandbox)" : ""
-    }`
-  );
+  console.log("Proveedor de correo configurado con Brevo");
 } else {
   console.warn(
     "Brevo no esta configurado. Define BREVO_API_KEY y un remitente en BREVO_SENDER_EMAIL, BREVO_FROM_EMAIL o EMAIL_USER."

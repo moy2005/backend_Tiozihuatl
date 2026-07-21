@@ -93,9 +93,6 @@ export const sendMail = async ({
     };
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), brevoConfig.timeoutMs);
-
   try {
     const payload = {
       sender: normalizeAddress(sender),
@@ -105,9 +102,6 @@ export const sendMail = async ({
       ...(text ? { textContent: String(text) } : {}),
       ...(replyTo ? { replyTo: normalizeAddress(replyTo) } : {}),
       ...(Array.isArray(tags) && tags.length ? { tags } : {}),
-      ...(brevoConfig.sandbox
-        ? { headers: { "X-Sib-Sandbox": "drop" } }
-        : {}),
     };
 
     if (!payload.sender || !EMAIL_PATTERN.test(payload.sender.email)) {
@@ -126,7 +120,6 @@ export const sendMail = async ({
         "api-key": brevoConfig.apiKey,
       },
       body: JSON.stringify(payload),
-      signal: controller.signal,
     });
 
     const responseBody = await readResponseBody(response);
@@ -146,32 +139,21 @@ export const sendMail = async ({
     }
 
     console.log(
-      `Correo aceptado por Brevo: ${responseBody?.messageId || "sin-id"}${
-        brevoConfig.sandbox ? " (sandbox)" : ""
-      }`
+      `Correo aceptado por Brevo: ${responseBody?.messageId || "sin-id"}`
     );
 
     return {
       success: true,
       id: responseBody?.messageId || null,
       provider: "brevo",
-      sandbox: brevoConfig.sandbox,
     };
   } catch (error) {
-    const isTimeout = error?.name === "AbortError";
-    console.error(
-      "Error comunicando con Brevo:",
-      isTimeout ? "tiempo de espera agotado" : error?.message
-    );
+    console.error("Error comunicando con Brevo:", error?.message);
 
     return {
       success: false,
-      error: isTimeout
-        ? "Brevo no respondio dentro del tiempo esperado."
-        : "No fue posible conectar con Brevo.",
-      code: isTimeout ? "BREVO_TIMEOUT" : "BREVO_CONNECTION_ERROR",
+      error: "No fue posible conectar con Brevo.",
+      code: "BREVO_CONNECTION_ERROR",
     };
-  } finally {
-    clearTimeout(timeout);
   }
 };
