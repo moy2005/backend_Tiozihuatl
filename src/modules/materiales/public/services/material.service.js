@@ -1,4 +1,4 @@
-import { poolConsulta } from "../../../../config/dbPools/poolConsulta.config.js";
+import { poolOperacion as poolConsulta } from "../../../../config/dbPools/poolOperacion.config.js";
 
 export const PublicMaterialService = {
 
@@ -18,7 +18,7 @@ export const PublicMaterialService = {
       LEFT JOIN semestres s ON ms.id_semestre = s.id_semestre
       WHERE m.activo = 1 AND m.visibilidad = 'PUBLICO'
     `;
-
+    
     const params = [];
 
     if (filters.search && filters.search.trim().length > 0) {

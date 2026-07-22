@@ -1,0 +1,4202 @@
+{
+  "modelType": "association_rules_apriori",
+  "source": "Apriori_Materiales_Tiozihuatl",
+  "trainingSummary": {
+    "transactions": 1950,
+    "uniqueMaterials": 130,
+    "periodStart": "2026-04-20",
+    "periodEnd": "2026-07-20",
+    "catalogCoverage": 1,
+    "validRules": 332,
+    "consolidatedRules": 130,
+    "exploratoryRules": 202
+  },
+  "parameters": {
+    "minTransactionsExploratory": 10,
+    "minTransactionsConsolidated": 20,
+    "minConfidenceConsolidated": 0.5,
+    "minLift": 1.2,
+    "maxItemsetLength": 3
+  },
+  "rules": [
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Cuidados Preoperatorios y Posoperatorios",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8888888888888888,
+      "lift": 44.44444444444444,
+      "transactionCount": 24,
+      "score": 0.48622981956315287
+    },
+    {
+      "antecedents": [
+        "Guía para Formular Preguntas PICO"
+      ],
+      "consequent": "Guía de Repaso de Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.8620689655172413,
+      "lift": 41.000841042893185,
+      "transactionCount": 25,
+      "score": 0.4531481105536382
+    },
+    {
+      "antecedents": [
+        "Presentación de Teoría de Conjuntos"
+      ],
+      "consequent": "Documento de Roles del Sistema",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8571428571428571,
+      "lift": 42.857142857142854,
+      "transactionCount": 24,
+      "score": 0.45211930926216637
+    },
+    {
+      "antecedents": [
+        "Precauciones Estándar y Lavado de Manos"
+      ],
+      "consequent": "Procedimientos Esenciales de Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8571428571428571,
+      "lift": 42.857142857142854,
+      "transactionCount": 24,
+      "score": 0.45211930926216637
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Fisiología"
+      ],
+      "consequent": "Fundamentos de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 42.46823956442831,
+      "transactionCount": 24,
+      "score": 0.4325677451655297
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 42.46823956442831,
+      "transactionCount": 24,
+      "score": 0.4325677451655297
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Promoción de la Salud Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.8620689655172413,
+      "lift": 39.093825180433036,
+      "transactionCount": 25,
+      "score": 0.43207145424881777
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Pediatría"
+      ],
+      "consequent": "Procedimientos Esenciales de Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8888888888888888,
+      "lift": 39.39393939393939,
+      "transactionCount": 24,
+      "score": 0.43097643097643096
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería"
+      ],
+      "consequent": "Fundamentos de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.4109393579072533
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.4109393579072533
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Manual para Estudiantes de Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.4109393579072533
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Guía de Repaso de Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 41.05263157894736,
+      "transactionCount": 24,
+      "score": 0.40421052631578935
+    },
+    {
+      "antecedents": [
+        "Catálogo de Revistas Académicas 2026"
+      ],
+      "consequent": "Seguridad del Paciente en Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 39.36080740117746,
+      "transactionCount": 24,
+      "score": 0.4009164467387837
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Comunicación Terapéutica en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 39.99999999999999,
+      "transactionCount": 24,
+      "score": 0.39384615384615373
+    },
+    {
+      "antecedents": [
+        "Guía de Sistemas del Cuerpo Humano"
+      ],
+      "consequent": "Cuadro de Mando Integral Institucional",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 39.99999999999999,
+      "transactionCount": 24,
+      "score": 0.39384615384615373
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Prevención de Caídas en el Adulto Mayor",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 38.423645320197046,
+      "transactionCount": 24,
+      "score": 0.3913708170545269
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Farmacología"
+      ],
+      "consequent": "Procedimientos Esenciales de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 38.423645320197046,
+      "transactionCount": 24,
+      "score": 0.3913708170545269
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Manual para Estudiantes de Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 40.802092414995634,
+      "transactionCount": 24,
+      "score": 0.38878420564164573
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Farmacología"
+      ],
+      "consequent": "Video Guía para Proyecto de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8571428571428571,
+      "lift": 36.33540372670807,
+      "transactionCount": 24,
+      "score": 0.383318544809228
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.38226917014628214
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.38226917014628214
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería"
+      ],
+      "consequent": "Proceso de Atención de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.8275862068965517,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.38226917014628214
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 39.7283531409168,
+      "transactionCount": 24,
+      "score": 0.37855304233528664
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Anatomía"
+      ],
+      "consequent": "Procedimientos Esenciales de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.37463414634146336
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Farmacología"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.37463414634146336
+    },
+    {
+      "antecedents": [
+        "Documento de Práctica Académica"
+      ],
+      "consequent": "Guía de Repaso de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.37463414634146336
+    },
+    {
+      "antecedents": [
+        "Presentación de Anatomía y Fisiología"
+      ],
+      "consequent": "Manual de Técnicas de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.8064516129032258,
+      "lift": 35.74046920821114,
+      "transactionCount": 25,
+      "score": 0.36952511588307624
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Guía de Repaso de Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 38.70967741935484,
+      "transactionCount": 24,
+      "score": 0.3688465540702794
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Investigación en Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 39.527027027027025,
+      "transactionCount": 24,
+      "score": 0.3648648648648648
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Manual para Estudiantes de Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 37.74193548387097,
+      "transactionCount": 24,
+      "score": 0.35962539021852236
+    },
+    {
+      "antecedents": [
+        "Valoración Nutricional Básica"
+      ],
+      "consequent": "Fundamentos de Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 36.27906976744186,
+      "transactionCount": 24,
+      "score": 0.35720930232558135
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Fisiología"
+      ],
+      "consequent": "Procedimientos Esenciales de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.3552631578947368
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Pediatría"
+      ],
+      "consequent": "Valoración Básica del Paciente Pediátrico",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.3552631578947368
+    },
+    {
+      "antecedents": [
+        "Registro de Actividades de Fisiología"
+      ],
+      "consequent": "Seguridad del Paciente en Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.3552631578947368
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Pediatría"
+      ],
+      "consequent": "Registro de Exportación de Revistas",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 35.454545454545446,
+      "transactionCount": 24,
+      "score": 0.34909090909090895
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 37.5,
+      "transactionCount": 24,
+      "score": 0.34615384615384615
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 37.5,
+      "transactionCount": 24,
+      "score": 0.34615384615384615
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7999999999999999,
+      "lift": 34.666666666666664,
+      "transactionCount": 24,
+      "score": 0.34133333333333327
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Básica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.33749999999999997
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.33749999999999997
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Lista de Seguridad del Paciente",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.33749999999999997
+    },
+    {
+      "antecedents": [
+        "Cuidados Preoperatorios y Posoperatorios"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 44.44444444444444,
+      "transactionCount": 24,
+      "score": 0.336620644312952
+    },
+    {
+      "antecedents": [
+        "Intervenciones Básicas de Enfermería"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 35.108777194298575,
+      "transactionCount": 24,
+      "score": 0.33453524671490453
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7272727272727273,
+      "lift": 37.32057416267943,
+      "transactionCount": 24,
+      "score": 0.33405828621139627
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7272727272727273,
+      "lift": 37.32057416267943,
+      "transactionCount": 24,
+      "score": 0.33405828621139627
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Tiozihuatl"
+      ],
+      "consequent": "Guía Práctica para la Creación de Índices",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.7575757575757576,
+      "lift": 34.35517970401691,
+      "transactionCount": 25,
+      "score": 0.3336750165502808
+    },
+    {
+      "antecedents": [
+        "Lista de Verificación de Signos Vitales"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 38.23529411764706,
+      "transactionCount": 24,
+      "score": 0.3321799307958478
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Fisiología"
+      ],
+      "consequent": "Manual para Estudiantes de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 42.46823956442831,
+      "transactionCount": 24,
+      "score": 0.33011748973158844
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería"
+      ],
+      "consequent": "Guía de Repaso de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 42.46823956442831,
+      "transactionCount": 24,
+      "score": 0.33011748973158844
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Manual para Estudiantes de Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 35.670731707317074,
+      "transactionCount": 24,
+      "score": 0.3292682926829268
+    },
+    {
+      "antecedents": [
+        "Guía de Pruebas de Seguridad"
+      ],
+      "consequent": "Cronograma del Cuadro de Mando Integral",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 35.670731707317074,
+      "transactionCount": 24,
+      "score": 0.3292682926829268
+    },
+    {
+      "antecedents": [
+        "Valoración Primaria ABCDE"
+      ],
+      "consequent": "Seguridad del Paciente en Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7741935483870968,
+      "lift": 34.31085043988269,
+      "transactionCount": 24,
+      "score": 0.32693217292592935
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Fundamentos de Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6486486486486486,
+      "lift": 40.802092414995634,
+      "transactionCount": 24,
+      "score": 0.32573811824029775
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Guía de Repaso de Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7272727272727273,
+      "lift": 36.36363636363637,
+      "transactionCount": 24,
+      "score": 0.32549268912905277
+    },
+    {
+      "antecedents": [
+        "Documento de Roles del Sistema"
+      ],
+      "consequent": "Presentación de Teoría de Conjuntos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 42.85714285714286,
+      "transactionCount": 24,
+      "score": 0.32459847844463235
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Precauciones Estándar y Lavado de Manos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 42.85714285714286,
+      "transactionCount": 24,
+      "score": 0.32459847844463235
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Básica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 34.82142857142857,
+      "transactionCount": 24,
+      "score": 0.3214285714285714
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Investigación en Enfermería"
+      ],
+      "consequent": "Fundamentos de Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.75,
+      "lift": 34.82142857142857,
+      "transactionCount": 24,
+      "score": 0.3214285714285714
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Investigación en Enfermería"
+      ],
+      "consequent": "Guía para Formular Preguntas PICO",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.6097560975609756,
+      "lift": 41.000841042893185,
+      "transactionCount": 25,
+      "score": 0.3205193952696465
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Procedimientos Esenciales de Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 41.05263157894736,
+      "transactionCount": 24,
+      "score": 0.31911357340720214
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Investigación en Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6486486486486486,
+      "lift": 39.527027027027025,
+      "transactionCount": 24,
+      "score": 0.31555880204528847
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Pediatría"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 36.22291021671827,
+      "transactionCount": 24,
+      "score": 0.31469677654343475
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Básica"
+      ],
+      "consequent": "Lista de Verificación de Signos Vitales",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6666666666666666,
+      "lift": 38.23529411764706,
+      "transactionCount": 24,
+      "score": 0.3137254901960784
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Fisiología"
+      ],
+      "consequent": "Resumen de Homeostasis y Función Celular",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7272727272727273,
+      "lift": 34.589800443458984,
+      "transactionCount": 24,
+      "score": 0.3096149969764161
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 39.7283531409168,
+      "transactionCount": 24,
+      "score": 0.30881958716826013
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Control Prenatal y Signos de Alarma",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 35.294117647058826,
+      "transactionCount": 24,
+      "score": 0.3066276284269364
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Farmacología"
+      ],
+      "consequent": "Guía de Administración Segura de Medicamentos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 35.294117647058826,
+      "transactionCount": 24,
+      "score": 0.3066276284269364
+    },
+    {
+      "antecedents": [
+        "Comunicación Terapéutica en Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 40,
+      "transactionCount": 24,
+      "score": 0.30295857988165686
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Institucional"
+      ],
+      "consequent": "Guía de Sistemas del Cuerpo Humano",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 40,
+      "transactionCount": 24,
+      "score": 0.30295857988165686
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Fisiología"
+      ],
+      "consequent": "Guía de Repaso de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.29916897506925205
+    },
+    {
+      "antecedents": [
+        "Valoración Básica del Paciente Pediátrico"
+      ],
+      "consequent": "Manual para Estudiantes de Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.29916897506925205
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Fisiología"
+      ],
+      "consequent": "Registro de Actividades de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 38.48684210526316,
+      "transactionCount": 24,
+      "score": 0.29916897506925205
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.298961937716263
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.298961937716263
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.298961937716263
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.2979310344827586
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.2979310344827586
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Investigación en Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 40.3448275862069,
+      "transactionCount": 24,
+      "score": 0.2979310344827586
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Anatomía"
+      ],
+      "consequent": "Manual para Estudiantes de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6857142857142857,
+      "lift": 35.18796992481203,
+      "transactionCount": 24,
+      "score": 0.29697099892588613
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Procedimientos Esenciales de Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 38.70967741935484,
+      "transactionCount": 24,
+      "score": 0.2931857224661195
+    },
+    {
+      "antecedents": [
+        "Promoción de la Salud Comunitaria"
+      ],
+      "consequent": "Fundamentos de Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.5813953488372093,
+      "lift": 39.09382518043304,
+      "transactionCount": 25,
+      "score": 0.2913970272840865
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Manual para Estudiantes de Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 37.32057416267943,
+      "transactionCount": 24,
+      "score": 0.29010324855200204
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Fundamentos de Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 37.32057416267943,
+      "transactionCount": 24,
+      "score": 0.29010324855200204
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 37.5,
+      "transactionCount": 24,
+      "score": 0.28402366863905326
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Manual para Estudiantes de Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 37.5,
+      "transactionCount": 24,
+      "score": 0.28402366863905326
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Anatomía"
+      ],
+      "consequent": "Catálogo de Revistas Académicas 2026",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 39.36080740117746,
+      "transactionCount": 24,
+      "score": 0.283575047693286
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Fundamentos de Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6857142857142857,
+      "lift": 33.42857142857143,
+      "transactionCount": 24,
+      "score": 0.2821224489795918
+    },
+    {
+      "antecedents": [
+        "Video de Repaso de Anatomía"
+      ],
+      "consequent": "Presentación Introductoria de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6857142857142857,
+      "lift": 33.42857142857143,
+      "transactionCount": 24,
+      "score": 0.2821224489795918
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Pediatría"
+      ],
+      "consequent": "Guía de Repaso de Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 36.22291021671827,
+      "transactionCount": 24,
+      "score": 0.28157080006517843
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Guía de Repaso de Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 37.74193548387097,
+      "transactionCount": 24,
+      "score": 0.2787096774193548
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Guía de Repaso de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 36.36363636363637,
+      "transactionCount": 24,
+      "score": 0.2754168908015062
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Anatomía"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.2741225461035098
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Farmacología"
+      ],
+      "consequent": "Fundamentos de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.2741225461035098
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Anatomía"
+      ],
+      "consequent": "Documento de Práctica Académica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 38.048780487804876,
+      "transactionCount": 24,
+      "score": 0.2741225461035098
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Anatomía"
+      ],
+      "consequent": "Fundamentos de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 35.18796992481203,
+      "transactionCount": 24,
+      "score": 0.27352592006331616
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Seguridad del Paciente en Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.7142857142857143,
+      "lift": 29.635258358662615,
+      "transactionCount": 25,
+      "score": 0.2713851498046027
+    },
+    {
+      "antecedents": [
+        "Prevención de Caídas en el Adulto Mayor"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5714285714285714,
+      "lift": 38.423645320197046,
+      "transactionCount": 24,
+      "score": 0.27023223082336384
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Farmacología"
+      ],
+      "consequent": "Seguridad del Paciente en Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5714285714285714,
+      "lift": 38.423645320197046,
+      "transactionCount": 24,
+      "score": 0.27023223082336384
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Básica"
+      ],
+      "consequent": "Fundamentos de Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.27
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Guía de Repaso de Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.27
+    },
+    {
+      "antecedents": [
+        "Lista de Seguridad del Paciente"
+      ],
+      "consequent": "Seguridad del Paciente en Gestión y Seguridad del Cuidado",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 36.5625,
+      "transactionCount": 24,
+      "score": 0.27
+    },
+    {
+      "antecedents": [
+        "Control Prenatal y Signos de Alarma"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 35.294117647058826,
+      "transactionCount": 24,
+      "score": 0.26731639401322665
+    },
+    {
+      "antecedents": [
+        "Guía de Administración Segura de Medicamentos"
+      ],
+      "consequent": "Manual para Estudiantes de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6153846153846154,
+      "lift": 35.294117647058826,
+      "transactionCount": 24,
+      "score": 0.26731639401322665
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.7058823529411765,
+      "lift": 30.58823529411765,
+      "transactionCount": 24,
+      "score": 0.2657439446366782
+    },
+    {
+      "antecedents": [
+        "Evaluación y Seguimiento del Cuidado de Enfermería"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6486486486486486,
+      "lift": 33.28591749644381,
+      "transactionCount": 24,
+      "score": 0.26573372803813766
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Pediatría"
+      ],
+      "consequent": "Seguridad del Paciente en Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5454545454545454,
+      "lift": 39.39393939393939,
+      "transactionCount": 24,
+      "score": 0.2644628099173553
+    },
+    {
+      "antecedents": [
+        "Manual de Técnicas de Enfermería"
+      ],
+      "consequent": "Presentación de Anatomía y Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.5681818181818181,
+      "lift": 35.74046920821114,
+      "transactionCount": 25,
+      "score": 0.2603472407358037
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería"
+      ],
+      "consequent": "Evaluación y Seguimiento del Cuidado de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.631578947368421,
+      "lift": 33.28591749644381,
+      "transactionCount": 24,
+      "score": 0.25874073519502877
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Fundamentos de Microbiología y Control de Infecciones",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5581395348837209,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.2578094403312135
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5581395348837209,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.2578094403312135
+    },
+    {
+      "antecedents": [
+        "Proceso de Atención de Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5581395348837209,
+      "lift": 37.53007217321572,
+      "transactionCount": 24,
+      "score": 0.2578094403312135
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 35.670731707317074,
+      "transactionCount": 24,
+      "score": 0.25698988697204045
+    },
+    {
+      "antecedents": [
+        "Cronograma del Cuadro de Mando Integral"
+      ],
+      "consequent": "Guía de Pruebas de Seguridad",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 35.670731707317074,
+      "transactionCount": 24,
+      "score": 0.25698988697204045
+    },
+    {
+      "antecedents": [
+        "Guía Práctica para la Creación de Índices"
+      ],
+      "consequent": "Cuadro de Mando Integral Tiozihuatl",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.5813953488372093,
+      "lift": 34.35517970401692,
+      "transactionCount": 25,
+      "score": 0.256076175492076
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Fundamentos de Enfermería Médico-Quirúrgica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.25411764705882356
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Geriátrica y Gerontológica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.25411764705882356
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 34.411764705882355,
+      "transactionCount": 24,
+      "score": 0.25411764705882356
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Valoración Nutricional Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5581395348837209,
+      "lift": 36.27906976744186,
+      "transactionCount": 24,
+      "score": 0.24921579232017305
+    },
+    {
+      "antecedents": [
+        "Resumen de Homeostasis y Función Celular"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Fisiología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5853658536585366,
+      "lift": 34.58980044345898,
+      "transactionCount": 24,
+      "score": 0.24920231463955436
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Materno-Obstétrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 33.42857142857143,
+      "transactionCount": 24,
+      "score": 0.24685714285714286
+    },
+    {
+      "antecedents": [
+        "Presentación Introductoria de Anatomía"
+      ],
+      "consequent": "Video de Repaso de Anatomía",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.6,
+      "lift": 33.42857142857143,
+      "transactionCount": 24,
+      "score": 0.24685714285714286
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Básica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Básica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5714285714285714,
+      "lift": 34.82142857142857,
+      "transactionCount": 24,
+      "score": 0.24489795918367346
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Investigación en Enfermería"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Investigación en Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5714285714285714,
+      "lift": 34.82142857142857,
+      "transactionCount": 24,
+      "score": 0.24489795918367346
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Básica"
+      ],
+      "consequent": "Intervenciones Básicas de Enfermería",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5581395348837209,
+      "lift": 35.108777194298575,
+      "transactionCount": 24,
+      "score": 0.2411765732130707
+    },
+    {
+      "antecedents": [
+        "Registro de Exportación de Revistas"
+      ],
+      "consequent": "Fundamentos de Pediatría",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5454545454545454,
+      "lift": 35.45454545454545,
+      "transactionCount": 24,
+      "score": 0.2380165289256198
+    },
+    {
+      "antecedents": [
+        "Video Guía para Proyecto de Farmacología"
+      ],
+      "consequent": "Guía de Repaso de Farmacología",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5217391304347826,
+      "lift": 36.33540372670807,
+      "transactionCount": 24,
+      "score": 0.23332433162300834
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Valoración Primaria ABCDE",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5454545454545454,
+      "lift": 34.31085043988269,
+      "transactionCount": 24,
+      "score": 0.23033857637963204
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Seguridad del Paciente en Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5333333333333333,
+      "lift": 34.666666666666664,
+      "transactionCount": 24,
+      "score": 0.22755555555555554
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Nutrición y Dietoterapia"
+      ],
+      "consequent": "Procedimientos Esenciales de Nutrición y Dietoterapia",
+      "evidence": "CONSOLIDADA",
+      "support": 0.01282051282051282,
+      "confidence": 0.5319148936170213,
+      "lift": 29.635258358662615,
+      "transactionCount": 25,
+      "score": 0.20209532432257646
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Fundamentos de Urgencias y Cuidados Intensivos",
+      "evidence": "CONSOLIDADA",
+      "support": 0.012307692307692308,
+      "confidence": 0.5333333333333333,
+      "lift": 30.58823529411765,
+      "transactionCount": 24,
+      "score": 0.2007843137254902
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería",
+        "Procedimientos Esenciales de Pediatría"
+      ],
+      "consequent": "Seguridad del Paciente en Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 72.22222222222221,
+      "transactionCount": 10,
+      "score": 0.37037037037037035
+    },
+    {
+      "antecedents": [
+        "Cuidados Preoperatorios y Posoperatorios",
+        "Guía de Repaso de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 72.22222222222221,
+      "transactionCount": 10,
+      "score": 0.37037037037037035
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+        "Procedimientos Esenciales de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Precauciones Estándar y Lavado de Manos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 69.64285714285714,
+      "transactionCount": 10,
+      "score": 0.3571428571428571
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Farmacología",
+        "Video Guía para Proyecto de Farmacología"
+      ],
+      "consequent": "Guía de Repaso de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 69.64285714285714,
+      "transactionCount": 10,
+      "score": 0.3571428571428571
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+        "Manual para Estudiantes de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Fundamentos de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+        "Fundamentos de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Institucional",
+        "Seguridad del Paciente en Anatomía"
+      ],
+      "consequent": "Catálogo de Revistas Académicas 2026",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Cuidados Preoperatorios y Posoperatorios",
+        "Seguridad del Paciente en Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería",
+        "Proceso de Atención de Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Fisiología",
+        "Resumen de Homeostasis y Función Celular"
+      ],
+      "consequent": "Manual para Estudiantes de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Investigación en Enfermería",
+        "Guía de Repaso de Investigación en Enfermería"
+      ],
+      "consequent": "Guía para Formular Preguntas PICO",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Promoción de la Salud Comunitaria",
+        "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Fundamentos de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Guía de Administración Segura de Medicamentos",
+        "Procedimientos Esenciales de Farmacología"
+      ],
+      "consequent": "Seguridad del Paciente en Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería",
+        "Prevención de Caídas en el Adulto Mayor"
+      ],
+      "consequent": "Guía de Repaso de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Nutrición y Dietoterapia",
+        "Manual para Estudiantes de Investigación en Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería",
+        "Proceso de Atención de Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 67.24137931034483,
+      "transactionCount": 10,
+      "score": 0.3448275862068965
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Anatomía",
+        "Seguridad del Paciente en Fisiología"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Farmacología",
+        "Video Guía para Proyecto de Farmacología"
+      ],
+      "consequent": "Fundamentos de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+        "Fundamentos de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Valoración Nutricional Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+        "Comunicación Terapéutica en Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+        "Fundamentos de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Seguridad del Paciente en Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Institucional",
+        "Manual de Técnicas de Enfermería"
+      ],
+      "consequent": "Guía de Sistemas del Cuerpo Humano",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Anatomía",
+        "Presentación Introductoria de Anatomía"
+      ],
+      "consequent": "Documento de Práctica Académica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Geriátrica y Gerontológica",
+        "Registro de Exportación de Revistas"
+      ],
+      "consequent": "Fundamentos de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Gestión y Seguridad del Cuidado",
+        "Lista de Seguridad del Paciente"
+      ],
+      "consequent": "Procedimientos Esenciales de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 65,
+      "transactionCount": 10,
+      "score": 0.3333333333333333
+    },
+    {
+      "antecedents": [
+        "Cronograma del Cuadro de Mando Integral",
+        "Manual de Técnicas de Enfermería"
+      ],
+      "consequent": "Presentación de Anatomía y Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Gestión y Seguridad del Cuidado",
+        "Seguridad del Paciente en Investigación en Enfermería"
+      ],
+      "consequent": "Fundamentos de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Básica",
+        "Seguridad del Paciente en Enfermería Básica"
+      ],
+      "consequent": "Intervenciones Básicas de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Microbiología y Control de Infecciones",
+        "Seguridad del Paciente en Nutrición y Dietoterapia"
+      ],
+      "consequent": "Guía de Repaso de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Urgencias y Cuidados Intensivos",
+        "Registro de Exportación de Revistas"
+      ],
+      "consequent": "Procedimientos Esenciales de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Urgencias y Cuidados Intensivos",
+        "Seguridad del Paciente en Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Valoración Primaria ABCDE",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica",
+        "Seguridad del Paciente en Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 62.90322580645161,
+      "transactionCount": 10,
+      "score": 0.3225806451612903
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Básica",
+        "Procedimientos Esenciales de Enfermería Básica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Investigación en Enfermería",
+        "Procedimientos Esenciales de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Investigación en Enfermería",
+        "Procedimientos Esenciales de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+        "Comunicación Terapéutica en Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Pediatría",
+        "Valoración Básica del Paciente Pediátrico"
+      ],
+      "consequent": "Manual para Estudiantes de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Urgencias y Cuidados Intensivos",
+        "Manual para Estudiantes de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Cronograma del Cuadro de Mando Integral",
+        "Manual para Estudiantes de Anatomía"
+      ],
+      "consequent": "Guía de Pruebas de Seguridad",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Enfermería Básica",
+        "Valoración Básica del Paciente Pediátrico"
+      ],
+      "consequent": "Fundamentos de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Fisiología",
+        "Procedimientos Esenciales de Fisiología"
+      ],
+      "consequent": "Guía de Repaso de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Investigación en Enfermería",
+        "Seguridad del Paciente en Investigación en Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria",
+        "Seguridad del Paciente en Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Guía de Repaso de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Lista de Seguridad del Paciente",
+        "Manual para Estudiantes de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Seguridad del Paciente en Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Fisiología",
+        "Seguridad del Paciente en Fisiología"
+      ],
+      "consequent": "Registro de Actividades de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 60.9375,
+      "transactionCount": 10,
+      "score": 0.3125
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Farmacología",
+        "Resumen de Homeostasis y Función Celular"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 59.09090909090909,
+      "transactionCount": 10,
+      "score": 0.30303030303030304
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+        "Promoción de la Salud Comunitaria"
+      ],
+      "consequent": "Manual para Estudiantes de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 59.09090909090909,
+      "transactionCount": 10,
+      "score": 0.30303030303030304
+    },
+    {
+      "antecedents": [
+        "Documento de Roles del Sistema",
+        "Guía Práctica para la Creación de Índices"
+      ],
+      "consequent": "Cuadro de Mando Integral Tiozihuatl",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 59.09090909090909,
+      "transactionCount": 10,
+      "score": 0.30303030303030304
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Materno-Obstétrica",
+        "Seguridad del Paciente en Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Fundamentos de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 59.09090909090909,
+      "transactionCount": 10,
+      "score": 0.30303030303030304
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Nutrición y Dietoterapia",
+        "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Guía de Repaso de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 59.09090909090909,
+      "transactionCount": 10,
+      "score": 0.30303030303030304
+    },
+    {
+      "antecedents": [
+        "Documento de Roles del Sistema",
+        "Guía de Repaso de Anatomía"
+      ],
+      "consequent": "Presentación de Teoría de Conjuntos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 63.31168831168831,
+      "transactionCount": 10,
+      "score": 0.29515938606847697
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Pediatría",
+        "Procedimientos Esenciales de Pediatría"
+      ],
+      "consequent": "Guía de Repaso de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Control Prenatal y Signos de Alarma",
+        "Seguridad del Paciente en Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Control Prenatal y Signos de Alarma",
+        "Procedimientos Esenciales de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Médico-Quirúrgica",
+        "Guía de Repaso de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Fundamentos de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Guía Práctica para la Creación de Índices",
+        "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Fundamentos de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Básica",
+        "Manual para Estudiantes de Enfermería Básica"
+      ],
+      "consequent": "Lista de Verificación de Signos Vitales",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica",
+        "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 57.352941176470594,
+      "transactionCount": 10,
+      "score": 0.29411764705882354
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Geriátrica y Gerontológica",
+        "Procedimientos Esenciales de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 55.714285714285715,
+      "transactionCount": 10,
+      "score": 0.2857142857142857
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Anatomía",
+        "Procedimientos Esenciales de Anatomía"
+      ],
+      "consequent": "Fundamentos de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 55.714285714285715,
+      "transactionCount": 10,
+      "score": 0.2857142857142857
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Nutrición y Dietoterapia",
+        "Seguridad del Paciente en Nutrición y Dietoterapia"
+      ],
+      "consequent": "Procedimientos Esenciales de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 55.714285714285715,
+      "transactionCount": 10,
+      "score": 0.2857142857142857
+    },
+    {
+      "antecedents": [
+        "Presentación Introductoria de Anatomía",
+        "Seguridad del Paciente en Anatomía"
+      ],
+      "consequent": "Video de Repaso de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 55.714285714285715,
+      "transactionCount": 10,
+      "score": 0.2857142857142857
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica",
+        "Prevención de Caídas en el Adulto Mayor"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 61.12852664576803,
+      "transactionCount": 10,
+      "score": 0.28498147620404674
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Básica",
+        "Lista de Verificación de Signos Vitales"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 54.166666666666664,
+      "transactionCount": 10,
+      "score": 0.2777777777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería",
+        "Fundamentos de Enfermería"
+      ],
+      "consequent": "Evaluación y Seguimiento del Cuidado de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 52.7027027027027,
+      "transactionCount": 10,
+      "score": 0.2702702702702703
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Gestión y Seguridad del Cuidado",
+        "Seguridad del Paciente en Investigación en Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 52.7027027027027,
+      "transactionCount": 10,
+      "score": 0.2702702702702703
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Investigación en Enfermería",
+        "Procedimientos Esenciales de Investigación en Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 52.7027027027027,
+      "transactionCount": 10,
+      "score": 0.2702702702702703
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Pediatría",
+        "Procedimientos Esenciales de Pediatría"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Pediatría",
+        "Manual para Estudiantes de Pediatría"
+      ],
+      "consequent": "Valoración Básica del Paciente Pediátrico",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Salud Pública y Enfermería Comunitaria",
+        "Promoción de la Salud Comunitaria"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Anatomía",
+        "Procedimientos Esenciales de Anatomía"
+      ],
+      "consequent": "Manual para Estudiantes de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Materno-Obstétrica",
+        "Procedimientos Esenciales de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Fisiología",
+        "Guía de Repaso de Fisiología"
+      ],
+      "consequent": "Procedimientos Esenciales de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Fisiología",
+        "Resumen de Homeostasis y Función Celular"
+      ],
+      "consequent": "Fundamentos de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería",
+        "Prevención de Caídas en el Adulto Mayor"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Lista de Seguridad del Paciente",
+        "Procedimientos Esenciales de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Guía de Repaso de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Geriátrica y Gerontológica",
+        "Seguridad del Paciente en Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Fisiología",
+        "Registro de Actividades de Fisiología"
+      ],
+      "consequent": "Seguridad del Paciente en Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 51.315789473684205,
+      "transactionCount": 10,
+      "score": 0.2631578947368421
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica",
+        "Guía de Repaso de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Cuidados Preoperatorios y Posoperatorios",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Gestión y Seguridad del Cuidado",
+        "Manual para Estudiantes de Investigación en Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+        "Precauciones Estándar y Lavado de Manos"
+      ],
+      "consequent": "Procedimientos Esenciales de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Comunicación Terapéutica en Enfermería",
+        "Manual para Estudiantes de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+        "Manual para Estudiantes de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Comunicación Terapéutica en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Materno-Obstétrica",
+        "Seguridad del Paciente en Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Control Prenatal y Signos de Alarma",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Guía de Sistemas del Cuerpo Humano",
+        "Manual de Técnicas de Enfermería"
+      ],
+      "consequent": "Cuadro de Mando Integral Institucional",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Anatomía",
+        "Presentación de Teoría de Conjuntos"
+      ],
+      "consequent": "Documento de Roles del Sistema",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Farmacología",
+        "Procedimientos Esenciales de Enfermería Básica"
+      ],
+      "consequent": "Guía de Administración Segura de Medicamentos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Salud Mental y Enfermería Psiquiátrica",
+        "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Guía de Repaso de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Urgencias y Cuidados Intensivos",
+        "Registro de Exportación de Revistas"
+      ],
+      "consequent": "Guía de Repaso de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 50,
+      "transactionCount": 10,
+      "score": 0.2564102564102564
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Materno-Obstétrica",
+        "Procedimientos Esenciales de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Fundamentos de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Control Prenatal y Signos de Alarma",
+        "Manual para Estudiantes de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería",
+        "Proceso de Atención de Enfermería"
+      ],
+      "consequent": "Fundamentos de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Básica",
+        "Valoración Básica del Paciente Pediátrico"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Geriátrica y Gerontológica",
+        "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Microbiología y Control de Infecciones",
+        "Seguridad del Paciente en Nutrición y Dietoterapia"
+      ],
+      "consequent": "Manual para Estudiantes de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Nutrición y Dietoterapia",
+        "Seguridad del Paciente en Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Manual para Estudiantes de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Salud Pública y Enfermería Comunitaria",
+        "Seguridad del Paciente en Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Anatomía",
+        "Video de Repaso de Anatomía"
+      ],
+      "consequent": "Presentación Introductoria de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 48.75,
+      "transactionCount": 10,
+      "score": 0.25
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Anatomía",
+        "Seguridad del Paciente en Fisiología"
+      ],
+      "consequent": "Procedimientos Esenciales de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Farmacología",
+        "Casos Prácticos y Planes de Cuidado de Fisiología"
+      ],
+      "consequent": "Resumen de Homeostasis y Función Celular",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Farmacología",
+        "Video Guía para Proyecto de Farmacología"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Urgencias y Cuidados Intensivos",
+        "Guía de Repaso de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Manual para Estudiantes de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Catálogo de Revistas Académicas 2026",
+        "Cuadro de Mando Integral Institucional"
+      ],
+      "consequent": "Seguridad del Paciente en Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Guía de Pruebas de Seguridad",
+        "Manual para Estudiantes de Anatomía"
+      ],
+      "consequent": "Cronograma del Cuadro de Mando Integral",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Documento de Práctica Académica",
+        "Presentación Introductoria de Anatomía"
+      ],
+      "consequent": "Guía de Repaso de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 47.5609756097561,
+      "transactionCount": 10,
+      "score": 0.24390243902439024
+    },
+    {
+      "antecedents": [
+        "Guía de Administración Segura de Medicamentos",
+        "Procedimientos Esenciales de Enfermería Básica"
+      ],
+      "consequent": "Manual para Estudiantes de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 52.13903743315508,
+      "transactionCount": 10,
+      "score": 0.24307243558580457
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Básica",
+        "Manual para Estudiantes de Enfermería Básica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 46.42857142857143,
+      "transactionCount": 10,
+      "score": 0.2380952380952381
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Geriátrica y Gerontológica",
+        "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Prevención de Caídas en el Adulto Mayor",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 46.42857142857143,
+      "transactionCount": 10,
+      "score": 0.2380952380952381
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Investigación en Enfermería",
+        "Procedimientos Esenciales de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Fundamentos de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 46.42857142857143,
+      "transactionCount": 10,
+      "score": 0.2380952380952381
+    },
+    {
+      "antecedents": [
+        "Guía de Administración Segura de Medicamentos",
+        "Seguridad del Paciente en Farmacología"
+      ],
+      "consequent": "Procedimientos Esenciales de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 46.42857142857143,
+      "transactionCount": 10,
+      "score": 0.2380952380952381
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Microbiología y Control de Infecciones",
+        "Manual para Estudiantes de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+        "Valoración Nutricional Básica"
+      ],
+      "consequent": "Fundamentos de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+        "Procedimientos Esenciales de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Pública y Enfermería Comunitaria",
+        "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Promoción de la Salud Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Intervenciones Básicas de Enfermería",
+        "Seguridad del Paciente en Enfermería Básica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería",
+        "Seguridad del Paciente en Enfermería"
+      ],
+      "consequent": "Proceso de Atención de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 45.34883720930233,
+      "transactionCount": 10,
+      "score": 0.23255813953488375
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería",
+        "Seguridad del Paciente en Pediatría"
+      ],
+      "consequent": "Procedimientos Esenciales de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 44.31818181818181,
+      "transactionCount": 10,
+      "score": 0.22727272727272724
+    },
+    {
+      "antecedents": [
+        "Cronograma del Cuadro de Mando Integral",
+        "Presentación de Anatomía y Fisiología"
+      ],
+      "consequent": "Manual de Técnicas de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 44.31818181818181,
+      "transactionCount": 10,
+      "score": 0.22727272727272724
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Geriátrica y Gerontológica",
+        "Fundamentos de Pediatría"
+      ],
+      "consequent": "Registro de Exportación de Revistas",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 44.31818181818181,
+      "transactionCount": 10,
+      "score": 0.22727272727272724
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Urgencias y Cuidados Intensivos",
+        "Valoración Primaria ABCDE"
+      ],
+      "consequent": "Seguridad del Paciente en Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 44.31818181818181,
+      "transactionCount": 10,
+      "score": 0.22727272727272724
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+        "Seguridad del Paciente en Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 43.33333333333333,
+      "transactionCount": 10,
+      "score": 0.2222222222222222
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Urgencias y Cuidados Intensivos",
+        "Guía Práctica para la Creación de Índices"
+      ],
+      "consequent": "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 43.33333333333333,
+      "transactionCount": 10,
+      "score": 0.2222222222222222
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Farmacología",
+        "Procedimientos Esenciales de Farmacología"
+      ],
+      "consequent": "Video Guía para Proyecto de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 42.391304347826086,
+      "transactionCount": 10,
+      "score": 0.21739130434782608
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Nutrición y Dietoterapia",
+        "Procedimientos Esenciales de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Seguridad del Paciente en Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 1,
+      "lift": 41.48936170212766,
+      "transactionCount": 10,
+      "score": 0.2127659574468085
+    },
+    {
+      "antecedents": [
+        "Cuidados Preoperatorios y Posoperatorios",
+        "Manual para Estudiantes de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 44.31818181818182,
+      "transactionCount": 10,
+      "score": 0.2066115702479339
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Médico-Quirúrgica",
+        "Guía de Repaso de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 44.31818181818182,
+      "transactionCount": 10,
+      "score": 0.2066115702479339
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Gestión y Seguridad del Cuidado",
+        "Seguridad del Paciente en Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Lista de Seguridad del Paciente",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 44.31818181818182,
+      "transactionCount": 10,
+      "score": 0.2066115702479339
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Investigación en Enfermería",
+        "Guía para Formular Preguntas PICO"
+      ],
+      "consequent": "Guía de Repaso de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 43.23725055432372,
+      "transactionCount": 10,
+      "score": 0.20157226365652084
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Tiozihuatl",
+        "Documento de Roles del Sistema"
+      ],
+      "consequent": "Guía Práctica para la Creación de Índices",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.9090909090909091,
+      "lift": 41.2262156448203,
+      "transactionCount": 10,
+      "score": 0.19219680953296178
+    },
+    {
+      "antecedents": [
+        "Evaluación y Seguimiento del Cuidado de Enfermería",
+        "Fundamentos de Enfermería"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.8333333333333334,
+      "lift": 42.76315789473684,
+      "transactionCount": 10,
+      "score": 0.18274853801169594
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Básica",
+        "Procedimientos Esenciales de Enfermería Básica"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 22.569444444444443,
+      "transactionCount": 10,
+      "score": 0.04822530864197531
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Gestión y Seguridad del Cuidado",
+        "Manual para Estudiantes de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Seguridad del Paciente en Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.95945945945946,
+      "transactionCount": 10,
+      "score": 0.046921921921921926
+    },
+    {
+      "antecedents": [
+        "Lista de Seguridad del Paciente",
+        "Seguridad del Paciente en Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Manual para Estudiantes de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.95945945945946,
+      "transactionCount": 10,
+      "score": 0.046921921921921926
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Anatomía",
+        "Procedimientos Esenciales de Anatomía"
+      ],
+      "consequent": "Seguridad del Paciente en Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Pediatría",
+        "Seguridad del Paciente en Pediatría"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Pediatría",
+        "Valoración Básica del Paciente Pediátrico"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+        "Seguridad del Paciente en Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Cronograma del Cuadro de Mando Integral",
+        "Guía de Pruebas de Seguridad"
+      ],
+      "consequent": "Manual para Estudiantes de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Básica",
+        "Seguridad del Paciente en Enfermería Básica"
+      ],
+      "consequent": "Valoración Básica del Paciente Pediátrico",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Médico-Quirúrgica",
+        "Guía de Repaso de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Guía de Repaso de Gestión y Seguridad del Cuidado",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Fisiología",
+        "Procedimientos Esenciales de Fisiología"
+      ],
+      "consequent": "Fundamentos de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Geriátrica y Gerontológica",
+        "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Proceso de Atención de Enfermería",
+        "Seguridad del Paciente en Enfermería"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Enfermería Geriátrica y Gerontológica",
+        "Seguridad del Paciente en Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Registro de Actividades de Fisiología",
+        "Seguridad del Paciente en Fisiología"
+      ],
+      "consequent": "Procedimientos Esenciales de Fisiología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 21.38157894736842,
+      "transactionCount": 10,
+      "score": 0.045687134502923984
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Materno-Obstétrica",
+        "Fundamentos de Enfermería Geriátrica y Gerontológica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Investigación en Enfermería",
+        "Fundamentos de Investigación en Enfermería"
+      ],
+      "consequent": "Procedimientos Esenciales de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+        "Manual para Estudiantes de Nutrición y Dietoterapia"
+      ],
+      "consequent": "Comunicación Terapéutica en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Nutrición y Dietoterapia",
+        "Valoración Nutricional Básica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Urgencias y Cuidados Intensivos",
+        "Manual para Estudiantes de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Guía de Repaso de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Catálogo de Revistas Académicas 2026",
+        "Seguridad del Paciente en Anatomía"
+      ],
+      "consequent": "Cuadro de Mando Integral Institucional",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Materno-Obstétrica",
+        "Procedimientos Esenciales de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Control Prenatal y Signos de Alarma",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Médico-Quirúrgica",
+        "Seguridad del Paciente en Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Cuidados Preoperatorios y Posoperatorios",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Farmacología",
+        "Seguridad del Paciente en Farmacología"
+      ],
+      "consequent": "Guía de Administración Segura de Medicamentos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Investigación en Enfermería",
+        "Seguridad del Paciente en Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Guía de Repaso de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.833333333333332,
+      "transactionCount": 10,
+      "score": 0.044515669515669515
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería",
+        "Evaluación y Seguimiento del Cuidado de Enfermería"
+      ],
+      "consequent": "Fundamentos de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Geriátrica y Gerontológica",
+        "Prevención de Caídas en el Adulto Mayor"
+      ],
+      "consequent": "Manual para Estudiantes de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica",
+        "Cuidados Preoperatorios y Posoperatorios"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Gestión y Seguridad del Cuidado",
+        "Procedimientos Esenciales de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Manual para Estudiantes de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+        "Fundamentos de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Manual para Estudiantes de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Control Prenatal y Signos de Alarma",
+        "Guía de Repaso de Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Documento de Práctica Académica",
+        "Guía de Repaso de Anatomía"
+      ],
+      "consequent": "Presentación Introductoria de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Pediatría",
+        "Registro de Exportación de Revistas"
+      ],
+      "consequent": "Fundamentos de Enfermería Geriátrica y Gerontológica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería Materno-Obstétrica",
+        "Seguridad del Paciente en Enfermería Materno-Obstétrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Materno-Obstétrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería Básica",
+        "Intervenciones Básicas de Enfermería"
+      ],
+      "consequent": "Seguridad del Paciente en Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Gestión y Seguridad del Cuidado",
+        "Procedimientos Esenciales de Gestión y Seguridad del Cuidado"
+      ],
+      "consequent": "Lista de Seguridad del Paciente",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 20.3125,
+      "transactionCount": 10,
+      "score": 0.04340277777777778
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Fisiología",
+        "Resumen de Homeostasis y Función Celular"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Documento de Roles del Sistema",
+        "Presentación de Teoría de Conjuntos"
+      ],
+      "consequent": "Guía de Repaso de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Anatomía",
+        "Manual para Estudiantes de Anatomía"
+      ],
+      "consequent": "Procedimientos Esenciales de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Fisiología",
+        "Manual para Estudiantes de Fisiología"
+      ],
+      "consequent": "Resumen de Homeostasis y Función Celular",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Investigación en Enfermería",
+        "Seguridad del Paciente en Investigación en Enfermería"
+      ],
+      "consequent": "Guía de Repaso de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Urgencias y Cuidados Intensivos",
+        "Valoración Primaria ABCDE"
+      ],
+      "consequent": "Manual para Estudiantes de Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Presentación Introductoria de Anatomía",
+        "Video de Repaso de Anatomía"
+      ],
+      "consequent": "Seguridad del Paciente en Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.81707317073171,
+      "transactionCount": 10,
+      "score": 0.042344173441734426
+    },
+    {
+      "antecedents": [
+        "Guía de Administración Segura de Medicamentos",
+        "Manual para Estudiantes de Farmacología"
+      ],
+      "consequent": "Procedimientos Esenciales de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.3452380952381,
+      "transactionCount": 10,
+      "score": 0.041335978835978844
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Enfermería",
+        "Manual para Estudiantes de Enfermería"
+      ],
+      "consequent": "Prevención de Caídas en el Adulto Mayor",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.3452380952381,
+      "transactionCount": 10,
+      "score": 0.041335978835978844
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Farmacología",
+        "Video Guía para Proyecto de Farmacología"
+      ],
+      "consequent": "Procedimientos Esenciales de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 19.3452380952381,
+      "transactionCount": 10,
+      "score": 0.041335978835978844
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Tiozihuatl",
+        "Guía Práctica para la Creación de Índices"
+      ],
+      "consequent": "Documento de Roles del Sistema",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4,
+      "lift": 20,
+      "transactionCount": 10,
+      "score": 0.041025641025641026
+    },
+    {
+      "antecedents": [
+        "Manual para Estudiantes de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Cuidados Preoperatorios y Posoperatorios",
+      "evidence": "EXPLORATORIA",
+      "support": 0.0056410256410256415,
+      "confidence": 0.37931034482758624,
+      "lift": 18.965517241379313,
+      "transactionCount": 11,
+      "score": 0.040580505503216575
+    },
+    {
+      "antecedents": [
+        "Precauciones Estándar y Lavado de Manos",
+        "Procedimientos Esenciales de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Comunicación Terapéutica en Enfermería",
+        "Manual para Estudiantes de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Pública y Enfermería Comunitaria",
+        "Manual para Estudiantes de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Promoción de la Salud Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Enfermería",
+        "Procedimientos Esenciales de Enfermería"
+      ],
+      "consequent": "Proceso de Atención de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Urgencias y Cuidados Intensivos",
+        "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Guía Práctica para la Creación de Índices",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Lista de Verificación de Signos Vitales",
+        "Manual para Estudiantes de Enfermería Básica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Básica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.895348837209305,
+      "transactionCount": 10,
+      "score": 0.040374677002583986
+    },
+    {
+      "antecedents": [
+        "Fundamentos de Salud Pública y Enfermería Comunitaria",
+        "Promoción de la Salud Comunitaria"
+      ],
+      "consequent": "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4,
+      "lift": 19.5,
+      "transactionCount": 10,
+      "score": 0.04
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Pediatría",
+        "Guía de Repaso de Pediatría"
+      ],
+      "consequent": "Procedimientos Esenciales de Pediatría",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.46590909090909,
+      "transactionCount": 10,
+      "score": 0.03945707070707071
+    },
+    {
+      "antecedents": [
+        "Cuadro de Mando Integral Institucional",
+        "Guía de Sistemas del Cuerpo Humano"
+      ],
+      "consequent": "Manual de Técnicas de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.46590909090909,
+      "transactionCount": 10,
+      "score": 0.03945707070707071
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Salud Pública y Enfermería Comunitaria",
+        "Seguridad del Paciente en Salud Pública y Enfermería Comunitaria"
+      ],
+      "consequent": "Seguridad del Paciente en Urgencias y Cuidados Intensivos",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.46590909090909,
+      "transactionCount": 10,
+      "score": 0.03945707070707071
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Urgencias y Cuidados Intensivos",
+        "Procedimientos Esenciales de Urgencias y Cuidados Intensivos"
+      ],
+      "consequent": "Registro de Exportación de Revistas",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.46590909090909,
+      "transactionCount": 10,
+      "score": 0.03945707070707071
+    },
+    {
+      "antecedents": [
+        "Manual de Técnicas de Enfermería",
+        "Presentación de Anatomía y Fisiología"
+      ],
+      "consequent": "Cronograma del Cuadro de Mando Integral",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4,
+      "lift": 19.02439024390244,
+      "transactionCount": 10,
+      "score": 0.039024390243902446
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Salud Mental y Enfermería Psiquiátrica",
+        "Procedimientos Esenciales de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.055555555555554,
+      "transactionCount": 10,
+      "score": 0.038580246913580245
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Nutrición y Dietoterapia",
+        "Guía de Repaso de Salud Mental y Enfermería Psiquiátrica"
+      ],
+      "consequent": "Procedimientos Esenciales de Salud Pública y Enfermería Comunitaria",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 18.055555555555554,
+      "transactionCount": 10,
+      "score": 0.038580246913580245
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Investigación en Enfermería",
+        "Guía para Formular Preguntas PICO"
+      ],
+      "consequent": "Fundamentos de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4,
+      "lift": 18.571428571428573,
+      "transactionCount": 10,
+      "score": 0.0380952380952381
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Farmacología",
+        "Fundamentos de Farmacología"
+      ],
+      "consequent": "Video Guía para Proyecto de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 17.66304347826087,
+      "transactionCount": 10,
+      "score": 0.037741545893719815
+    },
+    {
+      "antecedents": [
+        "Guía para Formular Preguntas PICO"
+      ],
+      "consequent": "Fundamentos de Investigación en Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.0056410256410256415,
+      "confidence": 0.37931034482758624,
+      "lift": 17.610837438423648,
+      "transactionCount": 11,
+      "score": 0.03768189796727253
+    },
+    {
+      "antecedents": [
+        "Procedimientos Esenciales de Nutrición y Dietoterapia",
+        "Seguridad del Paciente en Nutrición y Dietoterapia"
+      ],
+      "consequent": "Fundamentos de Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4,
+      "lift": 18.139534883720934,
+      "transactionCount": 10,
+      "score": 0.0372093023255814
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Microbiología y Control de Infecciones",
+        "Manual para Estudiantes de Microbiología y Control de Infecciones"
+      ],
+      "consequent": "Seguridad del Paciente en Nutrición y Dietoterapia",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.4166666666666667,
+      "lift": 17.28723404255319,
+      "transactionCount": 10,
+      "score": 0.036938534278959816
+    },
+    {
+      "antecedents": [
+        "Seguridad del Paciente en Pediatría"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Enfermería",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.37037037037037035,
+      "lift": 19.00584795321637,
+      "transactionCount": 10,
+      "score": 0.0360984766442856
+    },
+    {
+      "antecedents": [
+        "Casos Prácticos y Planes de Cuidado de Enfermería Médico-Quirúrgica"
+      ],
+      "consequent": "Guía de Repaso de Enfermería Médico-Quirúrgica",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.37037037037037035,
+      "lift": 18.055555555555554,
+      "transactionCount": 10,
+      "score": 0.034293552812071325
+    },
+    {
+      "antecedents": [
+        "Presentación de Teoría de Conjuntos"
+      ],
+      "consequent": "Guía de Repaso de Anatomía",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.35714285714285715,
+      "lift": 16.986062717770036,
+      "transactionCount": 10,
+      "score": 0.0311100049776008
+    },
+    {
+      "antecedents": [
+        "Guía de Repaso de Farmacología"
+      ],
+      "consequent": "Procedimientos Esenciales de Farmacología",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.35714285714285715,
+      "lift": 16.581632653061227,
+      "transactionCount": 10,
+      "score": 0.03036929057337221
+    },
+    {
+      "antecedents": [
+        "Precauciones Estándar y Lavado de Manos"
+      ],
+      "consequent": "Casos Prácticos y Planes de Cuidado de Microbiología y Control de Infecciones",
+      "evidence": "EXPLORATORIA",
+      "support": 0.005128205128205128,
+      "confidence": 0.35714285714285715,
+      "lift": 16.196013289036546,
+      "transactionCount": 10,
+      "score": 0.029663028001898437
+    }
+  ]
+}
