@@ -9,7 +9,7 @@ export const recommendationsForBook = async (req, res) => {
       return res.status(400).json({ message: "El identificador del libro no es válido." });
     }
 
-    const result = await getBookRecommendations(bookId, limit);
+    const result = await getBookRecommendations(bookId, req.user.id_usuario, limit);
     if (!result) {
       return res.status(404).json({ message: "Libro no encontrado o inactivo." });
     }

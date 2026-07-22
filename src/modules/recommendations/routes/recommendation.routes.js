@@ -1,8 +1,9 @@
 import express from "express";
 import { recommendationsForBook } from "../controllers/recommendation.controller.js";
+import { authMiddleware } from "../../../core/middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/books/:id", recommendationsForBook);
+router.get("/books/:id", authMiddleware, recommendationsForBook);
 
 export default router;

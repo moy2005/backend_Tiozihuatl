@@ -43,3 +43,20 @@ export const getAvailableBooksByTitles = async (titles) => {
 
   return rows;
 };
+
+export const getUserKnownBookTitles = async (userId, currentBookId) => {
+  if (!userId) return [];
+
+  const [rows] = await poolPromise.execute(
+    `SELECT l.titulo, MAX(i.fecha_hora) AS ultima_interaccion
+     FROM interacciones_libros i
+     INNER JOIN libros l ON l.id = i.libro_id AND l.activo = 1
+     WHERE i.id_usuario = ? AND i.libro_id <> ?
+     GROUP BY l.id, l.titulo
+     ORDER BY ultima_interaccion DESC
+     LIMIT 100`,
+    [userId, currentBookId]
+  );
+
+  return rows.map((row) => row.titulo);
+};

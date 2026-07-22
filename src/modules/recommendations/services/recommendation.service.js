@@ -1,8 +1,12 @@
 import { readFileSync } from "node:fs";
-import { getActiveBookById, getAvailableBooksByTitles } from "../models/recommendation.model.js";
+import {
+  getActiveBookById,
+  getAvailableBooksByTitles,
+  getUserKnownBookTitles,
+} from "../models/recommendation.model.js";
 import { normalizeTitle, scoreRecommendations } from "./recommendation.engine.js";
 
-const artifactUrl = new URL("../data/association-rules.v1.json", import.meta.url);
+const artifactUrl = new URL("../data/association-rules.json", import.meta.url);
 const artifact = JSON.parse(readFileSync(artifactUrl, "utf8"));
 
 const buildPreviewUrl = (pdfPublicId) => {
@@ -11,19 +15,26 @@ const buildPreviewUrl = (pdfPublicId) => {
   return `https://res.cloudinary.com/${cloudName}/image/upload/pg_1,w_300,h_420,c_fill,f_jpg,q_auto/${pdfPublicId}.jpg`;
 };
 
-export const getBookRecommendations = async (bookId, limit = 1) => {
+export const getBookRecommendations = async (bookId, userId, limit = 1) => {
   const sourceBook = await getActiveBookById(bookId);
   if (!sourceBook) return null;
 
-  // Se solicitan candidatos extra por si alguna regla apunta a un libro inactivo
-  // o sin formato disponible actualmente.
-  const scored = scoreRecommendations([sourceBook.titulo], artifact.rules, 20);
+  const safeLimit = Math.min(Math.max(Number(limit) || 1, 1), 5);
+  const historyTitles = await getUserKnownBookTitles(userId, sourceBook.id);
+  const currentTitleKey = normalizeTitle(sourceBook.titulo);
+  const relevantRules = artifact.rules.filter((rule) =>
+    rule.antecedents.some((title) => normalizeTitle(title) === currentTitleKey)
+  );
+  const scored = scoreRecommendations(
+    [sourceBook.titulo, ...historyTitles],
+    relevantRules,
+    20
+  );
   const availableBooks = await getAvailableBooksByTitles(scored.map((item) => item.title));
   const booksByTitle = new Map(
     availableBooks.map((book) => [normalizeTitle(book.titulo), book])
   );
 
-  const safeLimit = Math.min(Math.max(Number(limit) || 1, 1), 5);
   const recommendations = scored
     .map((item) => {
       const book = booksByTitle.get(normalizeTitle(item.title));
@@ -44,7 +55,7 @@ export const getBookRecommendations = async (bookId, limit = 1) => {
         nivel_evidencia: item.evidenceLevel,
         confianza: item.confidence,
         lift: item.lift,
-        motivo: `Quienes consultaron “${sourceBook.titulo}” también relacionaron este título.`,
+        motivo: `Una regla Apriori relaciona tu lectura actual con este título.`,
       };
     })
     .filter(Boolean)
@@ -54,8 +65,7 @@ export const getBookRecommendations = async (bookId, limit = 1) => {
     libro_origen: sourceBook,
     modelo: {
       tipo: artifact.modelType,
-      version: artifact.schemaVersion,
-      reglas_evaluadas: artifact.rules.length,
+      reglas_evaluadas: relevantRules.length,
     },
     recomendaciones: recommendations,
   };
