@@ -1,0 +1,1795 @@
+{
+  "schemaVersion": 1,
+  "modelType": "KMeans",
+  "k": 3,
+  "generatedAt": "2026-07-22T11:53:21.024Z",
+  "features": [
+    "total_sesiones_lectura",
+    "usuarios_unicos_lectores",
+    "promedio_tiempo_segundos",
+    "porcentaje_promedio_avance",
+    "total_prestamos_fisicos"
+  ],
+  "validation": {
+    "silhouette": 0.7315,
+    "daviesBouldin": 0.5002,
+    "calinskiHarabasz": 304.0007
+  },
+  "profiles": {
+    "0": {
+      "name": "Baja utilización",
+      "studentLabel": "Descubre nuevos recursos",
+      "description": "Libros con poca actividad registrada que pueden ampliar tus fuentes de consulta.",
+      "icon": "sparkles-outline"
+    },
+    "1": {
+      "name": "Consulta rápida",
+      "studentLabel": "Consulta frecuente",
+      "description": "Libros que otros estudiantes consultan para localizar información puntual.",
+      "icon": "flash-outline"
+    },
+    "2": {
+      "name": "Estudio intensivo",
+      "studentLabel": "Para profundizar",
+      "description": "Libros con lecturas más prolongadas y mayor avance para estudiar un tema a fondo.",
+      "icon": "school-outline"
+    }
+  },
+  "books": [
+    {
+      "bookId": 53,
+      "title": "Transition to General Practice Nursing Ingles",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 10,
+        "uniqueReaders": 9,
+        "averageReadingSeconds": 7271.5,
+        "averageProgressPercent": 40.61,
+        "physicalLoans": 67
+      }
+    },
+    {
+      "bookId": 54,
+      "title": "Manual de Procedimentos Básicos de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 70,
+        "uniqueReaders": 28,
+        "averageReadingSeconds": 3270.3,
+        "averageProgressPercent": 52,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 55,
+      "title": "Anatomía General Portugués",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 143,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 4256.87,
+        "averageProgressPercent": 53.63,
+        "physicalLoans": 99
+      }
+    },
+    {
+      "bookId": 56,
+      "title": "Anatomía Aplicada para Estudiantes de Odontología",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 83,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 5005.58,
+        "averageProgressPercent": 49.28,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 57,
+      "title": "Manual de técnicas y procedimientos de enfermería",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 7,
+        "uniqueReaders": 7,
+        "averageReadingSeconds": 8033.57,
+        "averageProgressPercent": 58.83,
+        "physicalLoans": 81
+      }
+    },
+    {
+      "bookId": 58,
+      "title": "Manual de Urgencias",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 4,
+        "uniqueReaders": 4,
+        "averageReadingSeconds": 8728.5,
+        "averageProgressPercent": 68.39,
+        "physicalLoans": 66
+      }
+    },
+    {
+      "bookId": 59,
+      "title": "Principales Procedimientos Básicos de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 66,
+        "uniqueReaders": 35,
+        "averageReadingSeconds": 7399.88,
+        "averageProgressPercent": 48.25,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 60,
+      "title": "Patología cardiovascular sociedad espanola de farmacia hospitalaria",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 4,
+        "uniqueReaders": 3,
+        "averageReadingSeconds": 10611.25,
+        "averageProgressPercent": 69.17,
+        "physicalLoans": 87
+      }
+    },
+    {
+      "bookId": 61,
+      "title": "Manual de Técnicas de Enfermería Eduardo Herrera Ximena Moreno y Carolina Sánchez",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 2,
+        "uniqueReaders": 2,
+        "averageReadingSeconds": 1968.5,
+        "averageProgressPercent": 51.55,
+        "physicalLoans": 82
+      }
+    },
+    {
+      "bookId": 62,
+      "title": "Cuidados básicos de enfermería",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 63,
+      "title": "Cuidados básicos",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 64,
+      "title": "Manual Técnicas de Enfermería",
+      "cluster": 2,
+      "profile": "Estudio intensivo",
+      "metrics": {
+        "readingSessions": 13,
+        "uniqueReaders": 10,
+        "averageReadingSeconds": 6037,
+        "averageProgressPercent": 47.21,
+        "physicalLoans": 67
+      }
+    },
+    {
+      "bookId": 65,
+      "title": "Enfermería Materno-Infantil",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 66,
+      "title": "Enfermería  quirúrgica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 67,
+      "title": "Salud Pública y Enfermería  Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 8425.42,
+        "averageProgressPercent": 53.52,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 69,
+      "title": "Fundamentos de Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 52,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 3276.83,
+        "averageProgressPercent": 50.53,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 70,
+      "title": "Microbiología Clínica y Control de Infecciones: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 71,
+        "uniqueReaders": 33,
+        "averageReadingSeconds": 3896.2,
+        "averageProgressPercent": 48.04,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 71,
+      "title": "Microbiología Clínica y Control de Infecciones: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 64,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 5285.48,
+        "averageProgressPercent": 53.27,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 72,
+      "title": "Valoración integral en Microbiología Clínica y Control de Infecciones",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 73,
+      "title": "Procedimientos esenciales de Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 85,
+        "uniqueReaders": 33,
+        "averageReadingSeconds": 6609.86,
+        "averageProgressPercent": 50,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 74,
+      "title": "Guía práctica de Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 7165.75,
+        "averageProgressPercent": 49.24,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 75,
+      "title": "Microbiología Clínica y Control de Infecciones basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 46,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 8275.59,
+        "averageProgressPercent": 51.41,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 76,
+      "title": "Razonamiento clínico aplicado a Microbiología Clínica y Control de Infecciones",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 77,
+      "title": "Protocolos de atención en Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 56,
+        "uniqueReaders": 33,
+        "averageReadingSeconds": 3292.07,
+        "averageProgressPercent": 51.02,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 78,
+      "title": "Seguridad del paciente en Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 69,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 4327.57,
+        "averageProgressPercent": 49.65,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 79,
+      "title": "Intervenciones de enfermería en Microbiología Clínica y Control de Infecciones",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 69,
+        "uniqueReaders": 32,
+        "averageReadingSeconds": 5352.83,
+        "averageProgressPercent": 56.66,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 80,
+      "title": "Evaluación y seguimiento en Microbiología Clínica y Control de Infecciones",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 81,
+      "title": "Fundamentos de Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 60,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 6718.6,
+        "averageProgressPercent": 52.01,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 82,
+      "title": "Nutrición Clínica y Dietoterapia: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 67,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 7898.54,
+        "averageProgressPercent": 50.27,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 83,
+      "title": "Nutrición Clínica y Dietoterapia: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 61,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 8413.41,
+        "averageProgressPercent": 48.84,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 84,
+      "title": "Valoración integral en Nutrición Clínica y Dietoterapia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 85,
+      "title": "Procedimientos esenciales de Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 54,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 4107.07,
+        "averageProgressPercent": 51.47,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 86,
+      "title": "Guía práctica de Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 65,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 4942.83,
+        "averageProgressPercent": 52.11,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 87,
+      "title": "Nutrición Clínica y Dietoterapia basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 66,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 5653.21,
+        "averageProgressPercent": 53.18,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 88,
+      "title": "Razonamiento clínico aplicado a Nutrición Clínica y Dietoterapia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 89,
+      "title": "Protocolos de atención en Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 69,
+        "uniqueReaders": 34,
+        "averageReadingSeconds": 6653.48,
+        "averageProgressPercent": 49.37,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 90,
+      "title": "Seguridad del paciente en Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 57,
+        "uniqueReaders": 31,
+        "averageReadingSeconds": 7599.42,
+        "averageProgressPercent": 50.43,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 91,
+      "title": "Intervenciones de enfermería en Nutrición Clínica y Dietoterapia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 69,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 6965.58,
+        "averageProgressPercent": 46.46,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 92,
+      "title": "Evaluación y seguimiento en Nutrición Clínica y Dietoterapia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 93,
+      "title": "Fundamentos de Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 74,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 3582.51,
+        "averageProgressPercent": 44.67,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 94,
+      "title": "Enfermería Médico-Quirúrgica: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 87,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 4877.97,
+        "averageProgressPercent": 51.19,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 95,
+      "title": "Enfermería Médico-Quirúrgica: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 111,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 5499.05,
+        "averageProgressPercent": 50.47,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 96,
+      "title": "Valoración integral en Enfermería Médico-Quirúrgica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 97,
+      "title": "Procedimientos esenciales de Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 92,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 7506.83,
+        "averageProgressPercent": 52.1,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 98,
+      "title": "Guía práctica de Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 99,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 8209.51,
+        "averageProgressPercent": 48.8,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 99,
+      "title": "Enfermería Médico-Quirúrgica basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 77,
+        "uniqueReaders": 19,
+        "averageReadingSeconds": 2771.25,
+        "averageProgressPercent": 51.42,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 100,
+      "title": "Razonamiento clínico aplicado a Enfermería Médico-Quirúrgica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 101,
+      "title": "Protocolos de atención en Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 87,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 4727.24,
+        "averageProgressPercent": 49.4,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 102,
+      "title": "Seguridad del paciente en Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 78,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 4923.24,
+        "averageProgressPercent": 47.71,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 103,
+      "title": "Intervenciones de enfermería en Enfermería Médico-Quirúrgica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 100,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 5788.45,
+        "averageProgressPercent": 49.22,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 104,
+      "title": "Evaluación y seguimiento en Enfermería Médico-Quirúrgica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 105,
+      "title": "Fundamentos de Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 51,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 8072.69,
+        "averageProgressPercent": 48.33,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 106,
+      "title": "Enfermería Materna y Obstétrica: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 46,
+        "uniqueReaders": 31,
+        "averageReadingSeconds": 8093.63,
+        "averageProgressPercent": 52.53,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 107,
+      "title": "Enfermería Materna y Obstétrica: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 31,
+        "uniqueReaders": 20,
+        "averageReadingSeconds": 3326.97,
+        "averageProgressPercent": 52.37,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 108,
+      "title": "Valoración integral en Enfermería Materna y Obstétrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 109,
+      "title": "Procedimientos esenciales de Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 42,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 4313.14,
+        "averageProgressPercent": 43.13,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 110,
+      "title": "Guía práctica de Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 37,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 6609.65,
+        "averageProgressPercent": 56.1,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 111,
+      "title": "Enfermería Materna y Obstétrica basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 41,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 5444.78,
+        "averageProgressPercent": 45.22,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 112,
+      "title": "Razonamiento clínico aplicado a Enfermería Materna y Obstétrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 113,
+      "title": "Protocolos de atención en Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 51,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 8259.37,
+        "averageProgressPercent": 53.53,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 114,
+      "title": "Seguridad del paciente en Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 52,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 2802.96,
+        "averageProgressPercent": 50.72,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 115,
+      "title": "Intervenciones de enfermería en Enfermería Materna y Obstétrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 41,
+        "uniqueReaders": 19,
+        "averageReadingSeconds": 3006.88,
+        "averageProgressPercent": 45.02,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 116,
+      "title": "Evaluación y seguimiento en Enfermería Materna y Obstétrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 117,
+      "title": "Fundamentos de Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 4806.89,
+        "averageProgressPercent": 48.72,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 118,
+      "title": "Salud Pública y Enfermería Comunitaria: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 38,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 5128.63,
+        "averageProgressPercent": 45.11,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 119,
+      "title": "Salud Pública y Enfermería Comunitaria: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 34,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 7064.59,
+        "averageProgressPercent": 51.55,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 120,
+      "title": "Valoración integral en Salud Pública y Enfermería Comunitaria",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 121,
+      "title": "Procedimientos esenciales de Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 47,
+        "uniqueReaders": 31,
+        "averageReadingSeconds": 8791.45,
+        "averageProgressPercent": 53.2,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 122,
+      "title": "Guía práctica de Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 67,
+        "uniqueReaders": 35,
+        "averageReadingSeconds": 2659.39,
+        "averageProgressPercent": 44.65,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 123,
+      "title": "Salud Pública y Enfermería Comunitaria basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 47,
+        "uniqueReaders": 28,
+        "averageReadingSeconds": 3168.02,
+        "averageProgressPercent": 43.1,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 124,
+      "title": "Razonamiento clínico aplicado a Salud Pública y Enfermería Comunitaria",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 125,
+      "title": "Protocolos de atención en Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 43,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 5197.14,
+        "averageProgressPercent": 47.08,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 126,
+      "title": "Seguridad del paciente en Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 44,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 6340.36,
+        "averageProgressPercent": 53.45,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 127,
+      "title": "Intervenciones de enfermería en Salud Pública y Enfermería Comunitaria",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 37,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 6961.73,
+        "averageProgressPercent": 49.44,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 128,
+      "title": "Evaluación y seguimiento en Salud Pública y Enfermería Comunitaria",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 129,
+      "title": "Fundamentos de Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 59,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 8315.92,
+        "averageProgressPercent": 52.03,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 130,
+      "title": "Enfermería Geriátrica y Gerontológica: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 65,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 3435.42,
+        "averageProgressPercent": 54.22,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 131,
+      "title": "Enfermería Geriátrica y Gerontológica: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 60,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 4704.63,
+        "averageProgressPercent": 54.05,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 132,
+      "title": "Valoración integral en Enfermería Geriátrica y Gerontológica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 133,
+      "title": "Procedimientos esenciales de Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 52,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 5651.54,
+        "averageProgressPercent": 51.4,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 134,
+      "title": "Guía práctica de Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 49,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 5538.49,
+        "averageProgressPercent": 44.35,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 135,
+      "title": "Enfermería Geriátrica y Gerontológica basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 60,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 7111.8,
+        "averageProgressPercent": 49.67,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 136,
+      "title": "Razonamiento clínico aplicado a Enfermería Geriátrica y Gerontológica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 137,
+      "title": "Protocolos de atención en Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 60,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 2938.45,
+        "averageProgressPercent": 49.47,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 138,
+      "title": "Seguridad del paciente en Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 58,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 3924.64,
+        "averageProgressPercent": 53.37,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 139,
+      "title": "Intervenciones de enfermería en Enfermería Geriátrica y Gerontológica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 55,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 4962.6,
+        "averageProgressPercent": 52.27,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 140,
+      "title": "Evaluación y seguimiento en Enfermería Geriátrica y Gerontológica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 141,
+      "title": "Fundamentos de Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 40,
+        "uniqueReaders": 23,
+        "averageReadingSeconds": 5965.1,
+        "averageProgressPercent": 55.91,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 142,
+      "title": "Salud Mental y Enfermería Psiquiátrica: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 31,
+        "averageReadingSeconds": 6687.6,
+        "averageProgressPercent": 49.09,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 143,
+      "title": "Salud Mental y Enfermería Psiquiátrica: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 38,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 7038.95,
+        "averageProgressPercent": 44.86,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 144,
+      "title": "Valoración integral en Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 145,
+      "title": "Procedimientos esenciales de Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 56,
+        "uniqueReaders": 28,
+        "averageReadingSeconds": 3214.73,
+        "averageProgressPercent": 48.64,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 146,
+      "title": "Guía práctica de Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 30,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 3612.4,
+        "averageProgressPercent": 48.78,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 147,
+      "title": "Salud Mental y Enfermería Psiquiátrica basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 45,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 5027.82,
+        "averageProgressPercent": 53.3,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 148,
+      "title": "Razonamiento clínico aplicado a Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 149,
+      "title": "Protocolos de atención en Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 38,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 5422.18,
+        "averageProgressPercent": 41.83,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 150,
+      "title": "Seguridad del paciente en Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 41,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 6843.44,
+        "averageProgressPercent": 52.28,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 151,
+      "title": "Intervenciones de enfermería en Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 51,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 5989.63,
+        "averageProgressPercent": 41.79,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 152,
+      "title": "Evaluación y seguimiento en Salud Mental y Enfermería Psiquiátrica",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 153,
+      "title": "Fundamentos de Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 61,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 3771.62,
+        "averageProgressPercent": 52.37,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 154,
+      "title": "Urgencias y Cuidados Intensivos: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 58,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 3809.79,
+        "averageProgressPercent": 42.45,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 155,
+      "title": "Urgencias y Cuidados Intensivos: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 50,
+        "uniqueReaders": 28,
+        "averageReadingSeconds": 4427.9,
+        "averageProgressPercent": 42.81,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 156,
+      "title": "Valoración integral en Urgencias y Cuidados Intensivos",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 157,
+      "title": "Procedimientos esenciales de Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 25,
+        "averageReadingSeconds": 7721.21,
+        "averageProgressPercent": 55.41,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 158,
+      "title": "Guía práctica de Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 55,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 8901.56,
+        "averageProgressPercent": 54.16,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 159,
+      "title": "Urgencias y Cuidados Intensivos basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 61,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 8330.9,
+        "averageProgressPercent": 52.85,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 160,
+      "title": "Razonamiento clínico aplicado a Urgencias y Cuidados Intensivos",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 161,
+      "title": "Protocolos de atención en Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 51,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 4366.57,
+        "averageProgressPercent": 56.9,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 162,
+      "title": "Seguridad del paciente en Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 71,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 4337.1,
+        "averageProgressPercent": 48.19,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 163,
+      "title": "Intervenciones de enfermería en Urgencias y Cuidados Intensivos",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 59,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 5506.19,
+        "averageProgressPercent": 48.75,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 164,
+      "title": "Evaluación y seguimiento en Urgencias y Cuidados Intensivos",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 165,
+      "title": "Fundamentos de Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 35,
+        "uniqueReaders": 21,
+        "averageReadingSeconds": 6932.49,
+        "averageProgressPercent": 47.12,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 166,
+      "title": "Investigación y Práctica Basada en Evidencia: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 56,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 7330.46,
+        "averageProgressPercent": 47.39,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 167,
+      "title": "Investigación y Práctica Basada en Evidencia: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 49,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 8606.37,
+        "averageProgressPercent": 51.66,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 168,
+      "title": "Valoración integral en Investigación y Práctica Basada en Evidencia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 169,
+      "title": "Procedimientos esenciales de Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 3627.32,
+        "averageProgressPercent": 42.95,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 170,
+      "title": "Guía práctica de Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 39,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 4696.69,
+        "averageProgressPercent": 52.27,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 171,
+      "title": "Investigación y Práctica Basada en Evidencia basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 50,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 6469.92,
+        "averageProgressPercent": 55.88,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 172,
+      "title": "Razonamiento clínico aplicado a Investigación y Práctica Basada en Evidencia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 173,
+      "title": "Protocolos de atención en Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 39,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 7736,
+        "averageProgressPercent": 54.97,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 174,
+      "title": "Seguridad del paciente en Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 40,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 7331.7,
+        "averageProgressPercent": 46.65,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 175,
+      "title": "Intervenciones de enfermería en Investigación y Práctica Basada en Evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 42,
+        "uniqueReaders": 24,
+        "averageReadingSeconds": 3016.95,
+        "averageProgressPercent": 49.31,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 176,
+      "title": "Evaluación y seguimiento en Investigación y Práctica Basada en Evidencia",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 177,
+      "title": "Fundamentos de Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 57,
+        "uniqueReaders": 32,
+        "averageReadingSeconds": 4216.25,
+        "averageProgressPercent": 48.12,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 178,
+      "title": "Gestión y Seguridad del Cuidado de Enfermería: manual para estudiantes de enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 67,
+        "uniqueReaders": 27,
+        "averageReadingSeconds": 5081.99,
+        "averageProgressPercent": 47.98,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 179,
+      "title": "Gestión y Seguridad del Cuidado de Enfermería: casos clínicos y planes de cuidado",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 49,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 6395.86,
+        "averageProgressPercent": 52.46,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 180,
+      "title": "Valoración integral en Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    },
+    {
+      "bookId": 181,
+      "title": "Procedimientos esenciales de Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 62,
+        "uniqueReaders": 31,
+        "averageReadingSeconds": 7478.89,
+        "averageProgressPercent": 47.02,
+        "physicalLoans": 1320
+      }
+    },
+    {
+      "bookId": 182,
+      "title": "Guía práctica de Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 62,
+        "uniqueReaders": 29,
+        "averageReadingSeconds": 8139.45,
+        "averageProgressPercent": 50.36,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 183,
+      "title": "Gestión y Seguridad del Cuidado de Enfermería basada en evidencia",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 52,
+        "uniqueReaders": 22,
+        "averageReadingSeconds": 3079.81,
+        "averageProgressPercent": 47.75,
+        "physicalLoans": 1000
+      }
+    },
+    {
+      "bookId": 184,
+      "title": "Razonamiento clínico aplicado a Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 185,
+      "title": "Protocolos de atención en Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 57,
+        "uniqueReaders": 26,
+        "averageReadingSeconds": 4268.4,
+        "averageProgressPercent": 43.28,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 186,
+      "title": "Seguridad del paciente en Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 53,
+        "uniqueReaders": 30,
+        "averageReadingSeconds": 5390.89,
+        "averageProgressPercent": 52.52,
+        "physicalLoans": 1080
+      }
+    },
+    {
+      "bookId": 187,
+      "title": "Intervenciones de enfermería en Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 1,
+      "profile": "Consulta rápida",
+      "metrics": {
+        "readingSessions": 62,
+        "uniqueReaders": 28,
+        "averageReadingSeconds": 6622.24,
+        "averageProgressPercent": 52.68,
+        "physicalLoans": 1240
+      }
+    },
+    {
+      "bookId": 188,
+      "title": "Evaluación y seguimiento en Gestión y Seguridad del Cuidado de Enfermería",
+      "cluster": 0,
+      "profile": "Baja utilización",
+      "metrics": {
+        "readingSessions": 0,
+        "uniqueReaders": 0,
+        "averageReadingSeconds": 0,
+        "averageProgressPercent": 0,
+        "physicalLoans": 1160
+      }
+    }
+  ]
+}

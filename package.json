@@ -9,7 +9,8 @@
     "start": "node src/server.js",
     "recommendations:dataset": "node scripts/recommendations/generate-apriori-dataset.js ../dataset_apriori_completo_tiozihuatl.csv",
     "recommendations:promote": "node scripts/recommendations/promote-apriori-artifact.js",
-    "test:recommendations": "node --test src/modules/recommendations/tests/recommendation.engine.test.js"
+    "recommendations:clusters": "node scripts/recommendations/promote-clustering-artifact.js",
+    "test:recommendations": "node --test src/modules/recommendations/tests/*.test.js"
   },
   "keywords": [],
   "author": "",

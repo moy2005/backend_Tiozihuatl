@@ -28,3 +28,21 @@ npm run test:recommendations
 El único artefacto utilizado por producción es `association-rules.json`. La tabla
 `interacciones_libros` es la fuente histórica real y no debe llenarse con datos
 ficticios para forzar reglas.
+# Recomendaciones y perfiles de lectura
+
+Este módulo mantiene dos técnicas independientes:
+
+- **Reglas Apriori:** recomendaciones asociadas con el libro que el estudiante está leyendo.
+- **Clustering K-Means:** rutas de exploración del catálogo según tres comportamientos globales: consulta rápida, estudio intensivo y baja utilización.
+
+## Flujo de clustering
+
+La libreta y `build_clustering_libros_dataset.py` se usan fuera del servidor para preparar, evaluar y entrenar el modelo. El backend no ejecuta Jupyter en cada petición. El resultado aprobado se promueve con:
+
+```bash
+npm run recommendations:clusters
+```
+
+El comando convierte `resultados_clustering_libros/libros_con_cluster.csv` en el artefacto versionado `data/book-clusters.json`. El endpoint autenticado `GET /api/recommendations/clusters/student` cruza esas asignaciones con el catálogo activo y su disponibilidad actual.
+
+Para actualizar el modelo: regenerar el dataset, ejecutar la libreta, revisar Silhouette/Davies-Bouldin/Calinski-Harabasz y finalmente promover el nuevo CSV. El artefacto permite desplegar Node sin Python, pandas ni scikit-learn.
