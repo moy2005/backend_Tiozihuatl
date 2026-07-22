@@ -1,4 +1,5 @@
 import { PublicMaterialService } from "../services/material.service.js";
+import { MaterialRecommendationService } from "../services/material-recommendation.service.js";
 
 export const getMaterials = async (req, res) => {
   try {
@@ -86,5 +87,30 @@ export const getDocenteInfo = async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getMaterialRecommendations = async (req, res) => {
+  try {
+    const idMaterial = Number.parseInt(req.params.id, 10);
+    const requestedLimit = Number.parseInt(req.query.limit, 10);
+    const limit = Number.isFinite(requestedLimit)
+      ? Math.min(Math.max(requestedLimit, 1), 5)
+      : 3;
+    const historyIds = String(req.query.history ?? '')
+      .split(',')
+      .map((value) => Number.parseInt(value, 10))
+      .filter((value) => Number.isInteger(value) && value > 0)
+      .slice(-10);
+
+    if (!Number.isInteger(idMaterial) || idMaterial <= 0) {
+      return res.status(400).json({ error: 'Identificador de material inválido' });
+    }
+
+    const result = await MaterialRecommendationService.getByMaterialId(idMaterial, limit, historyIds);
+    if (!result) return res.status(404).json({ error: 'Material no encontrado o no disponible' });
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: 'No se pudieron obtener las recomendaciones' });
   }
 };
