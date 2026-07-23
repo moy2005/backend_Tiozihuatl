@@ -9,11 +9,18 @@ const buildPreviewUrl = (publicId) => process.env.CLOUDINARY_CLOUD_NAME && publi
 
 export const getStudentClusterShelves = async (limit = 12) => {
   const safeLimit = Math.min(Math.max(Number(limit) || 12, 1), 24);
-  const selected = [2, 1, 0].flatMap((cluster) => selectClusterBooks(artifact.books, cluster, safeLimit * 5));
+  const profileOrder = ["Estudio intensivo", "Consulta rápida", "Baja utilización"];
+  const orderedClusters = profileOrder.map((name) =>
+    Number(Object.keys(artifact.profiles).find((cluster) => artifact.profiles[cluster].name === name))
+  );
+  const selected = orderedClusters.flatMap((cluster) => {
+    const profile = artifact.profiles[String(cluster)];
+    return selectClusterBooks(artifact.books, cluster, safeLimit * 5, profile.name);
+  });
   const catalogBooks = await getAvailableBooksByIds(selected.map((book) => book.bookId));
   const catalogById = new Map(catalogBooks.map((book) => [Number(book.id), book]));
 
-  const shelves = [2, 1, 0].map((cluster) => {
+  const shelves = orderedClusters.map((cluster) => {
     const profile = artifact.profiles[String(cluster)];
     const books = selected.filter((item) => item.cluster === cluster).map((item) => {
       const book = catalogById.get(item.bookId);
