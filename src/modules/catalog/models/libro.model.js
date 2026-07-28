@@ -7,6 +7,7 @@ const searchBooks = async ({ search, autor, materia, formato, ordenAutor, semest
     l.id,
     l.titulo,
     GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
+    MAX(e.nombre) AS editorial,
     GROUP_CONCAT(DISTINCT m.nombre) AS materias,
     GROUP_CONCAT(DISTINCT s.nombre_semestre) AS semestres,
     GROUP_CONCAT(DISTINCT s.id_semestre) AS semestres_ids,
@@ -24,6 +25,7 @@ const searchBooks = async ({ search, autor, materia, formato, ordenAutor, semest
   LEFT JOIN semestres s ON s.id_semestre = ls.semestre_id
   LEFT JOIN libro_autor la ON la.libro_id = l.id
   LEFT JOIN autores a ON a.id = la.autor_id
+  LEFT JOIN editoriales e ON e.id_editorial = l.id_editorial
 
   LEFT JOIN libro_materia lm ON lm.libro_id = l.id
   LEFT JOIN materias m ON m.id = lm.materia_id
