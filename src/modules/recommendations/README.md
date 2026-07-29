@@ -1,48 +1,99 @@
-# Recomendaciones bibliográficas con Apriori
+# Recomendación de libros basada en contenido
 
-El módulo utiliza exclusivamente reglas de asociación generadas con Apriori.
-No aplica recomendaciones por materia, semestre, autor o popularidad.
+La recomendación asociada con el detalle de un libro utiliza exclusivamente:
 
-Una recomendación solo se devuelve cuando:
+- Materias del libro.
+- Autores del libro.
+- Vectores binarios.
+- Similitud coseno.
 
-- El título actual satisface el antecedente de una regla.
-- En antecedentes de dos libros, el título actual es uno de ellos y el otro
-  aparece en el historial real del usuario.
-- El consecuente es un único libro distinto del actual.
-- El libro consecuente está activo y disponible en el catálogo.
-- La regla supera los umbrales de soporte, confianza y lift de la libreta.
+No utiliza interacciones de usuarios, préstamos, TF-IDF ni reglas de
+asociación. Semestres y formatos se muestran como metadatos, pero no forman
+parte del vector.
 
-## Actualización de reglas
+## Arquitectura
+
+Angular solicita:
+
+```text
+GET /api/recommendations/books/:id?limit=5
+```
+
+Express conserva la autenticación y consulta la disponibilidad actual. Dentro
+del mismo servidor de Render, el proceso Python carga
+`data/content-recommender.joblib`, calcula el ranking y devuelve
+identificadores, similitudes y características compartidas.
+
+El artefacto contiene los identificadores del catálogo, el índice de libros,
+las características y la matriz binaria. No contiene resultados escritos
+manualmente.
+
+El procedimiento principal está en
+`python_service/engine.py`. En ese archivo se muestran directamente:
+
+1. El vector binario del libro buscado.
+2. El producto punto.
+3. Las normas de los vectores.
+4. La división `(A · B) / (||A|| * ||B||)`.
+5. El ordenamiento de las recomendaciones.
+
+## Preparación
 
 Desde `backend_Tiozihuatl`:
 
 ```powershell
-npm run recommendations:dataset
-cd ..
-jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 "Reglas_Asociacion_Apriori_Tiozihuatl (1).ipynb"
+python -m pip install -r src/modules/recommendations/python_service/requirements.txt
+npm run recommendations:rebuild
+```
+
+## Ejecución local
+
+Para iniciar Express y Python juntos:
+
+```powershell
 cd backend_Tiozihuatl
-npm run recommendations:promote
+npm start
+```
+
+Durante el desarrollo también pueden iniciarse por separado:
+
+```powershell
+npm run recommendations:service
+npm run dev
+```
+
+Express utiliza el puerto público proporcionado por Render. Python escucha
+solamente en `127.0.0.1:5055`, dentro del mismo servidor, por lo que no tiene
+una URL pública ni necesita variables nuevas. Ambos procesos reutilizan las
+mismas variables de base de datos del backend actual.
+
+Al ejecutar `npm install`, también se instalan automáticamente las
+dependencias de Python indicadas en `python_service/requirements.txt`.
+
+## Actualización
+
+Después de crear, actualizar, activar, desactivar o eliminar un libro, Express
+solicita una reconstrucción del artefacto. El proceso:
+
+1. Consulta el catálogo activo desde MySQL.
+2. Reconstruye los vectores.
+3. Guarda un archivo temporal.
+4. Reemplaza el artefacto anterior solamente al finalizar correctamente.
+5. El servicio Python detecta la nueva versión al atender la siguiente
+   solicitud.
+
+Si el servicio Python se encuentra detenido, la operación administrativa del
+catálogo se conserva y el artefacto puede regenerarse posteriormente con:
+
+```powershell
+npm run recommendations:rebuild
+```
+
+## Pruebas
+
+```powershell
 npm run test:recommendations
 ```
 
-El único artefacto utilizado por producción es `association-rules.json`. La tabla
-`interacciones_libros` es la fuente histórica real y no debe llenarse con datos
-ficticios para forzar reglas.
-# Recomendaciones y perfiles de lectura
-
-Este módulo mantiene dos técnicas independientes:
-
-- **Reglas Apriori:** recomendaciones asociadas con el libro que el estudiante está leyendo.
-- **Clustering K-Means:** rutas de exploración del catálogo según tres comportamientos globales: consulta rápida, estudio intensivo y baja utilización.
-
-## Flujo de clustering
-
-La libreta y `build_clustering_libros_dataset.py` se usan fuera del servidor para preparar, evaluar y entrenar el modelo. El backend no ejecuta Jupyter en cada petición. El resultado aprobado se promueve con:
-
-```bash
-npm run recommendations:clusters
-```
-
-El comando convierte `resultados_clustering_libros/libros_con_cluster.csv` en el artefacto versionado `data/book-clusters.json`. El endpoint autenticado `GET /api/recommendations/clusters/student` cruza esas asignaciones con el catálogo activo y su disponibilidad actual.
-
-Para actualizar el modelo: regenerar el dataset, ejecutar la libreta, revisar Silhouette/Davies-Bouldin/Calinski-Harabasz y finalmente promover el nuevo CSV. El artefacto permite desplegar Node sin Python, pandas ni scikit-learn.
+El módulo de clustering permanece independiente como la otra solución
+analítica del proyecto.

@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "model_type": "content_based",
+  "similarity": "cosine",
+  "generated_at": "2026-07-29T05:41:39.276767+00:00",
+  "catalog_fingerprint": "5048cee3ad1b3feb568bb38e2d7beea28376466a69c4868161ce5f3f00e7c711",
+  "parameters": {
+    "top_k": 5,
+    "maximum_candidates": 20,
+    "minimum_similarity": 0.0,
+    "feature_groups": [
+      "materia",
+      "autor"
+    ],
+    "feature_weighting": "binary_equal_weight"
+  },
+  "quality": {
+    "book_count": 135,
+    "feature_count": 55,
+    "empty_book_ids": []
+  },
+  "artifact_file": "content-recommender.joblib"
+}

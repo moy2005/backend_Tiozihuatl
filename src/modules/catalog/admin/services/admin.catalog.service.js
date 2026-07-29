@@ -1,9 +1,12 @@
 import libroModel from '../../models/libro.model.js';
 import formatoModel from '../../models/libroFormato.model.js';
 import storageService from './storage.service.js';
+import { refreshContentRecommender } from '../../../recommendations/services/recommendation.service.js';
 
 const crearLibro = async (data) => {
-  return await libroModel.createLibro(data);
+  const id = await libroModel.createLibro(data);
+  await refreshContentRecommender();
+  return id;
 };
 
 const obtenerLibrosAdmin = async () => {
@@ -21,11 +24,13 @@ const getCatalogAdmin = async (filters) => {
 };
 
 const actualizarLibro = async (id, data) => {
-  return await libroModel.updateLibro(id, data);
+  await libroModel.updateLibro(id, data);
+  await refreshContentRecommender();
 };
 
 const cambiarEstado = async (id, activo) => {
-  return await libroModel.cambiarEstado(id, activo);
+  await libroModel.cambiarEstado(id, activo);
+  await refreshContentRecommender();
 };
 
 const obtenerAutores = async () => {
@@ -38,6 +43,7 @@ const obtenerSemestres = async () => {
 
 const eliminarLibro = async (id) => {
   const pdfPublicId = await libroModel.deleteLibro(id);
+  await refreshContentRecommender();
 
   // Si tenía PDF en Cloudinary, eliminarlo también
   if (pdfPublicId) {
