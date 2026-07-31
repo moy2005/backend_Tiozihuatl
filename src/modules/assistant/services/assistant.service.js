@@ -48,6 +48,24 @@ const NATURAL_EXPRESSIONS = {
 
 const CONVERSATION_TOPICS = [
   {
+    id: "assistant_identity",
+    category: "Conversacion",
+    title: "Identidad del asistente",
+    priority: 12,
+    answer: "Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. No soy una inteligencia artificial de propósito general: estoy aquí para orientarte con información y procesos de esta plataforma, siempre dentro de los permisos de tu cuenta.",
+    actions: [],
+    suggestions: FALLBACK_SUGGESTIONS,
+  },
+  {
+    id: "wellbeing",
+    category: "Conversacion",
+    title: "Conversacion cordial",
+    priority: 12,
+    answer: "¡Muy bien, gracias por preguntar! Listo para ayudarte con lo que necesites del instituto. ¿Qué te gustaría consultar?",
+    actions: [],
+    suggestions: FALLBACK_SUGGESTIONS,
+  },
+  {
     id: "gratitude",
     category: "Conversacion",
     title: "Agradecimiento",
@@ -79,6 +97,8 @@ const CONVERSATION_TOPICS = [
 const ALL_TOPICS = [...ASSISTANT_TOPICS, ...CONVERSATION_TOPICS];
 
 const DIRECT_CONVERSATION_PATTERNS = [
+  { id: "assistant_identity", pattern: /^(quien eres|que eres|como te llamas|eres una ia|eres un bot)[\s!.,?]*$/ },
+  { id: "wellbeing", pattern: /^(como estas|como te va|todo bien)[\s!.,?]*$/ },
   { id: "gratitude", pattern: /^(?:(?:muchas|mil)\s+)?gracias\b|\b(te\s+lo\s+agradezco|te\s+agradezco|me\s+ayudaste|me\s+sirvio)\b/ },
   { id: "farewell", pattern: /^(adios|hasta\s+luego|nos\s+vemos|bye|hasta\s+pronto|me\s+voy)\b/ },
   { id: "confirmation", pattern: /^(ok|okay|vale|va|entendido|perfecto|listo|de\s+acuerdo|esta\s+bien)[\s.!]*$/ },
@@ -103,7 +123,7 @@ const tokenize = (value = "") =>
 const conversationHistory = (context = {}) =>
   (Array.isArray(context.history) ? context.history : [])
     .filter((item) => item && ["assistant", "user"].includes(item.sender))
-    .slice(-8);
+    .slice(-12);
 
 const previousAssistantIntentId = (context = {}) =>
   [...conversationHistory(context)]
@@ -126,11 +146,11 @@ const compact = (value, max = 240) => {
   return text.length > max ? `${text.slice(0, max).trim()}...` : text;
 };
 
-const sanitizeContext = (context = {}) => ({
+const sanitizeContext = (context = {}, authenticatedUser = null) => ({
   sessionId: compact(context.sessionId, 100),
   path: compact(context.path || context.route, 180),
-  role: compact(context.role, 80) || null,
-  isAuthenticated: Boolean(context.isAuthenticated),
+  role: compact(authenticatedUser?.rol, 80) || null,
+  isAuthenticated: Boolean(authenticatedUser?.id_usuario),
   history: conversationHistory(context).map((item) => ({
     sender: item.sender,
     text: compact(item.text, 300),
@@ -363,6 +383,156 @@ const formatDate = (value) => {
     timeStyle: "short",
     timeZone: "America/Mexico_City",
   });
+};
+
+const PERSONAL_PROFILE_PATTERN =
+  /\b(mis datos|mi informacion|datos de mi cuenta|quien soy|como me llamo|mi nombre|mi correo|mi telefono|mi matricula|mi carrera|mi semestre|mi grupo|mi rol|que rol tengo|estado de mi cuenta)\b/;
+
+const PERSONAL_LOANS_PATTERN =
+  /\b(mis prestamos|mis libros prestados|tengo prestamos|tengo algun prestamo|cuantos prestamos tengo|cuando vence mi prestamo|cuando devuelvo|mi fecha de vencimiento)\b/;
+
+const profileItem = (title, value) =>
+  value === null || value === undefined || String(value).trim() === ""
+    ? null
+    : { title, text: String(value).trim() };
+
+const buildProfileItems = (profile, normalizedMessage) => {
+  const fullName = [profile.nombre, profile.a_paterno, profile.a_materno]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const wantsAll = /\b(mis datos|mi informacion|datos de mi cuenta|quien soy)\b/.test(
+    normalizedMessage
+  );
+  const isStudent = normalizeText(profile.rol) === "estudiante";
+  const items = [];
+  const addWhen = (pattern, title, value) => {
+    if (wantsAll || pattern.test(normalizedMessage)) items.push(profileItem(title, value));
+  };
+
+  addWhen(/\b(quien soy|como me llamo|mi nombre)\b/, "Nombre", fullName);
+  addWhen(/\b(mi rol|que rol tengo|quien soy)\b/, "Rol", profile.rol);
+  addWhen(/\b(mi correo)\b/, "Correo", profile.correo);
+  addWhen(/\b(mi telefono)\b/, "Teléfono", profile.telefono);
+  if (isStudent) {
+    addWhen(/\b(mi matricula)\b/, "Matrícula", profile.matricula);
+    addWhen(/\b(mi carrera)\b/, "Carrera", profile.carrera);
+    addWhen(/\b(mi semestre)\b/, "Semestre", profile.semestre);
+    addWhen(/\b(mi grupo)\b/, "Grupo", profile.grupo);
+  }
+  addWhen(/\b(estado de mi cuenta)\b/, "Estado de la cuenta", profile.estado);
+
+  const visibleItems = items.filter(Boolean);
+
+  if (!visibleItems.length) {
+    visibleItems.push({
+      title: "Dato no disponible",
+      text: `Ese dato no está disponible para tu cuenta con rol ${profile.rol}.`,
+    });
+  }
+
+  return visibleItems;
+};
+
+const buildPersonalizedResponse = async ({ normalizedMessage, authenticatedUser }) => {
+  const wantsProfile = PERSONAL_PROFILE_PATTERN.test(normalizedMessage);
+  const wantsLoans = PERSONAL_LOANS_PATTERN.test(normalizedMessage);
+
+  if (!wantsProfile && !wantsLoans) return null;
+
+  const topic = wantsLoans
+    ? { id: "personal_loans", title: "Mis préstamos", category: "Mi cuenta" }
+    : { id: "personal_profile", title: "Mis datos", category: "Mi cuenta" };
+
+  if (!authenticatedUser?.id_usuario) {
+    return {
+      topic,
+      reply: "Puedo ayudarte con esa información, pero primero necesitas iniciar sesión. Por seguridad, solo consulto datos personales cuando el servidor confirma una sesión válida.",
+      sections: [],
+      actions: [routeAction("Iniciar sesión", "/login", "ph-sign-in")],
+      suggestions: [
+        { label: "Ayuda para entrar", prompt: "No puedo iniciar sesión" },
+        { label: "Recuperar contraseña", prompt: "Olvidé mi contraseña" },
+      ],
+    };
+  }
+
+  const profile = await AssistantModel.getUserSummary(authenticatedUser.id_usuario);
+
+  if (!profile) {
+    return {
+      topic,
+      reply: "Tu sesión está activa, pero no pude recuperar la información de tu cuenta en este momento. Puedes intentarlo de nuevo o abrir Mi perfil.",
+      sections: [],
+      actions: [routeAction("Mi perfil", "/perfil", "ph-user")],
+      suggestions: FALLBACK_SUGGESTIONS,
+    };
+  }
+
+  if (wantsLoans) {
+    const role = normalizeText(profile.rol);
+
+    if (role !== "estudiante") {
+      return {
+        topic,
+        reply: `Tu sesión corresponde al rol ${profile.rol}. La consulta de préstamos personales está disponible para cuentas de estudiante. Si gestionas préstamos por tu función, utiliza el módulo autorizado de Préstamos.`,
+        sections: [],
+        actions: role === "administrador"
+          ? [routeAction("Gestión de préstamos", "/admin/prestamos", "ph-books")]
+          : [routeAction("Mi perfil", "/perfil", "ph-user")],
+        suggestions: FALLBACK_SUGGESTIONS,
+      };
+    }
+
+    const loans = await AssistantModel.getUserLoans(authenticatedUser.id_usuario, 5);
+    const active = loans.filter((loan) => loan.estado === "Activo").length;
+    const overdue = loans.filter((loan) => loan.estado === "Vencido").length;
+    const statusParts = [
+      active ? `${active} activo${active === 1 ? "" : "s"}` : "",
+      overdue ? `${overdue} vencido${overdue === 1 ? "" : "s"}` : "",
+    ].filter(Boolean);
+
+    return {
+      topic,
+      reply: loans.length
+        ? `Sí, encontré tus préstamos recientes${statusParts.length ? `: ${statusParts.join(" y ")}` : ""}. Recuerda que cualquier préstamo nuevo debe tramitarse presencialmente con la bibliotecaria.`
+        : "No encontré préstamos registrados en tu cuenta. Si deseas solicitar uno, consulta primero la disponibilidad del libro y acude presencialmente con la bibliotecaria.",
+      sections: loans.length
+        ? [{
+            title: "Tus préstamos recientes",
+            items: loans.map((loan) => ({
+              title: loan.titulo,
+              text: loan.fecha_devolucion
+                ? `Estado: ${loan.estado}. Devuelto: ${formatDate(loan.fecha_devolucion)}.`
+                : `Estado: ${loan.estado}. Vencimiento: ${formatDate(loan.fecha_vencimiento)}.`,
+              meta: loan.estado,
+            })),
+          }]
+        : [],
+      actions: [
+        routeAction("Mis préstamos", "/my-loans", "ph-books"),
+        routeAction("Consultar catálogo", "/catalogo", "ph-book-bookmark"),
+      ],
+      suggestions: [
+        { label: "Préstamo presencial", prompt: "¿Cómo solicito un préstamo?" },
+        { label: "Buscar un libro", prompt: "Quiero buscar un libro" },
+      ],
+    };
+  }
+
+  const items = buildProfileItems(profile, normalizedMessage);
+  const firstName = compact(profile.nombre, 80);
+
+  return {
+    topic,
+    reply: `${firstName ? `Claro, ${firstName}. ` : ""}Estos son los datos de tu propia cuenta que solicitaste. Por seguridad, nunca mostraré contraseñas, tokens ni información de otros usuarios.`,
+    sections: [{ title: "Tu cuenta", items }],
+    actions: [routeAction("Abrir Mi perfil", "/perfil", "ph-user-gear")],
+    suggestions: [
+      { label: "Actualizar perfil", prompt: "¿Cómo actualizo mi perfil?" },
+      { label: "Cambiar contraseña", prompt: "¿Cómo cambio mi contraseña?" },
+    ],
+  };
 };
 
 const routeAction = (label, route, icon) => ({ label, route, icon });
@@ -631,14 +801,15 @@ const composeDynamic = async ({ topic, message, normalizedMessage, tokens }) => 
   };
 };
 
-const buildLowConfidenceResponse = (alternatives = []) => ({
+const buildLowConfidenceResponse = (alternatives = [], previousTopic = null) => ({
   topic: {
     id: "fallback",
     title: "Orientacion general",
     category: "Ayuda",
   },
-  reply:
-    "Quiero ayudarte, pero no alcancé a identificar exactamente qué necesitas. Puedes explicármelo con tus propias palabras o decirme la acción concreta, por ejemplo: \"busco un libro de anatomía\", \"no puedo entrar a mi cuenta\" o \"¿qué eventos hay?\".",
+  reply: previousTopic
+    ? `Seguimos hablando de ${previousTopic.title.toLowerCase()}, pero no alcancé a entender esta parte. ¿Podrías decirme con un poco más de detalle qué quieres saber?`
+    : "Quiero ayudarte, pero no alcancé a identificar exactamente qué necesitas. Puedes explicármelo con tus propias palabras o decirme la acción concreta, por ejemplo: \"busco un libro de anatomía\", \"no puedo entrar a mi cuenta\" o \"¿qué eventos hay?\".",
   actions: [
     routeAction("Biblioteca", "/catalogo", "ph-book-bookmark"),
     routeAction("Contacto", "/contactanos", "ph-envelope"),
@@ -653,8 +824,14 @@ const buildLowConfidenceResponse = (alternatives = []) => ({
 });
 
 const buildNaturalLead = ({ normalizedMessage, topicId, contextual }) => {
-  if (["greeting", "gratitude", "farewell", "confirmation", "fallback"].includes(topicId)) {
+  if (["greeting", "gratitude", "farewell", "confirmation", "fallback", "assistant_identity", "wellbeing"].includes(topicId)) {
     return "";
+  }
+  if (contextual && /\b(donde|a donde|en que parte|ahi)\b/.test(normalizedMessage)) {
+    return "Sí, retomando lo anterior, te indico dónde encontrarlo.";
+  }
+  if (contextual && /\b(como|que sigue|y luego|entonces)\b/.test(normalizedMessage)) {
+    return "Claro. Siguiendo con el mismo tema, este es el siguiente paso.";
   }
   if (contextual) return "Claro, seguimos con lo que estábamos viendo.";
   if (/\b(no puedo|no me deja|error|problema|falla|olvide|perdi)\b/.test(normalizedMessage)) {
@@ -672,21 +849,27 @@ const buildNaturalLead = ({ normalizedMessage, topicId, contextual }) => {
   return "Con gusto, te ayudo con eso.";
 };
 
-const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
+const buildResponse = async ({ message, context = {}, authenticatedUser = null, reqMeta = {} }) => {
   const intent = detectIntent(message, context);
-  const lowConfidence = !intent.best || intent.confidence < 0.2;
+  let lowConfidence = !intent.best || intent.confidence < 0.2;
   const previousTopic = intent.previousIntentId
     ? ALL_TOPICS.find((topic) => topic.id === intent.previousIntentId)
     : null;
+  const personalized = await buildPersonalizedResponse({
+    normalizedMessage: intent.normalizedMessage,
+    authenticatedUser,
+  });
 
-  let base = lowConfidence
-    ? buildLowConfidenceResponse(intent.alternatives)
+  let base = personalized || (lowConfidence
+    ? buildLowConfidenceResponse(intent.alternatives, previousTopic)
     : {
         topic: intent.best.topic,
         reply: intent.best.topic.answer,
         actions: intent.best.topic.actions || [],
         suggestions: intent.best.topic.suggestions || FALLBACK_SUGGESTIONS,
-      };
+      });
+
+  if (personalized) lowConfidence = false;
 
   if (!lowConfidence && base.topic.id === "confirmation" && previousTopic) {
     base = {
@@ -697,7 +880,7 @@ const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
     };
   }
 
-  const dynamic = lowConfidence
+  const dynamic = lowConfidence || personalized
     ? { sections: [], related: [], searchTerm: "", hasDynamicResults: false }
     : await composeDynamic({
         topic: base.topic,
@@ -724,7 +907,7 @@ const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
     dynamicActions.push(routeAction("Tienda", "/magazines", "ph-storefront"));
   }
 
-  const naturalLead = buildNaturalLead({
+  const naturalLead = personalized ? "" : buildNaturalLead({
     normalizedMessage: intent.normalizedMessage,
     topicId: base.topic.id,
     contextual: intent.contextual,
@@ -758,7 +941,7 @@ const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
       })),
     },
     reply: replyParts.join("\n\n"),
-    sections: dynamic.sections,
+    sections: [...(personalized?.sections || []), ...dynamic.sections],
     actions: dedupeActions([...(base.actions || []), ...dynamicActions]).slice(0, 6),
     suggestions: (base.suggestions || FALLBACK_SUGGESTIONS).slice(0, 5),
     related: dynamic.related,
@@ -767,6 +950,7 @@ const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
       deterministic: true,
       source: "project-rules",
       contextUsed: Boolean(intent.contextual),
+      authenticated: Boolean(authenticatedUser?.id_usuario),
     },
   };
 
@@ -786,7 +970,7 @@ const buildResponse = async ({ message, context = {}, reqMeta = {} }) => {
 };
 
 export const AssistantService = {
-  async answer({ message, context, reqMeta }) {
+  async answer({ message, context, authenticatedUser, reqMeta }) {
     const cleanMessage = compact(message, 1000);
 
     if (!cleanMessage || cleanMessage.length < 2) {
@@ -814,7 +998,8 @@ export const AssistantService = {
 
     return buildResponse({
       message: cleanMessage,
-      context: sanitizeContext(context),
+      context: sanitizeContext(context, authenticatedUser),
+      authenticatedUser: authenticatedUser || null,
       reqMeta: reqMeta || {},
     });
   },

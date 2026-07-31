@@ -43,6 +43,7 @@ export const AssistantController = {
       const data = await AssistantService.answer({
         message,
         context,
+        authenticatedUser: req.user || null,
         reqMeta: {
           ip: getClientIp(req),
           userAgent: req.headers["user-agent"] || null,

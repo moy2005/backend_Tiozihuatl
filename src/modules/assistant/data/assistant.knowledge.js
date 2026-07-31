@@ -64,7 +64,7 @@ export const ASSISTANT_TOPICS = [
       "asistente virtual", "como funciona el asistente",
     ],
     answer:
-      "¡Hola! Qué gusto saludarte. Cuéntame qué necesitas hacer y te acompaño paso a paso. Puedo ayudarte con biblioteca, préstamos, materiales, noticias, eventos, contacto, tu cuenta o las funciones administrativas que correspondan a tu rol.",
+      "¡Hola! Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. Qué gusto saludarte. Cuéntame qué necesitas hacer y te acompaño paso a paso. Puedo ayudarte con biblioteca, préstamos, materiales, noticias, eventos, contacto, tu cuenta o las funciones que correspondan a tu rol.",
     actions: [
       { label: "Ir a inicio", route: "/inicio", icon: "ph-house" },
       { label: "Ver contacto", route: "/contactanos", icon: "ph-envelope" },
@@ -291,7 +291,7 @@ export const ASSISTANT_TOPICS = [
       "por autor", "por semestre", "hay un libro",
     ],
     answer:
-      "En Biblioteca puedes buscar libros por titulo, autor, materia, formato y semestre. Cada resultado indica si tiene formato fisico, digital o ambos. Si el libro es digital, puedes abrirlo desde el visor. Si es fisico y hay disponibilidad, puedes solicitar prestamo si tu rol lo permite.\n\nPara una busqueda precisa, escribe titulo, autor o materia. Tambien puedes preguntarme por un libro especifico y revisare coincidencias en el catalogo.",
+      "En Biblioteca puedes buscar libros por título, autor, materia, formato y semestre. Cada resultado indica si tiene formato físico, digital o ambos. Si el libro es digital, puedes abrirlo desde el visor. Si es físico, el catálogo te permite consultar su disponibilidad.\n\nEl préstamo no se solicita desde el chat ni se completa en línea: debes acudir presencialmente a la biblioteca y pedirlo con la bibliotecaria. Para una búsqueda precisa, dime el título, autor o materia y revisaré coincidencias en el catálogo.",
     actions: [
       { label: "Abrir catalogo", route: "/catalogo", icon: "ph-book-bookmark" },
       { label: "Mis prestamos", route: "/my-loans", icon: "ph-books" },
@@ -343,7 +343,7 @@ export const ASSISTANT_TOPICS = [
       "como solicito un prestamo", "como pedir un prestamo",
     ],
     answer:
-      "Los prestamos aplican para libros fisicos y requieren sesion de estudiante. El sistema permite solicitar prestamos de lunes a viernes, de 10:00 a 16:00, y maneja un limite de 3 prestamos pendientes por estudiante.\n\nPara solicitar uno, entra al catalogo, localiza un libro fisico con disponibilidad y usa la accion de prestamo. Despues puedes revisar estado y vencimiento en Mis Prestamos.",
+      "Los préstamos de libros físicos se tramitan únicamente de forma presencial en la biblioteca. Primero puedes consultar la disponibilidad en el catálogo; después debes acudir con la bibliotecaria, quien verificará tu cuenta de estudiante y realizará el préstamo. No es posible solicitar ni completar un préstamo desde este chat.\n\nSi ya tienes un préstamo registrado, puedes consultar su estado y fecha de vencimiento en Mis Préstamos o preguntarme por tus préstamos después de iniciar sesión.",
     actions: [
       { label: "Catalogo", route: "/catalogo", icon: "ph-book-bookmark" },
       { label: "Mis prestamos", route: "/my-loans", icon: "ph-clock-counter-clockwise" },
@@ -736,7 +736,7 @@ export const ASSISTANT_TOPICS = [
       "agregar libro", "editar stock", "asignar materia",
     ],
     answer:
-      "En Libros, administracion puede crear, editar, activar o desactivar recursos del catalogo. Cada libro puede tener autores, materias, semestres y formatos fisico o digital. El formato fisico usa total/disponibles, y el digital usa PDF.\n\nLos cambios impactan directamente en el catalogo publico y en solicitudes de prestamo.",
+      "En Libros, administración puede crear, editar, activar o desactivar recursos del catálogo. Cada libro puede tener autores, materias, semestres y formatos físico o digital. El formato físico usa total/disponibles, y el digital usa PDF.\n\nLos cambios impactan directamente en el catálogo público y en la disponibilidad que consulta la bibliotecaria al registrar préstamos presenciales.",
     actions: [
       { label: "Libros admin", route: "/admin/libros", icon: "ph-books" },
       { label: "Catalogo publico", route: "/catalogo", icon: "ph-book-bookmark" },
@@ -761,7 +761,7 @@ export const ASSISTANT_TOPICS = [
       "marcar devolucion", "validar prestamo",
     ],
     answer:
-      "El modulo administrativo de Prestamos permite revisar solicitudes, estados, fechas de vencimiento y gestion operativa de libros fisicos. Es clave para controlar devoluciones y vencimientos.\n\nRecuerda que el modulo publico limita solicitudes de estudiantes a horario habilitado y maximo 3 prestamos pendientes.",
+      "El módulo administrativo de Préstamos permite a la bibliotecaria o al personal autorizado registrar los préstamos atendidos presencialmente, revisar estados y fechas de vencimiento, y controlar devoluciones.\n\nEl estudiante debe presentarse en la biblioteca; el préstamo no se solicita desde el chat. El personal responsable valida la cuenta, la disponibilidad y las reglas vigentes antes de registrarlo.",
     actions: [
       { label: "Prestamos admin", route: "/admin/prestamos", icon: "ph-book-bookmark" },
       { label: "Catalogo", route: "/catalogo", icon: "ph-books" },

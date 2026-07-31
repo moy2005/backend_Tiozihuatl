@@ -57,3 +57,26 @@ export const authMiddleware = async (req, res, next) => {
     res.status(401).json({ error: 'No autorizado' });
   }
 };
+
+/**
+ * Identifica al usuario cuando existe un JWT válido, pero mantiene pública la ruta.
+ * Un token ausente o inválido nunca habilita acceso a información personal.
+ */
+export const optionalAuth = (req, _res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7).trim();
+      const decoded = token ? JWTService.verifyToken(token) : null;
+
+      if (decoded) {
+        req.user = buildRequestUser(decoded);
+      }
+    }
+  } catch {
+    req.user = undefined;
+  }
+
+  next();
+};

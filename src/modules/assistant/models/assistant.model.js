@@ -254,6 +254,60 @@ export const AssistantModel = {
     );
   },
 
+  async getUserSummary(userId) {
+    const rows = await safeQuery(
+      `SELECT
+         u.nombre,
+         u.a_paterno,
+         u.a_materno,
+         u.correo,
+         u.telefono,
+         u.matricula,
+         u.grupo,
+         u.estado,
+         r.nombre_rol AS rol,
+         c.nombre_carrera AS carrera,
+         s.nombre_semestre AS semestre
+       FROM usuarios u
+       INNER JOIN roles r ON r.id_rol = u.id_rol
+       LEFT JOIN carreras c ON c.id_carrera = u.id_carrera
+       LEFT JOIN semestres s ON s.id_semestre = u.id_semestre
+       WHERE u.id_usuario = ?
+       LIMIT 1`,
+      [userId],
+      []
+    );
+
+    return rows[0] || null;
+  },
+
+  async getUserLoans(userId, limit = 5) {
+    const safeLimit = clampLimit(limit, 5, 8);
+
+    return safeQuery(
+      `SELECT
+         p.id_prestamo,
+         l.titulo,
+         p.estado,
+         DATE_FORMAT(p.fecha_prestamo, '%Y-%m-%dT%H:%i:%s') AS fecha_prestamo,
+         DATE_FORMAT(p.fecha_vencimiento, '%Y-%m-%dT%H:%i:%s') AS fecha_vencimiento,
+         CASE
+           WHEN p.fecha_devolucion IS NULL THEN NULL
+           ELSE DATE_FORMAT(p.fecha_devolucion, '%Y-%m-%dT%H:%i:%s')
+         END AS fecha_devolucion
+       FROM prestamos p
+       INNER JOIN libros l ON l.id = p.libro_id
+       WHERE p.id_usuario = ?
+       ORDER BY
+         CASE p.estado WHEN 'Vencido' THEN 0 WHEN 'Activo' THEN 1 ELSE 2 END,
+         p.fecha_prestamo DESC,
+         p.id_prestamo DESC
+       LIMIT ${safeLimit}`,
+      [userId],
+      []
+    );
+  },
+
   async saveInteraction({
     sessionId,
     message,
