@@ -29,13 +29,11 @@ las características y la matriz binaria. No contiene resultados escritos
 manualmente.
 
 El procedimiento principal está en
-`python_service/engine.py`. En ese archivo se muestran directamente:
-
-1. El vector binario del libro buscado.
-2. El producto punto.
-3. Las normas de los vectores.
-4. La división `(A · B) / (||A|| * ||B||)`.
-5. El ordenamiento de las recomendaciones.
+`python_service/engine.py`. El archivo localiza el vector binario del libro,
+aplica `cosine_similarity` de scikit-learn contra la matriz del catálogo,
+elimina el mismo libro y las similitudes iguales a cero, y ordena el resultado.
+La libreta de Jupyter muestra por separado el desarrollo manual de la fórmula
+`(A · B) / (||A|| * ||B||)` para explicar el mismo cálculo.
 
 ## Preparación
 

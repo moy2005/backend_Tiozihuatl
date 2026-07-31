@@ -2,7 +2,7 @@
   "schema_version": 2,
   "model_type": "content_based",
   "similarity": "cosine",
-  "generated_at": "2026-07-29T05:41:39.276767+00:00",
+  "generated_at": "2026-07-30T05:47:51.195501+00:00",
   "catalog_fingerprint": "5048cee3ad1b3feb568bb38e2d7beea28376466a69c4868161ce5f3f00e7c711",
   "parameters": {
     "top_k": 5,

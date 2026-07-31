@@ -1,8 +1,6 @@
 import math
-
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-
 
 def recommend_books(artifact, book_id, limit=5):
     # 1. Obtener la matriz binaria y localizar el libro buscado.
@@ -69,3 +67,4 @@ def recommend_books(artifact, book_id, limit=5):
     )
     safe_limit = min(max(int(limit), 1), 20)
     return recommendations[:safe_limit]
+

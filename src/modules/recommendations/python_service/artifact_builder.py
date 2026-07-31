@@ -43,6 +43,7 @@ def read_catalog():
                 INNER JOIN materias m ON m.id = lm.materia_id
                 INNER JOIN libros l ON l.id = lm.libro_id
                 WHERE l.activo = 1
+                  AND m.activo = 1
                 ORDER BY lm.libro_id, m.id
                 """
             )
