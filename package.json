@@ -5,15 +5,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
+    "dev": "node scripts/start-development.js",
+    "dev:api": "nodemon src/server.js",
     "start": "node scripts/start-production.js",
     "start:api": "node src/server.js",
     "postinstall": "pip install -r src/modules/recommendations/python_service/requirements.txt",
-    "recommendations:service": "python -m src.modules.recommendations.python_service.serve",
-    "recommendations:rebuild": "python -m src.modules.recommendations.python_service.artifact_builder",
-    "recommendations:test-content": "python -m unittest discover -s src/modules/recommendations/python_service/tests -p \"test_*.py\"",
-    "recommendations:clusters": "node scripts/recommendations/promote-clustering-artifact.js",
-    "test:recommendations": "node --test src/modules/recommendations/tests && npm run recommendations:test-content"
+    "recommendations:service": "python3 -m src.modules.recommendations.python_service.serve",
+    "recommendations:rebuild": "python3 -m src.modules.recommendations.python_service.artifact_builder",
+    "recommendations:test-content": "python3 -m unittest discover -s src/modules/recommendations/python_service/tests -p \"test_*.py\"",
+    "test:recommendations": "node --test src/modules/recommendations/tests/*.test.js && npm run recommendations:test-content"
   },
   "keywords": [],
   "author": "",

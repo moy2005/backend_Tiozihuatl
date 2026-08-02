@@ -6,7 +6,8 @@ import joblib
 from flask import Flask, jsonify, request
 
 from .artifact_builder import build_artifact
-from .config import ARTIFACT_PATH, load_env_file
+from .clustering import predict_book_clusters
+from .config import ARTIFACT_PATH, CLUSTERING_ARTIFACT_PATH, load_env_file
 from .engine import recommend_books
 
 
@@ -38,6 +39,7 @@ def create_app():
     load_env_file()
     app = Flask(__name__)
     store = ArtifactStore()
+    clustering_store = ArtifactStore(CLUSTERING_ARTIFACT_PATH)
 
     def valid_internal_token():
         expected = os.getenv("RECOMMENDER_SERVICE_TOKEN", "")
@@ -133,6 +135,53 @@ def create_app():
                 "message": "Artefacto actualizado correctamente.",
                 "generated_at": artifact["generated_at"],
                 **artifact["quality"],
+            }
+        )
+
+    @app.get("/internal/clustering/metadata")
+    def clustering_metadata():
+        if not valid_internal_token():
+            return jsonify({"message": "Acceso no autorizado."}), 401
+
+        try:
+            artifact = clustering_store.load()
+        except FileNotFoundError:
+            return jsonify({"message": "El modelo de clustering no está disponible."}), 503
+
+        return jsonify(
+            {
+                "model_type": "KMeans",
+                "k": int(artifact["k"]),
+                "random_state": int(artifact["random_state"]),
+                "variables": artifact["variables_x"],
+                "profiles": artifact["nombres_cluster"],
+                "metrics": artifact["metricas"],
+            }
+        )
+
+    @app.post("/internal/clustering/predict")
+    def clustering_predict():
+        if not valid_internal_token():
+            return jsonify({"message": "Acceso no autorizado."}), 401
+
+        try:
+            artifact = clustering_store.load()
+            records = (request.get_json(silent=True) or {}).get("records")
+            predictions = predict_book_clusters(artifact, records)
+        except FileNotFoundError:
+            return jsonify({"message": "El modelo de clustering no está disponible."}), 503
+        except (KeyError, TypeError, ValueError) as error:
+            return jsonify({"message": str(error)}), 400
+
+        return jsonify(
+            {
+                "model": {
+                    "type": "KMeans",
+                    "k": int(artifact["k"]),
+                    "random_state": int(artifact["random_state"]),
+                    "metrics": artifact["metricas"],
+                },
+                "predictions": predictions,
             }
         )
 

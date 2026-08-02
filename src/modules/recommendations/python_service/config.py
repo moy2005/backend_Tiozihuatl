@@ -10,6 +10,7 @@ MODULE_DIR = SERVICE_DIR.parent
 BACKEND_DIR = Path(__file__).resolve().parents[4]
 ENV_PATH = BACKEND_DIR / ".env"
 ARTIFACT_PATH = MODULE_DIR / "data" / "content-recommender.joblib"
+CLUSTERING_ARTIFACT_PATH = MODULE_DIR / "data" / "clustering_libros_mensual.joblib"
 MANIFEST_PATH = ARTIFACT_PATH.with_suffix(".json")
 
 
