@@ -93,5 +93,34 @@ npm run recommendations:rebuild
 npm run test:recommendations
 ```
 
-El módulo de clustering permanece independiente como la otra solución
-analítica del proyecto.
+## Segmentación mensual de libros
+
+El clustering es una segunda solución analítica independiente del recomendador
+por contenido. Utiliza el Pipeline real almacenado en
+`data/clustering_libros_mensual.joblib` y nunca asignaciones escritas en JSON.
+
+En cada consulta, Express reconstruye desde MySQL las mismas once variables
+del entrenamiento. La ventana contiene tres meses consecutivos y conserva
+`mes_3` como el más antiguo y `mes_1` como el más reciente. El servicio Python
+aplica el `StandardScaler` y K-Means mediante `pipeline.predict()`.
+
+Rutas disponibles:
+
+```text
+GET /api/recommendations/clusters/student
+GET /api/recommendations/clusters/admin
+```
+
+La primera traduce los perfiles en mensajes para estudiantes. La segunda está
+restringida al rol Administrador y devuelve métricas, perfiles, promedios,
+acciones sugeridas y el detalle auditable por libro.
+
+Los tres perfiles son:
+
+- Uso principalmente físico.
+- Uso integral intensivo.
+- Uso digital emergente.
+
+La libreta y el CSV histórico utilizados para entrenar y justificar el modelo
+se conservan en `data_mining/`. Producción no lee ese CSV: obtiene la actividad
+actual directamente de la base de datos.

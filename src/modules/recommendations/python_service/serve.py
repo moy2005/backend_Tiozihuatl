@@ -2,11 +2,12 @@ from waitress import serve
 
 from .app import create_app
 from .artifact_builder import build_artifact
-from .config import load_env_file
+from .config import ARTIFACT_PATH, load_env_file
 
 
 load_env_file()
-build_artifact()
+if not ARTIFACT_PATH.exists():
+    build_artifact()
 application = create_app()
 
 
