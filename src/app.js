@@ -54,9 +54,10 @@ const PORT = process.env.PORT || 4000;
 if (isProduction) app.set("trust proxy", true);
 
 //app.use(express.json());
-app.use('/uploads', express.static('uploads')); 
-
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads', {
+  cacheControl: false,
+  setHeaders: res => res.setHeader('Cache-Control', 'no-store'),
+}));
 
 // ================================================================
 // Helmet
@@ -79,7 +80,14 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
       .map((origin) => origin.trim())
       .filter(Boolean)
-  : ["http://localhost:4200"];
+  : (isProduction ? [] : ["http://localhost:4200"]);
+
+if (isProduction && (!allowedOrigins.length || allowedOrigins.some(origin => {
+  try { const url = new URL(origin); return url.protocol !== 'https:' || url.origin !== origin; }
+  catch { return true; }
+}))) {
+  throw new Error('ALLOWED_ORIGINS debe contener los orígenes HTTPS del frontend, separados por comas y sin barra final.');
+}
 
 app.use(
   cors({
@@ -100,6 +108,10 @@ app.options(/.*/, cors({
 }));
 
 app.use(express.json());
+app.use('/api', (_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 
 // ================================================================
 // Sesiones
@@ -137,6 +149,7 @@ const limiter = rateLimit({
   message: "Demasiadas peticiones desde esta IP. Intenta más tarde.",
 });
 app.use(limiter);
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 await cronManager.loadTasks();
 
