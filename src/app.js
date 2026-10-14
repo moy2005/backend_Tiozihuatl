@@ -41,6 +41,7 @@ import paymentsRoutes from "./modules/payments/index.js";
 import reportsRoutes from "./modules/reports/index.js";
 import assistantRoutes from "./modules/assistant/index.js";
 import recommendationRoutes from "./modules/recommendations/index.js";
+import notificationsRoutes, { startPushNotifications } from "./modules/notifications/index.js";
 
 
 dotenv.config();
@@ -152,6 +153,7 @@ app.use(limiter);
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 await cronManager.loadTasks();
+await startPushNotifications();
 
 // ================================================================
 // Rutas base
@@ -196,5 +198,6 @@ app.use("/api/payments", paymentsRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/assistant", assistantRoutes);
 app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/notifications", notificationsRoutes);
 
 export default app;

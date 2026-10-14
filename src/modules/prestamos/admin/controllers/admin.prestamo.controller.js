@@ -1,4 +1,5 @@
 import { AdminPrestamoService } from "../services/admin.prestamo.service.js";
+import { PushService } from "../../../notifications/index.js";
 
 const ERRORES_NEGOCIO = [
   "Solo se permiten prestamos de lunes a viernes",
@@ -45,6 +46,7 @@ export const AdminPrestamoController = {
       const { observaciones } = req.body;
 
       await AdminPrestamoService.devolver(id, admin_id, observaciones);
+      void PushService.notificarPrestamo(id, "devuelto");
       res.json({ success: true, message: "Libro devuelto correctamente" });
     } catch (error) {
       handleError(res, error, "devolver prestamo");
@@ -58,6 +60,7 @@ export const AdminPrestamoController = {
       const { observaciones } = req.body;
 
       await AdminPrestamoService.cancelar(id, admin_id, observaciones);
+      void PushService.notificarPrestamo(id, "cancelado");
       res.json({ success: true, message: "Prestamo cancelado correctamente" });
     } catch (error) {
       handleError(res, error, "cancelar prestamo");
@@ -71,6 +74,7 @@ export const AdminPrestamoController = {
       const { observaciones } = req.body;
 
       await AdminPrestamoService.marcarVencido(id, admin_id, observaciones);
+      void PushService.notificarPrestamo(id, "vencido");
       res.json({ success: true, message: "Prestamo marcado como vencido" });
     } catch (error) {
       handleError(res, error, "marcar vencido");
@@ -84,6 +88,7 @@ export const AdminPrestamoController = {
       const { observaciones } = req.body;
 
       await AdminPrestamoService.activar(id, admin_id, observaciones);
+      void PushService.notificarPrestamo(id, "activado");
       res.json({ success: true, message: "Prestamo activado correctamente" });
     } catch (error) {
       handleError(res, error, "activar prestamo");
@@ -120,6 +125,7 @@ export const AdminPrestamoController = {
         observaciones,
       });
 
+      void PushService.notificarPrestamo(id, "registrado");
       res.status(201).json({ success: true, message: "Prestamo registrado", data: { id } });
     } catch (error) {
       handleError(res, error, "registrar prestamo");

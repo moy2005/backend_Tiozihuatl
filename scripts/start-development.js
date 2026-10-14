@@ -1,7 +1,9 @@
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const pythonCommand = process.platform === "win32" ? "python" : "python3";
-const nodemonCommand = process.platform === "win32" ? "nodemon.cmd" : "nodemon";
+// Se ejecuta nodemon con el propio Node: en Windows, spawn ya no permite lanzar .cmd sin shell (EINVAL).
+const nodemonScript = fileURLToPath(new URL("../node_modules/nodemon/bin/nodemon.js", import.meta.url));
 
 const recommendationService = spawn(
   pythonCommand,
@@ -10,8 +12,8 @@ const recommendationService = spawn(
 );
 
 const api = spawn(
-  nodemonCommand,
-  ["src/server.js"],
+  process.execPath,
+  [nodemonScript, "src/server.js"],
   { stdio: "inherit", env: process.env }
 );
 
