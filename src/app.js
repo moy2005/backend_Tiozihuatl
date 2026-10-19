@@ -134,6 +134,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(sanitizeXSS);
 
+// Antes del limitador: la PWA lo consulta periódicamente y un 429 desde una red
+// compartida (NAT institucional) se interpretaría como servicio no disponible.
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+
 // ================================================================
 // Rate Limiter
 // ================================================================
@@ -150,7 +154,6 @@ const limiter = rateLimit({
   message: "Demasiadas peticiones desde esta IP. Intenta más tarde.",
 });
 app.use(limiter);
-app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
 await cronManager.loadTasks();
 await startPushNotifications();

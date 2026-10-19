@@ -49,6 +49,7 @@ const inboxWhere = `
     OR (n.destino_tipo = 'rol' AND n.destino_valor = ?)
     OR (n.destino_tipo = 'usuario' AND n.destino_valor = ?))
   AND n.fecha_creacion >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL ${INBOX_DAYS} DAY)
+  AND n.categoria <> 'prueba'
 `;
 
 export const PushModel = {

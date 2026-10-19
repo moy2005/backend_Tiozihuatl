@@ -15,7 +15,6 @@ router.get("/public-key", PushController.publicKey);
 router.post("/subscribe", authMiddleware, PushController.suscribir);
 // Sin auth: se llama al cerrar sesión y el endpoint por sí mismo identifica la suscripción.
 router.delete("/subscribe", PushController.desuscribir);
-router.post("/test", authMiddleware, PushController.probar);
 
 // Bandeja dentro de la web
 router.get("/", authMiddleware, PushController.bandeja);

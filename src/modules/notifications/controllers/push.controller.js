@@ -30,21 +30,6 @@ export const PushController = {
     }
   },
 
-  probar: async (req, res) => {
-    try {
-      const result = await PushService.enviarAUsuario(req.user.id, {
-        title: "Notificación de prueba 🔔",
-        body: "¡Listo! Así se verán los avisos del Instituto Tiozihuatl en este dispositivo.",
-        url: "/inicio",
-        categoria: "prueba",
-      });
-      res.json({ success: true, data: result });
-    } catch (error) {
-      console.error("Error en push de prueba:", error);
-      res.status(500).json({ success: false, message: error.message });
-    }
-  },
-
   bandeja: async (req, res) => {
     try {
       const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 50);
