@@ -28,8 +28,8 @@ export const poolOperacion = mysql.createPool({
   port: process.env.DB_PORT || 3306,
 
   waitForConnections: true,
-  connectionLimit: 1,
-  maxIdle: 0,
+  connectionLimit: 5,
+  maxIdle: 2,
   idleTimeout: 15000,
   queueLimit: 0,
   connectTimeout: 10000,
