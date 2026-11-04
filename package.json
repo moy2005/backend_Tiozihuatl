@@ -13,7 +13,8 @@
     "recommendations:service": "python3 -m src.modules.recommendations.python_service.serve",
     "recommendations:rebuild": "python3 -m src.modules.recommendations.python_service.artifact_builder",
     "recommendations:test-content": "python3 -m unittest discover -s src/modules/recommendations/python_service/tests -p \"test_*.py\"",
-    "test:recommendations": "npm run recommendations:test-content"
+    "test:recommendations": "npm run recommendations:test-content",
+    "test:assistant": "node --test --experimental-test-module-mocks tests/assistant.test.js"
   },
   "keywords": [],
   "author": "",

@@ -28,6 +28,41 @@ const safeQuery = async (query, params = [], fallback = []) => {
   }
 };
 
+/**
+ * Búsqueda por palabras (consultas parametrizadas).
+ * 1) Cada palabra debe aparecer en alguno de los campos.
+ * 2) Si no hay resultados y hay varias palabras, basta con alguna y se ordena
+ *    por cuántas coinciden.
+ * `run(where, params, relevance)` ejecuta la consulta concreta de cada tabla.
+ */
+const searchByWords = async (terms, fields, excludeIds, idField, run) => {
+  const words = (Array.isArray(terms) ? terms : [terms])
+    .map((term) => compact(term, 40))
+    .filter(Boolean)
+    .slice(0, 5);
+  const exclude = (excludeIds || []).map(Number).filter(Number.isInteger).slice(0, 60);
+  const excludeSql = exclude.length ? `AND ${idField} NOT IN (${exclude.map(() => "?").join(", ")})` : "";
+
+  if (!words.length) return run(excludeSql, exclude, "");
+
+  const wordCondition = `(${fields.map((field) => `${field} LIKE ?`).join(" OR ")})`;
+  const wordParams = (word) => fields.map(() => `%${word}%`);
+
+  const all = await run(
+    `AND ${words.map(() => wordCondition).join(" AND ")} ${excludeSql}`,
+    [...words.flatMap(wordParams), ...exclude],
+    ""
+  );
+  if (all.length || words.length === 1) return all;
+
+  const relevance = `${words.map(() => `(CASE WHEN ${wordCondition} THEN 1 ELSE 0 END)`).join(" + ")} DESC,`;
+  return run(
+    `AND (${words.map(() => wordCondition).join(" OR ")}) ${excludeSql}`,
+    [...words.flatMap(wordParams), ...exclude, ...words.flatMap(wordParams)],
+    relevance
+  );
+};
+
 export const AssistantModel = {
   async getFaqs() {
     return safeQuery(
@@ -37,20 +72,6 @@ export const AssistantModel = {
        ORDER BY fecha_creacion ASC
        LIMIT 50`
     );
-  },
-
-  async getContact() {
-    const rows = await safeQuery(
-      `SELECT telefono, correo, direccion, horario, facebook, instagram, twitter, whatsapp
-       FROM contacto_info
-       WHERE estado = 'Activo'
-       ORDER BY id_contacto DESC
-       LIMIT 1`,
-      [],
-      []
-    );
-
-    return rows[0] || null;
   },
 
   async getAbout() {
@@ -72,185 +93,135 @@ export const AssistantModel = {
     );
   },
 
-  async searchBooks(term, limit = 4) {
+  /**
+   * Términos para corregir erratas: títulos, materias y autores reales.
+   * Se consulta poco (el servicio lo guarda en caché).
+   */
+  async getVocabularyTerms() {
+    const [books, subjects, authors, materials] = await Promise.all([
+      safeQuery("SELECT titulo AS term FROM libros WHERE activo = 1 LIMIT 3000"),
+      safeQuery("SELECT nombre AS term FROM materias LIMIT 1000"),
+      safeQuery("SELECT nombre AS term FROM autores LIMIT 3000"),
+      safeQuery("SELECT titulo AS term FROM materiales WHERE activo = 1 AND visibilidad = 'PUBLICO' LIMIT 2000"),
+    ]);
+    return [...books, ...subjects, ...authors, ...materials].map((row) => row.term).filter(Boolean);
+  },
+
+  async searchBooks(terms = [], { limit = 4, excludeIds = [] } = {}) {
     const safeLimit = clampLimit(limit, 4, 8);
-    const search = compact(term, 120);
-    const params = [];
-    let filter = "";
+    const fields = [
+      "l.titulo",
+      "(SELECT GROUP_CONCAT(a2.nombre) FROM libro_autor la2 JOIN autores a2 ON a2.id = la2.autor_id WHERE la2.libro_id = l.id)",
+      "(SELECT GROUP_CONCAT(m2.nombre) FROM libro_materia lm2 JOIN materias m2 ON m2.id = lm2.materia_id WHERE lm2.libro_id = l.id)",
+    ];
 
-    if (search) {
-      const like = `%${search}%`;
-      filter = `
-        AND (
-          l.titulo LIKE ?
-          OR EXISTS (
-            SELECT 1
-            FROM libro_autor la2
-            JOIN autores a2 ON a2.id = la2.autor_id
-            WHERE la2.libro_id = l.id AND a2.nombre LIKE ?
-          )
-          OR EXISTS (
-            SELECT 1
-            FROM libro_materia lm2
-            JOIN materias m2 ON m2.id = lm2.materia_id
-            WHERE lm2.libro_id = l.id AND m2.nombre LIKE ?
-          )
-        )`;
-      params.push(like, like, like);
-    }
-
-    return safeQuery(
-      `SELECT
-          l.id,
-          l.titulo,
-          GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
-          GROUP_CONCAT(DISTINCT m.nombre SEPARATOR ', ') AS materias,
-          GROUP_CONCAT(DISTINCT s.nombre_semestre SEPARATOR ', ') AS semestres,
-          MAX(CASE WHEN f.tipo = 'FISICO' THEN f.disponibles END) AS disponibles,
-          MAX(CASE WHEN f.tipo = 'DIGITAL' THEN 1 ELSE 0 END) AS tiene_digital,
-          MAX(CASE WHEN f.tipo = 'FISICO' THEN 1 ELSE 0 END) AS tiene_fisico
-       FROM libros l
-       LEFT JOIN libro_autor la ON la.libro_id = l.id
-       LEFT JOIN autores a ON a.id = la.autor_id
-       LEFT JOIN libro_materia lm ON lm.libro_id = l.id
-       LEFT JOIN materias m ON m.id = lm.materia_id
-       LEFT JOIN libro_semestre ls ON ls.libro_id = l.id
-       LEFT JOIN semestres s ON s.id_semestre = ls.semestre_id
-       LEFT JOIN libro_formatos f ON f.libro_id = l.id
-       WHERE l.activo = 1
-       ${filter}
-       GROUP BY l.id, l.titulo
-       ORDER BY l.titulo ASC
-       LIMIT ${safeLimit}`,
-      params
+    return searchByWords(terms, fields, excludeIds, "l.id", (where, params, relevance) =>
+      safeQuery(
+        `SELECT
+            l.id,
+            l.titulo,
+            GROUP_CONCAT(DISTINCT a.nombre SEPARATOR '; ') AS autores,
+            GROUP_CONCAT(DISTINCT m.nombre SEPARATOR ', ') AS materias,
+            MAX(CASE WHEN f.tipo = 'FISICO' THEN f.disponibles END) AS disponibles,
+            MAX(CASE WHEN f.tipo = 'DIGITAL' THEN 1 ELSE 0 END) AS tiene_digital,
+            MAX(CASE WHEN f.tipo = 'FISICO' THEN 1 ELSE 0 END) AS tiene_fisico
+         FROM libros l
+         LEFT JOIN libro_autor la ON la.libro_id = l.id
+         LEFT JOIN autores a ON a.id = la.autor_id
+         LEFT JOIN libro_materia lm ON lm.libro_id = l.id
+         LEFT JOIN materias m ON m.id = lm.materia_id
+         LEFT JOIN libro_formatos f ON f.libro_id = l.id
+         WHERE l.activo = 1 ${where}
+         GROUP BY l.id, l.titulo
+         ORDER BY ${relevance} l.titulo ASC
+         LIMIT ${safeLimit}`,
+        params
+      )
     );
   },
 
-  async searchNews(term, limit = 3) {
+  async searchNews(terms = [], { limit = 3, excludeIds = [] } = {}) {
     const safeLimit = clampLimit(limit, 3, 6);
-    const search = compact(term, 120);
-    const params = [];
-    let filter = "";
-
-    if (search) {
-      const like = `%${search}%`;
-      filter = "AND (titulo LIKE ? OR contenido LIKE ? OR COALESCE(categoria, '') LIKE ?)";
-      params.push(like, like, like);
-    }
-
-    return safeQuery(
-      `SELECT id_noticia, titulo, contenido, categoria, fecha_publicacion
-       FROM noticias
-       WHERE estado = 'Publicada'
-         AND fecha_publicacion <= ${LOCAL_NOW_SQL}
-         AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
-         ${filter}
-       ORDER BY fecha_publicacion DESC
-       LIMIT ${safeLimit}`,
-      params
+    return searchByWords(terms, ["titulo", "contenido", "COALESCE(categoria, '')"], excludeIds, "id_noticia", (where, params, relevance) =>
+      safeQuery(
+        `SELECT id_noticia, titulo, contenido, categoria, fecha_publicacion
+         FROM noticias
+         WHERE estado = 'Publicada'
+           AND fecha_publicacion <= ${LOCAL_NOW_SQL}
+           AND (fecha_caducidad IS NULL OR fecha_caducidad > ${LOCAL_NOW_SQL})
+           ${where}
+         ORDER BY ${relevance} fecha_publicacion DESC
+         LIMIT ${safeLimit}`,
+        params
+      )
     );
   },
 
-  async searchEvents(term, limit = 3) {
+  /** Eventos publicados; primero los próximos (más cercanos), después los finalizados. */
+  async searchEvents(terms = [], { limit = 3, excludeIds = [] } = {}) {
     const safeLimit = clampLimit(limit, 3, 6);
-    const search = compact(term, 120);
-    const params = [];
-    let filter = "";
-
-    if (search) {
-      const like = `%${search}%`;
-      filter = `
-        AND (
-          e.titulo LIKE ?
-          OR e.descripcion LIKE ?
-          OR COALESCE(e.ubicacion, '') LIKE ?
-          OR COALESCE(e.enlace, '') LIKE ?
-        )`;
-      params.push(like, like, like, like);
-    }
-
-    return safeQuery(
-      `SELECT
-          e.id_evento,
-          e.titulo,
-          e.descripcion,
-          e.tipo,
-          e.ubicacion,
-          e.enlace,
-          e.fecha_inicio,
-          e.fecha_fin,
-          e.estado,
-          e.destacado
-       FROM eventos e
-       WHERE e.estado IN ('Publicado', 'Finalizado')
-       ${filter}
-       ORDER BY e.destacado DESC, e.fecha_inicio ASC, e.id_evento DESC
-       LIMIT ${safeLimit}`,
-      params
+    return searchByWords(
+      terms,
+      ["e.titulo", "e.descripcion", "COALESCE(e.ubicacion, '')"],
+      excludeIds,
+      "e.id_evento",
+      (where, params, relevance) =>
+        safeQuery(
+          `SELECT e.id_evento, e.titulo, e.descripcion, e.tipo, e.ubicacion, e.enlace,
+                  e.fecha_inicio, e.fecha_fin, e.estado, e.destacado
+           FROM eventos e
+           WHERE e.estado IN ('Publicado', 'Finalizado') ${where}
+           ORDER BY ${relevance}
+             CASE WHEN e.estado = 'Publicado' THEN 0 ELSE 1 END,
+             CASE WHEN e.estado = 'Publicado' THEN e.fecha_inicio END ASC,
+             e.fecha_inicio DESC
+           LIMIT ${safeLimit}`,
+          params
+        )
     );
   },
 
-  async searchMagazines(term, limit = 3) {
+  async searchMagazines(terms = [], { limit = 3, excludeIds = [] } = {}) {
     const safeLimit = clampLimit(limit, 3, 6);
-    const search = compact(term, 120);
-    const params = [];
-    let filter = "";
-
-    if (search) {
-      const like = `%${search}%`;
-      filter = "AND (titulo LIKE ? OR descripcion LIKE ?)";
-      params.push(like, like);
-    }
-
-    return safeQuery(
-      `SELECT id_revista, titulo, descripcion, precio, stock
-       FROM revistas
-       WHERE estado = 'Activa'
-         AND stock > 0
-         ${filter}
-       ORDER BY created_at DESC
-       LIMIT ${safeLimit}`,
-      params
+    return searchByWords(terms, ["titulo", "COALESCE(descripcion, '')"], excludeIds, "id_revista", (where, params, relevance) =>
+      safeQuery(
+        `SELECT id_revista, titulo, descripcion, precio, stock
+         FROM revistas
+         WHERE estado = 'Activa' AND stock > 0 ${where}
+         ORDER BY ${relevance} created_at DESC
+         LIMIT ${safeLimit}`,
+        params
+      )
     );
   },
 
-  async searchMaterials(term, limit = 3) {
-    const safeLimit = clampLimit(limit, 3, 6);
-    const search = compact(term, 120);
-    const params = [];
-    let filter = "";
-
-    if (search) {
-      const like = `%${search}%`;
-      filter = `
-        AND (
-          m.titulo LIKE ?
-          OR m.descripcion LIKE ?
-          OR mat.nombre LIKE ?
-          OR u.nombre LIKE ?
-        )`;
-      params.push(like, like, like, like);
-    }
-
-    return safeQuery(
-      `SELECT
-          m.id_material,
-          m.titulo,
-          m.descripcion,
-          m.tipo,
-          u.nombre AS nombre_docente,
-          GROUP_CONCAT(DISTINCT mat.nombre SEPARATOR ', ') AS materias
-       FROM materiales m
-       JOIN usuarios u ON m.id_usuario = u.id_usuario
-       LEFT JOIN material_materia mm ON m.id_material = mm.id_material
-       LEFT JOIN materias mat ON mm.id_materia = mat.id
-       WHERE m.activo = 1
-         AND m.visibilidad = 'PUBLICO'
-         ${filter}
-       GROUP BY m.id_material, m.titulo, m.descripcion, m.tipo, u.nombre
-       ORDER BY m.fecha_creacion DESC
-       LIMIT ${safeLimit}`,
-      params
+  async searchMaterials(terms = [], { limit = 4, excludeIds = [] } = {}) {
+    const safeLimit = clampLimit(limit, 4, 6);
+    const fields = [
+      "m.titulo",
+      "COALESCE(m.descripcion, '')",
+      "CONCAT_WS(' ', u.nombre, u.a_paterno)",
+      "(SELECT GROUP_CONCAT(mt2.nombre) FROM material_materia mm2 JOIN materias mt2 ON mt2.id = mm2.id_materia WHERE mm2.id_material = m.id_material)",
+    ];
+    return searchByWords(terms, fields, excludeIds, "m.id_material", (where, params, relevance) =>
+      safeQuery(
+        `SELECT
+            m.id_material,
+            m.titulo,
+            m.descripcion,
+            m.tipo,
+            CONCAT_WS(' ', u.nombre, u.a_paterno) AS nombre_docente,
+            GROUP_CONCAT(DISTINCT mat.nombre SEPARATOR ', ') AS materias
+         FROM materiales m
+         JOIN usuarios u ON m.id_usuario = u.id_usuario
+         LEFT JOIN material_materia mm ON m.id_material = mm.id_material
+         LEFT JOIN materias mat ON mm.id_materia = mat.id
+         WHERE m.activo = 1 AND m.visibilidad = 'PUBLICO' ${where}
+         GROUP BY m.id_material, m.titulo, m.descripcion, m.tipo, u.nombre, u.a_paterno
+         ORDER BY ${relevance} m.fecha_creacion DESC
+         LIMIT ${safeLimit}`,
+        params
+      )
     );
   },
 

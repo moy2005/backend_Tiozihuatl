@@ -5,534 +5,102 @@ import {
   STARTER_PROMPTS,
 } from "../data/assistant.knowledge.js";
 import { AssistantModel } from "../models/assistant.model.js";
+import { Vocabulary, analyze, searchTermsFrom, stem, stemsMatch } from "./assistant.language.js";
+import { assessScope } from "./assistant.scope.js";
+import { buildIntentIndex, confidenceOf, rankIntents, topicStems } from "./assistant.intent.js";
 
-const STOPWORDS = new Set([
-  "a", "al", "algo", "ante", "como", "con", "cual", "cuales", "cuando", "de",
-  "del", "dime", "donde", "el", "ella", "en", "es", "esa", "ese", "eso", "esta",
-  "este", "estos", "hay", "la", "las", "le", "lo", "los", "me", "mi", "mis",
-  "necesito", "para", "por", "puedo", "que", "quiero", "se", "si", "sobre",
-  "su", "sus", "te", "tengo", "tu", "un", "una", "unas", "unos", "ver", "y",
-]);
+/* ──────────────────────────────────────────────────────────────────────
+   Recursos de lenguaje
+   ────────────────────────────────────────────────────────────────────── */
 
-const SEARCH_NOISE = new Set([
-  ...STOPWORDS,
-  "abrir", "ayuda", "buscar", "busca", "buscame", "consulta", "consultar",
-  "encuentra", "encontrar", "explica", "explicame", "guia", "guiame",
-  "informacion", "mostrar", "muestrame", "quiero", "saber",
-]);
+const INTENT_INDEX = buildIntentIndex(ASSISTANT_TOPICS);
+const TOPIC_BY_ID = new Map(ASSISTANT_TOPICS.map((topic) => [topic.id, topic]));
 
-const NATURAL_EXPRESSIONS = {
-  greeting: ["hola que tal", "buen dia", "como estas", "echame la mano", "me ayudas por favor"],
-  navigation: ["no se donde esta", "me perdi", "a donde le pico", "llevame a", "en que parte esta"],
-  login: ["no me deja entrar", "no puedo acceder", "quiero entrar a mi cuenta", "se cerro mi sesion"],
-  register: ["quiero hacer una cuenta", "soy nuevo", "aun no tengo cuenta", "como me doy de alta"],
-  activation: ["no me llega el enlace", "mi cuenta sigue pendiente", "no puedo activar mi cuenta"],
-  password: ["se me olvido la clave", "perdi mi contrasena", "quiero cambiar mi clave", "no recuerdo mi password"],
-  profile: ["quiero cambiar mis datos", "mi correo esta mal", "actualizar mi telefono"],
-  logout: ["quiero salir", "sacame de mi cuenta", "como me desconecto"],
-  roles: ["que puedo hacer aqui", "por que no me deja", "que permisos tengo"],
-  catalog: ["ando buscando un libro", "tienen el libro", "quiero encontrar un libro", "que libros tienen"],
-  digital_books: ["lo tienen en pdf", "puedo leerlo en linea", "quiero verlo digital", "se puede descargar"],
-  loans: ["me prestan un libro", "quiero sacar un libro", "cuando regreso el libro", "como lo solicito"],
-  student_materials: ["busco apuntes", "material de mi clase", "recursos de la materia", "que subio el profesor"],
-  teacher_materials: ["quiero subir un archivo", "compartir material con alumnos", "publicar mis apuntes"],
-  magazines: ["quiero comprar una revista", "que revistas venden", "tienen revistas disponibles"],
-  cart_checkout: ["como puedo pagar", "quiero terminar mi compra", "ir a pagar", "vaciar mi carrito"],
-  purchases: ["que compre", "donde esta mi pedido", "quiero ver mis compras", "ya pague"],
-  news: ["que hay de nuevo", "hay algun aviso", "ultimas novedades", "que publicaron"],
-  events: ["que hay esta semana", "hay algo proximamente", "que actividades tienen", "quiero asistir a un evento"],
-  calendar: ["cuando empiezan las clases", "fechas escolares", "cuando son las vacaciones", "calendario del semestre"],
-  contact: ["quiero hablar con alguien", "necesito atencion de una persona", "a donde llamo", "cual es su whatsapp"],
-  errors_support: ["se quedo cargando", "algo salio mal", "no responde", "me aparece un mensaje raro"],
-};
-
-const CONVERSATION_TOPICS = [
-  {
-    id: "assistant_identity",
-    category: "Conversacion",
-    title: "Identidad del asistente",
-    priority: 12,
-    answer: "Soy el asistente virtual del Instituto de Estudios Superiores Tiozihuatl. No soy una inteligencia artificial de propósito general: estoy aquí para orientarte con información y procesos de esta plataforma, siempre dentro de los permisos de tu cuenta.",
-    actions: [],
-    suggestions: FALLBACK_SUGGESTIONS,
-  },
-  {
-    id: "wellbeing",
-    category: "Conversacion",
-    title: "Conversacion cordial",
-    priority: 12,
-    answer: "¡Muy bien, gracias por preguntar! Listo para ayudarte con lo que necesites del instituto. ¿Qué te gustaría consultar?",
-    actions: [],
-    suggestions: FALLBACK_SUGGESTIONS,
-  },
-  {
-    id: "gratitude",
-    category: "Conversacion",
-    title: "Agradecimiento",
-    priority: 12,
-    answer: "¡Con gusto! Me alegra haberte ayudado. Si necesitas otra cosa, escríbeme como lo dirías normalmente y seguimos.",
-    actions: [],
-    suggestions: FALLBACK_SUGGESTIONS,
-  },
-  {
-    id: "farewell",
-    category: "Conversacion",
-    title: "Despedida",
-    priority: 12,
-    answer: "¡Hasta luego! Aquí estaré cuando necesites volver a buscar algo o realizar otro proceso en Tiozihuatl.",
-    actions: [],
-    suggestions: [],
-  },
-  {
-    id: "confirmation",
-    category: "Conversacion",
-    title: "Continuar conversación",
-    priority: 12,
-    answer: "Perfecto. ¿Quieres que sigamos con este tema o necesitas ayuda con algo más?",
-    actions: [],
-    suggestions: FALLBACK_SUGGESTIONS,
-  },
+// Vocabulario académico y de conversación que ayuda a corregir erratas.
+const DOMAIN_WORDS = [
+  "anatomía fisiología farmacología enfermería microbiología bioquímica patología pediatría",
+  "ginecología obstetricia nutrición psicología ética bioética salud comunitaria quirúrgica",
+  "cuidados auxilios primeros clínica hospital paciente medicina semiología epidemiología",
+  "materia materias semestre examen practica practicas tarea apuntes guia presentacion",
+  "prestamo prestamos prestado prestados prestada presten prestan vence vencimiento devolver devolucion renovar matricula grupo carrera",
+  "correo telefono datos nombre cuenta contrasena gracias adios hola quien eres como estas",
+  "noticias eventos calendario vacaciones clases inicio fin congreso conferencia taller",
+  "biblioteca libro libros autor titulo digital fisico disponible revista revistas tienda",
 ];
 
-const ALL_TOPICS = [...ASSISTANT_TOPICS, ...CONVERSATION_TOPICS];
-
-const DIRECT_CONVERSATION_PATTERNS = [
-  { id: "assistant_identity", pattern: /^(quien eres|que eres|como te llamas|eres una ia|eres un bot)[\s!.,?]*$/ },
-  { id: "wellbeing", pattern: /^(como estas|como te va|todo bien)[\s!.,?]*$/ },
-  { id: "gratitude", pattern: /^(?:(?:muchas|mil)\s+)?gracias\b|\b(te\s+lo\s+agradezco|te\s+agradezco|me\s+ayudaste|me\s+sirvio)\b/ },
-  { id: "farewell", pattern: /^(adios|hasta\s+luego|nos\s+vemos|bye|hasta\s+pronto|me\s+voy)\b/ },
-  { id: "confirmation", pattern: /^(ok|okay|vale|va|entendido|perfecto|listo|de\s+acuerdo|esta\s+bien)[\s.!]*$/ },
-  { id: "greeting", pattern: /^(hola|holi|buen\s+dia|buenas\s+tardes|buenas\s+noches|que\s+tal|hey)[\s!.,?]*(como\s+estas)?[\s!.,?]*$/ },
+const BASE_VOCABULARY = [
+  ...DOMAIN_WORDS,
+  ...ASSISTANT_TOPICS.flatMap((topic) => [
+    ...(topic.keywords || []),
+    ...(topic.examples || []),
+    topic.title,
+  ]),
 ];
 
-const normalizeText = (value = "") =>
-  String(value)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9\s/-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+const VOCABULARY_TTL_MS = 15 * 60 * 1000;
+let vocabulary = new Vocabulary(BASE_VOCABULARY);
+let vocabularyLoadedAt = 0;
 
-const tokenize = (value = "") =>
-  normalizeText(value)
-    .split(" ")
-    .map((token) => token.trim())
-    .filter((token) => token.length > 1);
-
-const conversationHistory = (context = {}) =>
-  (Array.isArray(context.history) ? context.history : [])
-    .filter((item) => item && ["assistant", "user"].includes(item.sender))
-    .slice(-12);
-
-const previousAssistantIntentId = (context = {}) =>
-  [...conversationHistory(context)]
-    .reverse()
-    .find((item) => item.sender === "assistant" && item.intentId)?.intentId || null;
-
-const isContextualFollowUp = (normalizedMessage, tokens) => {
-  if (!normalizedMessage || tokens.length > 8) return false;
-  if (DIRECT_CONVERSATION_PATTERNS.some((item) => item.pattern.test(normalizedMessage))) return false;
-
-  return /^(y|pero|tambien|entonces|ahora|sobre eso)\b/.test(normalizedMessage) ||
-    /\b(eso|esa|ese|ahi|lo|la|ellos|ellas|mas opciones|que sigue|y luego)\b/.test(normalizedMessage) ||
-    /^(donde|como|cuando|cual|muestrame mas|quiero verlo|hay mas)\b/.test(normalizedMessage);
+/** Amplía el vocabulario con títulos, materias y autores reales (en caché). */
+const getVocabulary = async () => {
+  if (Date.now() - vocabularyLoadedAt > VOCABULARY_TTL_MS) {
+    vocabularyLoadedAt = Date.now();
+    try {
+      const terms = await AssistantModel.getVocabularyTerms();
+      vocabulary = new Vocabulary(BASE_VOCABULARY).add(terms);
+    } catch {
+      /* Se conserva el vocabulario base. */
+    }
+  }
+  return vocabulary;
 };
 
-const unique = (items) => Array.from(new Set(items.filter(Boolean)));
+// Palabras que describen el tipo de búsqueda o el tiempo, no el tema buscado.
+const GENERIC_SEARCH_STEMS = new Set(
+  [
+    "libro", "libros", "material", "materiales", "noticia", "noticias", "evento", "eventos",
+    "revista", "revistas", "tema", "temas", "sobre", "semana", "hoy", "manana", "mes", "proximo",
+    "proximos", "reciente", "recientes", "ultimo", "ultimos", "ultimas", "nuevo", "nuevos",
+    "disponible", "disponibles", "biblioteca", "catalogo", "clase", "clases", "pdf", "digital",
+    "fisico", "algo", "cosa", "cosas", "mas", "otro", "otros", "opciones", "informacion",
+    "tarea", "tareas", "apunte", "apuntes", "ayuda", "recurso", "recursos", "archivo", "archivos",
+    "profesor", "profesora", "maestro", "maestra", "docente", "materia", "materias",
+    // Verbos de acción que no describen el tema buscado.
+    "veo", "ver", "abre", "abrir", "leo", "leer", "encuentro", "consigo", "conseguir", "reviso",
+    "revisar", "aparece", "sale", "salen", "descargo", "descargar", "pido", "pedir", "uso", "usar",
+    "hago", "hacer", "tengo", "funciona", "sirve", "checar", "checo",
+  ].map(stem)
+);
+
+/* ──────────────────────────────────────────────────────────────────────
+   Utilidades
+   ────────────────────────────────────────────────────────────────────── */
 
 const compact = (value, max = 240) => {
   const text = String(value || "").replace(/\s+/g, " ").trim();
-  return text.length > max ? `${text.slice(0, max).trim()}...` : text;
+  return text.length > max ? `${text.slice(0, max).replace(/\s+\S*$/, "")}…` : text;
 };
 
-const sanitizeContext = (context = {}, authenticatedUser = null) => ({
-  sessionId: compact(context.sessionId, 100),
-  path: compact(context.path || context.route, 180),
-  role: compact(authenticatedUser?.rol, 80) || null,
-  isAuthenticated: Boolean(authenticatedUser?.id_usuario),
-  history: conversationHistory(context).map((item) => ({
-    sender: item.sender,
-    text: compact(item.text, 300),
-    intentId: compact(item.intentId, 80) || undefined,
-  })),
-});
+const plural = (count, singular, pluralForm = `${singular}s`) => (count === 1 ? singular : pluralForm);
 
-const levenshtein = (a, b) => {
-  if (a === b) return 0;
-  if (!a.length) return b.length;
-  if (!b.length) return a.length;
-
-  const matrix = Array.from({ length: b.length + 1 }, (_, index) => [index]);
-  for (let index = 0; index <= a.length; index += 1) {
-    matrix[0][index] = index;
-  }
-
-  for (let row = 1; row <= b.length; row += 1) {
-    for (let col = 1; col <= a.length; col += 1) {
-      const cost = b[row - 1] === a[col - 1] ? 0 : 1;
-      matrix[row][col] = Math.min(
-        matrix[row - 1][col] + 1,
-        matrix[row][col - 1] + 1,
-        matrix[row - 1][col - 1] + cost
-      );
-    }
-  }
-
-  return matrix[b.length][a.length];
+/** Variante estable según el mensaje: evita repetir siempre la misma frase. */
+const pick = (options, seed) => {
+  let hash = 0;
+  for (const char of String(seed)) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return options[hash % options.length];
 };
 
-const tokenMatches = (keyword, tokens) => {
-  const normalizedKeyword = normalizeText(keyword);
-
-  if (!normalizedKeyword) return { score: 0, matched: false };
-
-  if (normalizedKeyword.includes(" ")) {
-    return { score: 0, matched: false };
-  }
-
-  for (const token of tokens) {
-    if (token === normalizedKeyword) return { score: 3, matched: true };
-
-    if (
-      normalizedKeyword.length >= 5 &&
-      token.length >= 5 &&
-      (token.includes(normalizedKeyword) || normalizedKeyword.includes(token))
-    ) {
-      return { score: 1.6, matched: true };
-    }
-
-    if (
-      normalizedKeyword.length >= 5 &&
-      token.length >= 5 &&
-      levenshtein(token, normalizedKeyword) <= 1
-    ) {
-      return { score: 1, matched: true };
-    }
-  }
-
-  return { score: 0, matched: false };
-};
-
-const scoreTopic = (topic, normalizedMessage, tokens, context = {}) => {
-  let score = Number(topic.priority || 0) * 0.12;
-  const matches = [];
-
-  const naturalPhrases = NATURAL_EXPRESSIONS[topic.id] || [];
-  for (const phrase of [...(topic.phrases || []), ...naturalPhrases]) {
-    const normalizedPhrase = normalizeText(phrase);
-    if (normalizedPhrase && normalizedMessage.includes(normalizedPhrase)) {
-      score += 7;
-      matches.push(phrase);
-    }
-  }
-
-  for (const keyword of topic.keywords || []) {
-    const normalizedKeyword = normalizeText(keyword);
-    if (!normalizedKeyword) continue;
-
-    if (normalizedKeyword.includes(" ") && normalizedMessage.includes(normalizedKeyword)) {
-      score += 4.5;
-      matches.push(keyword);
-      continue;
-    }
-
-    const match = tokenMatches(normalizedKeyword, tokens);
-    if (match.matched) {
-      score += match.score;
-      matches.push(keyword);
-    }
-  }
-
-  const hasMessageMatch = matches.length > 0;
-
-  const route = normalizeText(context.path || context.route || "");
-  const routeBoost = ROUTE_TOPIC_MAP.some(
-    (item) => item.topicId === topic.id && route.includes(normalizeText(item.route))
-  );
-
-  if (routeBoost && (hasMessageMatch || isContextualFollowUp(normalizedMessage, tokens))) {
-    score += 4.5;
-    matches.push("ruta actual");
-  }
-
-  const role = normalizeText(context.role || "");
-  if (
-    hasMessageMatch &&
-    role &&
-    topic.keywords?.some((keyword) => normalizeText(keyword) === role)
-  ) {
-    score += 1.5;
-    matches.push(role);
-  }
-
-  const previousIntentId = previousAssistantIntentId(context);
-  if (
-    previousIntentId === topic.id &&
-    isContextualFollowUp(normalizedMessage, tokens)
-  ) {
-    score += 6;
-    matches.push("contexto de la conversación");
-  }
-
-  return {
-    topic,
-    score,
-    matches: unique(matches).slice(0, 8),
-  };
-};
-
-const detectIntent = (message, context) => {
-  const normalizedMessage = normalizeText(message);
-  const tokens = tokenize(message);
-
-  const directConversation = DIRECT_CONVERSATION_PATTERNS.find((item) =>
-    item.pattern.test(normalizedMessage)
-  );
-
-  if (directConversation) {
-    const topic = ALL_TOPICS.find((item) => item.id === directConversation.id);
-    return {
-      normalizedMessage,
-      tokens,
-      best: { topic, score: 16, matches: ["expresión conversacional"] },
-      confidence: 0.8,
-      alternatives: [],
-      contextual: false,
-      previousIntentId: previousAssistantIntentId(context),
-    };
-  }
-
-  const ranked = ALL_TOPICS
-    .map((topic) => scoreTopic(topic, normalizedMessage, tokens, context))
-    .sort((a, b) => b.score - a.score);
-
-  const best = ranked[0];
-  const confidence = best ? Math.min(0.98, best.score / (best.score + 8)) : 0;
-
-  return {
-    normalizedMessage,
-    tokens,
-    best,
-    confidence,
-    alternatives: ranked
-      .filter((item) => item.score > 1 && item.topic.id !== best?.topic.id)
-      .slice(0, 3),
-    contextual:
-      Boolean(previousAssistantIntentId(context)) &&
-      previousAssistantIntentId(context) === best?.topic.id &&
-      isContextualFollowUp(normalizedMessage, tokens),
-    previousIntentId: previousAssistantIntentId(context),
-  };
-};
-
-const extractSearchTerm = (message, topic) => {
-  const normalizedKeywords = new Set([
-    ...(topic?.keywords || []).flatMap((keyword) => tokenize(keyword)),
-    ...(topic?.phrases || []).flatMap((phrase) => tokenize(phrase)),
-  ]);
-
-  const tokens = tokenize(message).filter(
-    (token) =>
-      token.length > 2 &&
-      !SEARCH_NOISE.has(token) &&
-      !normalizedKeywords.has(token)
-  );
-
-  return unique(tokens).slice(0, 8).join(" ");
-};
-
-const scoreFaq = (faq, normalizedMessage, tokens) => {
-  const question = normalizeText(faq.pregunta);
-  const answer = normalizeText(faq.respuesta);
-  const faqTokens = unique([...tokenize(faq.pregunta), ...tokenize(faq.respuesta)]).filter(
-    (token) => !STOPWORDS.has(token)
-  );
-
-  let score = 0;
-
-  if (question && normalizedMessage.includes(question)) score += 10;
-  if (question && question.includes(normalizedMessage) && normalizedMessage.length > 8) score += 7;
-
-  for (const token of tokens) {
-    if (STOPWORDS.has(token)) continue;
-    if (faqTokens.includes(token)) score += 2;
-    else if (answer.includes(token) || question.includes(token)) score += 1;
-  }
-
-  return score;
-};
-
-const findFaqMatches = async (message, normalizedMessage, tokens) => {
-  const faqs = await AssistantModel.getFaqs();
-
-  return faqs
-    .map((faq) => ({ ...faq, score: scoreFaq(faq, normalizedMessage, tokens) }))
-    .filter((faq) => faq.score >= 4)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
-};
-
-const formatDate = (value) => {
+const formatDate = (value, withTime = false) => {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
-
   return date.toLocaleString("es-MX", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    ...(withTime ? { hour: "2-digit", minute: "2-digit" } : {}),
     timeZone: "America/Mexico_City",
   });
-};
-
-const PERSONAL_PROFILE_PATTERN =
-  /\b(mis datos|mi informacion|datos de mi cuenta|quien soy|como me llamo|mi nombre|mi correo|mi telefono|mi matricula|mi carrera|mi semestre|mi grupo|mi rol|que rol tengo|estado de mi cuenta)\b/;
-
-const PERSONAL_LOANS_PATTERN =
-  /\b(mis prestamos|mis libros prestados|tengo prestamos|tengo algun prestamo|cuantos prestamos tengo|cuando vence mi prestamo|cuando devuelvo|mi fecha de vencimiento)\b/;
-
-const profileItem = (title, value) =>
-  value === null || value === undefined || String(value).trim() === ""
-    ? null
-    : { title, text: String(value).trim() };
-
-const buildProfileItems = (profile, normalizedMessage) => {
-  const fullName = [profile.nombre, profile.a_paterno, profile.a_materno]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-  const wantsAll = /\b(mis datos|mi informacion|datos de mi cuenta|quien soy)\b/.test(
-    normalizedMessage
-  );
-  const isStudent = normalizeText(profile.rol) === "estudiante";
-  const items = [];
-  const addWhen = (pattern, title, value) => {
-    if (wantsAll || pattern.test(normalizedMessage)) items.push(profileItem(title, value));
-  };
-
-  addWhen(/\b(quien soy|como me llamo|mi nombre)\b/, "Nombre", fullName);
-  addWhen(/\b(mi rol|que rol tengo|quien soy)\b/, "Rol", profile.rol);
-  addWhen(/\b(mi correo)\b/, "Correo", profile.correo);
-  addWhen(/\b(mi telefono)\b/, "Teléfono", profile.telefono);
-  if (isStudent) {
-    addWhen(/\b(mi matricula)\b/, "Matrícula", profile.matricula);
-    addWhen(/\b(mi carrera)\b/, "Carrera", profile.carrera);
-    addWhen(/\b(mi semestre)\b/, "Semestre", profile.semestre);
-    addWhen(/\b(mi grupo)\b/, "Grupo", profile.grupo);
-  }
-  addWhen(/\b(estado de mi cuenta)\b/, "Estado de la cuenta", profile.estado);
-
-  const visibleItems = items.filter(Boolean);
-
-  if (!visibleItems.length) {
-    visibleItems.push({
-      title: "Dato no disponible",
-      text: `Ese dato no está disponible para tu cuenta con rol ${profile.rol}.`,
-    });
-  }
-
-  return visibleItems;
-};
-
-const buildPersonalizedResponse = async ({ normalizedMessage, authenticatedUser }) => {
-  const wantsProfile = PERSONAL_PROFILE_PATTERN.test(normalizedMessage);
-  const wantsLoans = PERSONAL_LOANS_PATTERN.test(normalizedMessage);
-
-  if (!wantsProfile && !wantsLoans) return null;
-
-  const topic = wantsLoans
-    ? { id: "personal_loans", title: "Mis préstamos", category: "Mi cuenta" }
-    : { id: "personal_profile", title: "Mis datos", category: "Mi cuenta" };
-
-  if (!authenticatedUser?.id_usuario) {
-    return {
-      topic,
-      reply: "Puedo ayudarte con esa información, pero primero necesitas iniciar sesión. Por seguridad, solo consulto datos personales cuando el servidor confirma una sesión válida.",
-      sections: [],
-      actions: [routeAction("Iniciar sesión", "/login", "ph-sign-in")],
-      suggestions: [
-        { label: "Ayuda para entrar", prompt: "No puedo iniciar sesión" },
-        { label: "Recuperar contraseña", prompt: "Olvidé mi contraseña" },
-      ],
-    };
-  }
-
-  const profile = await AssistantModel.getUserSummary(authenticatedUser.id_usuario);
-
-  if (!profile) {
-    return {
-      topic,
-      reply: "Tu sesión está activa, pero no pude recuperar la información de tu cuenta en este momento. Puedes intentarlo de nuevo o abrir Mi perfil.",
-      sections: [],
-      actions: [routeAction("Mi perfil", "/perfil", "ph-user")],
-      suggestions: FALLBACK_SUGGESTIONS,
-    };
-  }
-
-  if (wantsLoans) {
-    const role = normalizeText(profile.rol);
-
-    if (role !== "estudiante") {
-      return {
-        topic,
-        reply: `Tu sesión corresponde al rol ${profile.rol}. La consulta de préstamos personales está disponible para cuentas de estudiante. Si gestionas préstamos por tu función, utiliza el módulo autorizado de Préstamos.`,
-        sections: [],
-        actions: role === "administrador"
-          ? [routeAction("Gestión de préstamos", "/admin/prestamos", "ph-books")]
-          : [routeAction("Mi perfil", "/perfil", "ph-user")],
-        suggestions: FALLBACK_SUGGESTIONS,
-      };
-    }
-
-    const loans = await AssistantModel.getUserLoans(authenticatedUser.id_usuario, 5);
-    const active = loans.filter((loan) => loan.estado === "Activo").length;
-    const overdue = loans.filter((loan) => loan.estado === "Vencido").length;
-    const statusParts = [
-      active ? `${active} activo${active === 1 ? "" : "s"}` : "",
-      overdue ? `${overdue} vencido${overdue === 1 ? "" : "s"}` : "",
-    ].filter(Boolean);
-
-    return {
-      topic,
-      reply: loans.length
-        ? `Sí, encontré tus préstamos recientes${statusParts.length ? `: ${statusParts.join(" y ")}` : ""}. Recuerda que cualquier préstamo nuevo debe tramitarse presencialmente con la bibliotecaria.`
-        : "No encontré préstamos registrados en tu cuenta. Si deseas solicitar uno, consulta primero la disponibilidad del libro y acude presencialmente con la bibliotecaria.",
-      sections: loans.length
-        ? [{
-            title: "Tus préstamos recientes",
-            items: loans.map((loan) => ({
-              title: loan.titulo,
-              text: loan.fecha_devolucion
-                ? `Estado: ${loan.estado}. Devuelto: ${formatDate(loan.fecha_devolucion)}.`
-                : `Estado: ${loan.estado}. Vencimiento: ${formatDate(loan.fecha_vencimiento)}.`,
-              meta: loan.estado,
-            })),
-          }]
-        : [],
-      actions: [
-        routeAction("Mis préstamos", "/my-loans", "ph-books"),
-        routeAction("Consultar catálogo", "/catalogo", "ph-book-bookmark"),
-      ],
-      suggestions: [
-        { label: "Préstamo presencial", prompt: "¿Cómo solicito un préstamo?" },
-        { label: "Buscar un libro", prompt: "Quiero buscar un libro" },
-      ],
-    };
-  }
-
-  const items = buildProfileItems(profile, normalizedMessage);
-  const firstName = compact(profile.nombre, 80);
-
-  return {
-    topic,
-    reply: `${firstName ? `Claro, ${firstName}. ` : ""}Estos son los datos de tu propia cuenta que solicitaste. Por seguridad, nunca mostraré contraseñas, tokens ni información de otros usuarios.`,
-    sections: [{ title: "Tu cuenta", items }],
-    actions: [routeAction("Abrir Mi perfil", "/perfil", "ph-user-gear")],
-    suggestions: [
-      { label: "Actualizar perfil", prompt: "¿Cómo actualizo mi perfil?" },
-      { label: "Cambiar contraseña", prompt: "¿Cómo cambio mi contraseña?" },
-    ],
-  };
 };
 
 const routeAction = (label, route, icon) => ({ label, route, icon });
@@ -547,477 +115,663 @@ const dedupeActions = (actions = []) => {
   });
 };
 
-const buildBookRelated = (books = []) =>
-  books.map((book) => ({
-    type: "book",
-    title: book.titulo,
-    description: compact(
-      [
-        book.autores ? `Autor(es): ${book.autores}` : "",
-        book.materias ? `Materias: ${book.materias}` : "",
-        Number(book.tiene_fisico) ? `Fisico disponible: ${book.disponibles ?? 0}` : "",
-        Number(book.tiene_digital) ? "Digital disponible" : "",
-      ]
+// Términos entre comillas, con su escritura original (acentos incluidos).
+const quote = (terms) => `«${terms.map((term) => vocabulary.displayOf(term)).join(" ")}»`;
+
+/* ──────────────────────────────────────────────────────────────────────
+   Contexto de la conversación
+   ────────────────────────────────────────────────────────────────────── */
+
+const sanitizeContext = (context = {}, authenticatedUser = null) => ({
+  sessionId: compact(context.sessionId, 100),
+  path: compact(context.path || context.route, 180),
+  role: compact(authenticatedUser?.rol, 80) || null,
+  history: (Array.isArray(context.history) ? context.history : [])
+    .filter((item) => item && ["assistant", "user"].includes(item.sender))
+    .slice(-12)
+    .map((item) => ({
+      sender: item.sender,
+      text: compact(item.text, 300),
+      intentId: compact(item.intentId, 80) || undefined,
+      searchType: compact(item.searchType, 20) || undefined,
+      searchTerms: (Array.isArray(item.searchTerms) ? item.searchTerms : [])
+        .map((term) => compact(term, 40))
         .filter(Boolean)
-        .join(" | "),
-      220
-    ),
-    route: "/catalogo",
-    meta: Number(book.tiene_digital)
-      ? "Tiene formato digital"
-      : Number(book.tiene_fisico)
-        ? "Tiene formato fisico"
-        : "Catalogo",
-  }));
-
-const buildNewsRelated = (news = []) =>
-  news.map((item) => ({
-    type: "news",
-    title: item.titulo,
-    description: compact(item.contenido, 180),
-    route: `/noticias/${item.id_noticia}`,
-    meta: formatDate(item.fecha_publicacion),
-  }));
-
-const buildEventRelated = (events = []) =>
-  events.map((event) => ({
-    type: "event",
-    title: event.titulo,
-    description: compact(
-      [
-        event.tipo,
-        event.ubicacion || event.enlace,
-        event.descripcion,
-      ]
-        .filter(Boolean)
-        .join(" | "),
-      180
-    ),
-    route: `/eventos/${event.id_evento}`,
-    meta: formatDate(event.fecha_inicio),
-  }));
-
-const buildMaterialRelated = (materials = []) =>
-  materials.map((material) => ({
-    type: "material",
-    title: material.titulo,
-    description: compact(
-      [
-        material.tipo,
-        material.nombre_docente ? `Docente: ${material.nombre_docente}` : "",
-        material.materias ? `Materias: ${material.materias}` : "",
-        material.descripcion,
-      ]
-        .filter(Boolean)
-        .join(" | "),
-      200
-    ),
-    route: "/materiales",
-    meta: "Material publico",
-  }));
-
-const buildMagazineRelated = (magazines = []) =>
-  magazines.map((magazine) => ({
-    type: "magazine",
-    title: magazine.titulo,
-    description: compact(
-      [
-        magazine.descripcion,
-        magazine.precio !== undefined ? `Precio: $${Number(magazine.precio).toFixed(2)}` : "",
-        magazine.stock !== undefined ? `Stock: ${magazine.stock}` : "",
-      ]
-        .filter(Boolean)
-        .join(" | "),
-      180
-    ),
-    route: `/magazines/${magazine.id_revista}`,
-    meta: "Revista disponible",
-  }));
-
-const buildContactSection = (contact) => {
-  if (!contact) return null;
-
-  const items = [
-    contact.telefono ? `Telefono: ${contact.telefono}` : "",
-    contact.correo ? `Correo: ${contact.correo}` : "",
-    contact.direccion ? `Direccion: ${contact.direccion}` : "",
-    contact.horario ? `Horario: ${contact.horario}` : "",
-    contact.whatsapp ? `WhatsApp: ${contact.whatsapp}` : "",
-  ].filter(Boolean);
-
-  if (!items.length) return null;
-
-  return {
-    title: "Contacto publicado",
-    items: items.map((item) => ({ title: item })),
-  };
-};
-
-const buildCalendarSection = (calendars = []) => {
-  if (!calendars.length) return null;
-
-  return {
-    title: "Calendarios activos",
-    items: calendars.map((calendar) => ({
-      title: `${calendar.tipo_calendario}: ${calendar.titulo || calendar.titulo_seccion}`,
-      text: calendar.tipo_archivo ? `Archivo ${calendar.tipo_archivo}` : "",
-      href: calendar.archivo_url || null,
+        .slice(0, 5),
+      shownIds: (Array.isArray(item.shownIds) ? item.shownIds : [])
+        .map(Number)
+        .filter(Number.isInteger)
+        .slice(0, 60),
     })),
-  };
-};
-
-const buildAboutSection = (items = []) => {
-  if (!items.length) return null;
-
-  return {
-    title: "Informacion institucional",
-    items: items.slice(0, 3).map((item) => ({
-      title: item.title || item.type || "Contenido",
-      text: compact(item.content, 180),
-    })),
-  };
-};
-
-const hasSearchIntent = (normalizedMessage) =>
-  /\b(busca|buscar|buscame|busco|encuentra|encontrar|hay|tienes|existe|disponible|disponibles|ultimas|ultimos|proximos|recientes|mostrar|muestrame|ver)\b/.test(
-    normalizedMessage
-  );
-
-const shouldSearchBooks = (topicId, normalizedMessage, searchIntent) =>
-  searchIntent &&
-  (["catalog", "digital_books"].includes(topicId) ||
-    /\b(libro|libros|biblioteca|catalogo|autor|materia|pdf)\b/.test(normalizedMessage));
-
-const shouldSearchNews = (topicId, normalizedMessage) =>
-  topicId === "news" || /\b(noticia|noticias|aviso|comunicado)\b/.test(normalizedMessage);
-
-const shouldSearchEvents = (topicId, normalizedMessage) =>
-  topicId === "events" || /\b(evento|eventos|actividad|agenda)\b/.test(normalizedMessage);
-
-const shouldSearchMaterials = (topicId, normalizedMessage, searchIntent) =>
-  searchIntent &&
-  (["student_materials", "teacher_materials", "admin_materials"].includes(topicId) ||
-    /\b(material|materiales|recurso|docente|materia)\b/.test(normalizedMessage));
-
-const shouldSearchMagazines = (topicId, normalizedMessage, searchIntent) =>
-  searchIntent &&
-  (["magazines", "cart_checkout", "purchases"].includes(topicId) ||
-    /\b(revista|revistas|tienda|compra|compras)\b/.test(normalizedMessage));
-
-const composeDynamic = async ({ topic, message, normalizedMessage, tokens }) => {
-  const topicId = topic?.id;
-  const searchTerm = extractSearchTerm(message, topic);
-  const queryTerm = searchTerm || "";
-  const searchIntent = hasSearchIntent(normalizedMessage);
-  const shouldRunBookSearch = shouldSearchBooks(topicId, normalizedMessage, searchIntent);
-  const shouldRunNewsSearch = shouldSearchNews(topicId, normalizedMessage);
-  const shouldRunEventSearch = shouldSearchEvents(topicId, normalizedMessage);
-  const shouldRunMaterialSearch = shouldSearchMaterials(topicId, normalizedMessage, searchIntent);
-  const shouldRunMagazineSearch = shouldSearchMagazines(topicId, normalizedMessage, searchIntent);
-
-  const [
-    faqMatches,
-    contact,
-    calendars,
-    about,
-    books,
-    news,
-    events,
-    materials,
-    magazines,
-  ] = await Promise.all([
-    findFaqMatches(message, normalizedMessage, tokens),
-    topicId === "contact" ? AssistantModel.getContact() : Promise.resolve(null),
-    topicId === "calendar" ? AssistantModel.getCalendars() : Promise.resolve([]),
-    topicId === "about" ? AssistantModel.getAbout() : Promise.resolve([]),
-    shouldRunBookSearch
-      ? AssistantModel.searchBooks(queryTerm, 4)
-      : Promise.resolve([]),
-    shouldRunNewsSearch
-      ? AssistantModel.searchNews(queryTerm, 3)
-      : Promise.resolve([]),
-    shouldRunEventSearch
-      ? AssistantModel.searchEvents(queryTerm, 3)
-      : Promise.resolve([]),
-    shouldRunMaterialSearch
-      ? AssistantModel.searchMaterials(queryTerm, 3)
-      : Promise.resolve([]),
-    shouldRunMagazineSearch
-      ? AssistantModel.searchMagazines(queryTerm, 3)
-      : Promise.resolve([]),
-  ]);
-
-  const sections = [];
-  const related = [
-    ...buildBookRelated(books),
-    ...buildNewsRelated(news),
-    ...buildEventRelated(events),
-    ...buildMaterialRelated(materials),
-    ...buildMagazineRelated(magazines),
-  ].slice(0, 8);
-
-  if (faqMatches.length) {
-    sections.push({
-      title: "FAQ relacionada",
-      items: faqMatches.map((faq) => ({
-        title: faq.pregunta,
-        text: compact(faq.respuesta, 260),
-      })),
-    });
-  }
-
-  const contactSection = buildContactSection(contact);
-  if (contactSection) sections.push(contactSection);
-
-  const calendarSection = buildCalendarSection(calendars);
-  if (calendarSection) sections.push(calendarSection);
-
-  const aboutSection = buildAboutSection(about);
-  if (aboutSection) sections.push(aboutSection);
-
-  if (related.length) {
-    sections.push({
-      title: "Coincidencias encontradas",
-      items: related.slice(0, 5).map((item) => ({
-        title: item.title,
-        text: item.description,
-        route: item.route,
-        meta: item.meta,
-      })),
-    });
-  }
-
-  return {
-    searchTerm,
-    sections,
-    related,
-    hasDynamicResults: Boolean(sections.length || related.length),
-    attemptedSearch:
-      shouldRunBookSearch ||
-      shouldRunNewsSearch ||
-      shouldRunEventSearch ||
-      shouldRunMaterialSearch ||
-      shouldRunMagazineSearch,
-  };
-};
-
-const buildLowConfidenceResponse = (alternatives = [], previousTopic = null) => ({
-  topic: {
-    id: "fallback",
-    title: "Orientacion general",
-    category: "Ayuda",
-  },
-  reply: previousTopic
-    ? `Seguimos hablando de ${previousTopic.title.toLowerCase()}, pero no alcancé a entender esta parte. ¿Podrías decirme con un poco más de detalle qué quieres saber?`
-    : "Quiero ayudarte, pero no alcancé a identificar exactamente qué necesitas. Puedes explicármelo con tus propias palabras o decirme la acción concreta, por ejemplo: \"busco un libro de anatomía\", \"no puedo entrar a mi cuenta\" o \"¿qué eventos hay?\".",
-  actions: [
-    routeAction("Biblioteca", "/catalogo", "ph-book-bookmark"),
-    routeAction("Contacto", "/contactanos", "ph-envelope"),
-    routeAction("Inicio", "/inicio", "ph-house"),
-  ],
-  suggestions: alternatives.length
-    ? alternatives.map((item) => ({
-        label: item.topic.title,
-        prompt: `Ayuda con ${item.topic.title.toLowerCase()}`,
-      }))
-    : FALLBACK_SUGGESTIONS,
 });
 
-const buildNaturalLead = ({ normalizedMessage, topicId, contextual }) => {
-  if (["greeting", "gratitude", "farewell", "confirmation", "fallback", "assistant_identity", "wellbeing"].includes(topicId)) {
-    return "";
-  }
-  if (contextual && /\b(donde|a donde|en que parte|ahi)\b/.test(normalizedMessage)) {
-    return "Sí, retomando lo anterior, te indico dónde encontrarlo.";
-  }
-  if (contextual && /\b(como|que sigue|y luego|entonces)\b/.test(normalizedMessage)) {
-    return "Claro. Siguiendo con el mismo tema, este es el siguiente paso.";
-  }
-  if (contextual) return "Claro, seguimos con lo que estábamos viendo.";
-  if (/\b(no puedo|no me deja|error|problema|falla|olvide|perdi)\b/.test(normalizedMessage)) {
-    return "Entiendo. Vamos a resolverlo paso a paso.";
-  }
-  if (/\b(busca|buscar|buscame|ando buscando|tienen|encuentra)\b/.test(normalizedMessage)) {
-    return "Claro, voy a revisar qué opciones hay para ti.";
-  }
-  if (/\b(donde|a donde|en que parte)\b/.test(normalizedMessage)) {
-    return "Sí, te indico dónde encontrarlo.";
-  }
-  if (/\b(como|quiero|necesito|puedo)\b/.test(normalizedMessage)) {
-    return "Claro, te explico de forma sencilla.";
-  }
-  return "Con gusto, te ayudo con eso.";
+/** Último turno del asistente con un tema reconocible (para seguimientos). */
+const previousTurn = (context) =>
+  [...context.history].reverse().find((item) => item.sender === "assistant" && item.intentId) || null;
+
+const FOLLOW_UP_START = /^(?:y|e|pero|tambien|entonces|ahora|y si|y de|y del|y para|y sobre|y en|y los|y las|y el|y la)\b/;
+const REFERENCE = /\b(?:eso|esa|ese|esos|esas|ahi|alli|lo mismo|del mismo|de esa|de ese)\b/;
+const MORE_REQUEST = /^(?:y\s+)?(?:hay\s+|dame\s+|muestrame\s+|ver\s+|tienes\s+|tienen\s+)?(?:mas|otros|otras|otro|otra|mas opciones|alguno mas|siguientes)(?:\s+(?:opciones|resultados))?$/;
+
+const routeTopicId = (path) => {
+  const route = String(path || "");
+  return ROUTE_TOPIC_MAP.find((item) => route.startsWith(item.route))?.topicId || null;
 };
 
-const buildResponse = async ({ message, context = {}, authenticatedUser = null, reqMeta = {} }) => {
-  const intent = detectIntent(message, context);
-  let lowConfidence = !intent.best || intent.confidence < 0.2;
-  const previousTopic = intent.previousIntentId
-    ? ALL_TOPICS.find((topic) => topic.id === intent.previousIntentId)
-    : null;
-  const personalized = await buildPersonalizedResponse({
-    normalizedMessage: intent.normalizedMessage,
-    authenticatedUser,
-  });
+/* ──────────────────────────────────────────────────────────────────────
+   Conversación social
+   ────────────────────────────────────────────────────────────────────── */
 
-  let base = personalized || (lowConfidence
-    ? buildLowConfidenceResponse(intent.alternatives, previousTopic)
-    : {
-        topic: intent.best.topic,
-        reply: intent.best.topic.answer,
-        actions: intent.best.topic.actions || [],
-        suggestions: intent.best.topic.suggestions || FALLBACK_SUGGESTIONS,
-      });
+const SOCIAL = [
+  {
+    id: "assistant_identity",
+    title: "Sobre el asistente",
+    pattern: /\b(?:quien eres|que eres|como te llamas|eres (?:un |una )?(?:bot|robot|ia|inteligencia artificial|humano|persona|maquina))\b/,
+    replies: [
+      "Soy el asistente virtual del Instituto Tiozihuatl. Te ayudo con lo académico y con la plataforma: biblioteca, materiales, préstamos, eventos, noticias, calendario y tu cuenta.",
+    ],
+  },
+  {
+    id: "wellbeing",
+    title: "Saludo",
+    pattern: /^(?:hola\s+)?(?:como estas|como te va|como andas|que tal estas|todo bien)\b/,
+    replies: ["¡Muy bien, gracias! ¿En qué te ayudo hoy?", "¡Todo bien por aquí! Cuéntame qué necesitas."],
+  },
+  {
+    id: "gratitude",
+    title: "Agradecimiento",
+    pattern: /\b(?:gracias|te lo agradezco|te agradezco|muy amable|me sirvio|me ayudaste)\b/,
+    maxWords: 7,
+    replies: ["¡Con gusto! Si necesitas algo más, aquí estoy.", "¡De nada! Aquí sigo para lo que necesites."],
+  },
+  {
+    id: "farewell",
+    title: "Despedida",
+    pattern: /^(?:adios|hasta luego|nos vemos|bye|chao|hasta pronto|me voy|hasta manana)\b/,
+    replies: ["¡Hasta luego! Que te vaya muy bien.", "¡Nos vemos! Aquí estaré cuando lo necesites."],
+  },
+  {
+    id: "confirmation",
+    title: "Confirmación",
+    pattern: /^(?:ok|okay|vale|va|entendido|perfecto|listo|de acuerdo|esta bien|claro|sale|si|ya)$/,
+    replies: ["¡Perfecto! ¿Te ayudo con algo más?"],
+  },
+  {
+    id: "greeting",
+    title: "Saludo",
+    pattern: /^(?:hola|buenos dias|buen dia|buenas tardes|buenas noches|buenas|que tal|hey|saludos)(?:\s+\w+)?$/,
+    replies: [TOPIC_BY_ID.get("greeting").answer],
+    suggestions: FALLBACK_SUGGESTIONS,
+  },
+];
 
-  if (personalized) lowConfidence = false;
+const matchSocial = (analysis) => {
+  const wordCount = analysis.words.length;
+  return SOCIAL.find((item) => item.pattern.test(analysis.text) && (!item.maxWords || wordCount <= item.maxWords)) || null;
+};
 
-  if (!lowConfidence && base.topic.id === "confirmation" && previousTopic) {
-    base = {
-      ...base,
-      reply: `Perfecto. Podemos seguir con ${previousTopic.title.toLowerCase()}. ¿Qué más te gustaría saber?`,
-      actions: previousTopic.actions || [],
-      suggestions: previousTopic.suggestions || FALLBACK_SUGGESTIONS,
+/* ──────────────────────────────────────────────────────────────────────
+   Datos personales (solo con sesión validada por el servidor)
+   ────────────────────────────────────────────────────────────────────── */
+
+const PERSONAL_LOANS = /\b(?:mis prestamos|mi prestamo|tengo (?:algun |un |algunos )?prestamos?|tengo (?:libros? )?prestados?|libros? que (?:tengo|debo|pedi)|debo (?:algun |un )?libros?|cuando (?:vence|tengo que devolver|devuelvo|entrego)|mi fecha de (?:vencimiento|entrega|devolucion)|tengo que devolver)\b/;
+const PERSONAL_PROFILE = /\b(?:mis datos|mi informacion|datos de mi cuenta|quien soy|como me llamo|cual es mi (?:nombre|correo|telefono|matricula|carrera|semestre|grupo|rol)|mi (?:nombre|correo|telefono|matricula|carrera|semestre|grupo|rol)\b|en que (?:semestre|grupo) (?:estoy|voy|ando)|que (?:carrera|semestre|grupo) (?:tengo|estudio|curso)|estado de mi cuenta)\b/;
+
+const PROFILE_FIELDS = [
+  { pattern: /\b(?:nombre|quien soy|como me llamo)\b/, title: "Nombre", value: (p) => [p.nombre, p.a_paterno, p.a_materno].filter(Boolean).join(" ") },
+  { pattern: /\b(?:rol|quien soy)\b/, title: "Rol", value: (p) => p.rol },
+  { pattern: /\bcorreo\b/, title: "Correo", value: (p) => p.correo },
+  { pattern: /\btelefono\b/, title: "Teléfono", value: (p) => p.telefono },
+  { pattern: /\bmatricula\b/, title: "Matrícula", value: (p) => p.matricula, student: true },
+  { pattern: /\bcarrera\b/, title: "Carrera", value: (p) => p.carrera, student: true },
+  { pattern: /\bsemestre\b/, title: "Semestre", value: (p) => p.semestre, student: true },
+  { pattern: /\bgrupo\b/, title: "Grupo", value: (p) => p.grupo, student: true },
+  { pattern: /\bestado de mi cuenta\b/, title: "Estado de la cuenta", value: (p) => p.estado },
+];
+
+const personalResponse = async (analysis, rawText, authenticatedUser) => {
+  // Se revisa el texto corregido y el original, por si la corrección cambió una palabra.
+  const texts = [analysis.text, rawText];
+  const wantsLoans = texts.some((text) => PERSONAL_LOANS.test(text));
+  const wantsProfile = !wantsLoans && texts.some((text) => PERSONAL_PROFILE.test(text));
+  if (!wantsLoans && !wantsProfile) return null;
+
+  const topic = wantsLoans
+    ? { id: "personal_loans", title: "Mis préstamos", category: "Mi cuenta" }
+    : { id: "personal_profile", title: "Mis datos", category: "Mi cuenta" };
+
+  if (!authenticatedUser?.id_usuario) {
+    return {
+      topic,
+      reply: "Para ver esa información necesitas iniciar sesión; así me aseguro de mostrarte solo tus propios datos.",
+      actions: [routeAction("Iniciar sesión", "/login", "ph-sign-in")],
+      suggestions: [{ label: "Olvidé mi contraseña", prompt: "Olvidé mi contraseña" }],
     };
   }
 
-  const dynamic = lowConfidence || personalized
-    ? { sections: [], related: [], searchTerm: "", hasDynamicResults: false }
-    : await composeDynamic({
-        topic: base.topic,
-        message,
-        normalizedMessage: intent.normalizedMessage,
-        tokens: intent.tokens,
-      });
-
-  const dynamicActions = [];
-
-  if (dynamic.related.some((item) => item.type === "book")) {
-    dynamicActions.push(routeAction("Ver catalogo", "/catalogo", "ph-book-bookmark"));
-  }
-  if (dynamic.related.some((item) => item.type === "news")) {
-    dynamicActions.push(routeAction("Noticias", "/noticias", "ph-newspaper"));
-  }
-  if (dynamic.related.some((item) => item.type === "event")) {
-    dynamicActions.push(routeAction("Eventos", "/eventos", "ph-calendar-blank"));
-  }
-  if (dynamic.related.some((item) => item.type === "material")) {
-    dynamicActions.push(routeAction("Materiales", "/materiales", "ph-folder-open"));
-  }
-  if (dynamic.related.some((item) => item.type === "magazine")) {
-    dynamicActions.push(routeAction("Tienda", "/magazines", "ph-storefront"));
+  const profile = await AssistantModel.getUserSummary(authenticatedUser.id_usuario);
+  if (!profile) {
+    return {
+      topic,
+      reply: "No pude consultar tu información en este momento. Puedes verla directamente en Mi perfil.",
+      actions: [routeAction("Mi perfil", "/perfil", "ph-user")],
+    };
   }
 
-  const naturalLead = personalized ? "" : buildNaturalLead({
-    normalizedMessage: intent.normalizedMessage,
-    topicId: base.topic.id,
-    contextual: intent.contextual,
-  });
-  const replyParts = [naturalLead, base.reply].filter(Boolean);
+  const isStudent = String(profile.rol || "").toLowerCase() === "estudiante";
 
-  if (!lowConfidence && dynamic.hasDynamicResults && dynamic.attemptedSearch) {
-    replyParts.push("Encontré estas opciones relacionadas. Puedes abrir cualquiera desde los resultados de abajo.");
+  if (wantsLoans) {
+    if (!isStudent) {
+      return {
+        topic,
+        reply: "Los préstamos personales se consultan con una cuenta de estudiante.",
+        actions: [routeAction("Mi perfil", "/perfil", "ph-user")],
+      };
+    }
+
+    const loans = await AssistantModel.getUserLoans(authenticatedUser.id_usuario, 5);
+    const pending = loans.filter((loan) => !loan.fecha_devolucion);
+    const overdue = pending.filter((loan) => loan.estado === "Vencido");
+    const name = profile.nombre ? `${profile.nombre}, ` : "";
+
+    let reply;
+    if (!loans.length) reply = `${name}no tienes préstamos registrados. Si necesitas un libro, revisa que esté disponible y pídelo en la biblioteca.`;
+    else if (!pending.length) reply = `${name}no tienes préstamos pendientes; estos son los más recientes que ya devolviste.`;
+    else if (overdue.length) reply = `${name}tienes ${overdue.length} ${plural(overdue.length, "préstamo vencido", "préstamos vencidos")}. Te recomiendo devolverlo${overdue.length === 1 ? "" : "s"} pronto en la biblioteca.`;
+    else reply = `${name}tienes ${pending.length} ${plural(pending.length, "préstamo activo", "préstamos activos")}.`;
+
+    return {
+      topic,
+      reply,
+      sections: loans.length
+        ? [{
+            title: "Tus préstamos",
+            items: loans.map((loan) => ({
+              title: loan.titulo,
+              text: loan.fecha_devolucion
+                ? `Devuelto el ${formatDate(loan.fecha_devolucion)}`
+                : `Vence el ${formatDate(loan.fecha_vencimiento)}`,
+              meta: loan.estado,
+            })),
+          }]
+        : [],
+      actions: [routeAction("Mis préstamos", "/my-loans", "ph-books")],
+      suggestions: [{ label: "Buscar un libro", prompt: "Quiero buscar un libro" }],
+    };
   }
 
-  if (!lowConfidence && dynamic.attemptedSearch && !dynamic.hasDynamicResults) {
-    const target = dynamic.searchTerm ? ` para "${dynamic.searchTerm}"` : "";
-    replyParts.push(
-      `Revise coincidencias publicas${target}, pero no encontre resultados exactos en este momento. Puedes intentar con menos palabras o revisar la seccion directamente.`
+  const wantsAll = /\b(?:mis datos|mi informacion|datos de mi cuenta)\b/.test(analysis.text);
+  const items = PROFILE_FIELDS
+    .filter((field) => (!field.student || isStudent) && (wantsAll || field.pattern.test(analysis.text)))
+    .map((field) => ({ title: field.title, text: String(field.value(profile) || "").trim() }))
+    .filter((item) => item.text);
+
+  return {
+    topic,
+    reply: items.length
+      ? items.length === 1
+        ? `Tu ${items[0].title.toLowerCase()} es ${items[0].text}.`
+        : `${profile.nombre ? `Claro, ${profile.nombre}. ` : ""}Estos son tus datos:`
+      : "Ese dato no está registrado en tu cuenta. Puedes completarlo en Mi perfil.",
+    sections: items.length > 1 ? [{ title: "Tu cuenta", items }] : [],
+    actions: [routeAction("Mi perfil", "/perfil", "ph-user-gear")],
+    suggestions: [{ label: "Mis préstamos", prompt: "¿Tengo préstamos activos?" }],
+  };
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   Preguntas frecuentes publicadas
+   ────────────────────────────────────────────────────────────────────── */
+
+const bestFaq = async (analysis) => {
+  if (analysis.stems.length < 2) return null;
+  const faqs = await AssistantModel.getFaqs();
+  let best = null;
+  for (const faq of faqs) {
+    const questionStems = analyze(faq.pregunta, vocabulary).stems;
+    if (questionStems.length < 2) continue;
+    const matched = questionStems.filter((q) => analysis.stems.some((s) => stemsMatch(s, q))).length;
+    const ratio = matched / questionStems.length;
+    if (matched >= 2 && ratio >= 0.6 && (!best || ratio > best.ratio)) best = { faq, ratio };
+  }
+  return best;
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   Respuestas con datos reales
+   ────────────────────────────────────────────────────────────────────── */
+
+const describeBook = (book) => {
+  const authors = String(book.autores || "").split(";").map((a) => a.trim()).filter(Boolean);
+  const authorText = authors.length ? authors.slice(0, 2).join(", ") + (authors.length > 2 ? " y otros" : "") : "";
+  const physical = Number(book.tiene_fisico) === 1;
+  const digital = Number(book.tiene_digital) === 1;
+  const available = Number(book.disponibles || 0);
+  const format = physical && digital
+    ? `Físico (${available} ${plural(available, "disponible", "disponibles")}) y digital`
+    : physical
+      ? available > 0 ? `Físico, ${available} ${plural(available, "disponible", "disponibles")}` : "Físico, sin ejemplares disponibles por ahora"
+      : digital ? "Digital" : "";
+  return [authorText, format].filter(Boolean).join(" · ");
+};
+
+const SEARCHERS = {
+  books: {
+    run: (terms, opts) => AssistantModel.searchBooks(terms.map(stem), opts),
+    id: (row) => row.id,
+    section: "Libros",
+    item: (row) => ({ title: row.titulo, text: describeBook(row), route: "/catalogo" }),
+    found: (n, terms, seed) => terms.length
+      ? pick([`Encontré ${n} ${plural(n, "libro")} sobre ${quote(terms)}:`, `Esto hay en la biblioteca sobre ${quote(terms)}:`], seed)
+      : `Estos son algunos libros del catálogo:`,
+    none: (terms) => `No encontré libros sobre ${quote(terms)} en el catálogo. Prueba con el nombre del autor o con una palabra más general.`,
+    action: routeAction("Abrir biblioteca", "/catalogo", "ph-book-bookmark"),
+    needsTerms: true,
+  },
+  materials: {
+    run: (terms, opts) => AssistantModel.searchMaterials(terms.map(stem), opts),
+    id: (row) => row.id_material,
+    section: "Materiales",
+    item: (row) => ({
+      title: row.titulo,
+      text: [row.tipo, row.nombre_docente ? `Docente: ${row.nombre_docente}` : "", row.materias].filter(Boolean).join(" · "),
+      route: "/materiales",
+    }),
+    found: (n, terms, seed) => pick([`Encontré ${n} ${plural(n, "material", "materiales")} sobre ${quote(terms)}:`, `Esto publicaron los docentes sobre ${quote(terms)}:`], seed),
+    none: (terms) => `No hay materiales publicados sobre ${quote(terms)} por ahora. Puedes revisar todos en Materiales.`,
+    action: routeAction("Ver materiales", "/materiales", "ph-folder-open"),
+    needsTerms: true,
+  },
+  news: {
+    run: (terms, opts) => AssistantModel.searchNews(terms.map(stem), opts),
+    id: (row) => row.id_noticia,
+    section: "Noticias",
+    item: (row) => ({ title: row.titulo, text: compact(row.contenido, 110), meta: formatDate(row.fecha_publicacion), route: `/noticias/${row.id_noticia}` }),
+    found: (n, terms) => terms.length ? `Esto encontré en las noticias sobre ${quote(terms)}:` : "Estas son las noticias más recientes:",
+    none: (terms, topic) => terms.length ? `No encontré noticias sobre ${quote(terms)}.` : topic.emptyAnswer,
+    action: routeAction("Ver noticias", "/noticias", "ph-newspaper"),
+  },
+  events: {
+    run: (terms, opts) => AssistantModel.searchEvents(terms.map(stem), opts),
+    id: (row) => row.id_evento,
+    section: "Eventos",
+    item: (row) => ({
+      title: row.titulo,
+      text: [formatDate(row.fecha_inicio, true), row.tipo === "VIRTUAL" ? "En línea" : row.ubicacion].filter(Boolean).join(" · "),
+      meta: row.estado === "Finalizado" ? "Finalizado" : "",
+      route: `/eventos/${row.id_evento}`,
+    }),
+    found: (n, terms, seed, rows) => {
+      if (terms.length) return `Esto encontré en eventos sobre ${quote(terms)}:`;
+      return rows.some((row) => row.estado === "Publicado")
+        ? pick(["Estos son los próximos eventos:", "Esto viene en la agenda del instituto:"], seed)
+        : "No hay eventos próximos por ahora; estos son los más recientes:";
+    },
+    none: (terms, topic) => terms.length ? `No encontré eventos sobre ${quote(terms)}.` : topic.emptyAnswer,
+    action: routeAction("Ver eventos", "/eventos", "ph-calendar-blank"),
+  },
+  magazines: {
+    run: (terms, opts) => AssistantModel.searchMagazines(terms.map(stem), opts),
+    id: (row) => row.id_revista,
+    section: "Revistas",
+    item: (row) => ({ title: row.titulo, text: row.precio != null ? `$${Number(row.precio).toFixed(2)}` : "", route: `/magazines/${row.id_revista}` }),
+    found: (n, terms) => terms.length ? `Encontré ${n} ${plural(n, "revista")} sobre ${quote(terms)}:` : "Estas revistas están disponibles:",
+    none: (terms) => terms.length ? `No hay revistas sobre ${quote(terms)} en la tienda por ahora.` : "Por ahora no hay revistas disponibles en la tienda.",
+    action: routeAction("Abrir tienda", "/magazines", "ph-storefront"),
+  },
+};
+
+const searchResponse = async ({ topic, searchType, terms, seed, excludeIds = [], more = false, howTo = false }) => {
+  const searcher = SEARCHERS[searchType];
+  if (searcher.needsTerms && !terms.length) {
+    return { reply: topic.answer, sections: [], actions: topic.actions, meta: { searchType, searchTerms: [], shownIds: [] } };
+  }
+
+  const rows = await searcher.run(terms, { limit: 4, excludeIds });
+  const ids = rows.map(searcher.id);
+  // «¿Cómo compro una revista?»: primero se explica; los datos, si hay, acompañan.
+  const explain = howTo && !terms.length && !more;
+  if (!rows.length) {
+    return {
+      reply: explain && !topic.emptyAnswer ? topic.answer : more ? `No hay más resultados sobre ${quote(terms)}.` : searcher.none(terms, topic),
+      sections: [],
+      actions: [searcher.action],
+      meta: { searchType, searchTerms: terms, shownIds: excludeIds },
+    };
+  }
+
+  return {
+    reply: explain ? topic.answer : more ? "Aquí tienes más opciones:" : searcher.found(rows.length, terms, seed, rows),
+    sections: [{ title: searcher.section, items: rows.map(searcher.item) }],
+    actions: [searcher.action],
+    meta: { searchType, searchTerms: terms, shownIds: [...excludeIds, ...ids] },
+  };
+};
+
+const calendarResponse = async (topic, analysis) => {
+  const calendars = await AssistantModel.getCalendars();
+  const asksDate = /\b(?:cuando|fecha|fechas|empiezan|inician|terminan|acaba|vacaciones)\b/.test(analysis.text);
+  if (!calendars.length) return { reply: topic.emptyAnswer, sections: [], actions: topic.actions };
+  return {
+    reply: asksDate
+      ? "Las fechas oficiales vienen en el calendario escolar vigente; ábrelo aquí:"
+      : "Este es el calendario escolar vigente:",
+    sections: [{
+      title: "Calendario escolar",
+      items: calendars.map((calendar) => ({
+        title: calendar.titulo || calendar.titulo_seccion || "Calendario",
+        text: calendar.tipo_calendario ? `Calendario ${String(calendar.tipo_calendario).toLowerCase()}` : "",
+        href: calendar.archivo_url || null,
+        route: calendar.archivo_url ? null : "/calendario",
+      })),
+    }],
+    actions: topic.actions,
+  };
+};
+
+const ABOUT_BLOCKS = [
+  { pattern: /\bmision\b/, label: "La misión" },
+  { pattern: /\bvision\b/, label: "La visión" },
+  { pattern: /\bvalores?\b/, label: "Los valores" },
+  { pattern: /\bhistoria\b/, label: "La historia" },
+];
+
+const aboutResponse = async (topic, analysis) => {
+  const blocks = await AssistantModel.getAbout();
+  if (!blocks.length) return { reply: topic.emptyAnswer, sections: [], actions: topic.actions };
+
+  const requested = ABOUT_BLOCKS.find((block) => block.pattern.test(analysis.text));
+  if (requested) {
+    const block = blocks.find((item) => requested.pattern.test(analyze(`${item.type} ${item.title}`).text));
+    if (block) {
+      return { reply: `${requested.label} del instituto: ${compact(block.content, 450)}`, sections: [], actions: topic.actions };
+    }
+  }
+
+  return {
+    reply: topic.answer,
+    sections: [{
+      title: "El instituto",
+      items: blocks.slice(0, 3).map((item) => ({ title: item.title || item.type, text: compact(item.content, 160), route: "/about" })),
+    }],
+    actions: topic.actions,
+  };
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   Respuestas fuera de alcance
+   ────────────────────────────────────────────────────────────────────── */
+
+// Datos que la plataforma no registra (horarios, costos, admisiones…).
+const UNAVAILABLE_INFO = /\b(?:horario|horarios|colegiatura|colegiaturas|mensualidad|inscripcion|inscripciones|reinscripcion|beca|becas|admision|requisitos de ingreso|uniforme|cuanto cuesta la carrera|costo de la carrera)\b/;
+
+const SCOPE_REMINDER ="Puedo ayudarte con libros, préstamos, materiales de clase, eventos, noticias, el calendario escolar o tu cuenta.";
+
+const outOfScope = (kind, seed) => {
+  const replies = {
+    offensive: [
+      `Prefiero que mantengamos una conversación respetuosa. ${SCOPE_REMINDER}`,
+      `Mantengamos el respeto, por favor. ${SCOPE_REMINDER}`,
+    ],
+    support: [
+      `Eso no lo puedo atender por aquí: me enfoco en información académica y de la plataforma. ${SCOPE_REMINDER}`,
+    ],
+    offTopic: [
+      `Eso se sale de lo que puedo ayudarte. ${SCOPE_REMINDER}`,
+      `Me encantaría platicar de eso, pero mi tema es lo académico. ${SCOPE_REMINDER}`,
+    ],
+    unavailable: [
+      `Esa información no la tengo disponible en la plataforma, así que prefiero no darte un dato equivocado. ${SCOPE_REMINDER}`,
+    ],
+    unknown: [
+      "No logré entenderte del todo. ¿Me lo dices de otra forma? Por ejemplo: «busco un libro de anatomía» o «¿cuándo empiezan las clases?».",
+      "Creo que no te entendí bien. ¿Me cuentas un poco más de lo que buscas?",
+    ],
+  };
+  return {
+    topic: { id: kind === "unknown" ? "fallback" : `out_of_scope_${kind}`, title: "Alcance del asistente", category: "Asistente" },
+    reply: pick(replies[kind], seed),
+    actions: [],
+    suggestions: FALLBACK_SUGGESTIONS,
+  };
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+   Orquestación
+   ────────────────────────────────────────────────────────────────────── */
+
+const topicResponse = async ({ topic, analysis, terms, seed, previous, more }) => {
+  if (topic.search === "calendar") return calendarResponse(topic, analysis);
+  if (topic.search === "about") return aboutResponse(topic, analysis);
+  if (SEARCHERS[topic.search]) {
+    return searchResponse({
+      topic,
+      searchType: topic.search,
+      terms,
+      seed,
+      excludeIds: more ? previous?.shownIds || [] : [],
+      more,
+      howTo: /^(?:y\s+)?(?:como|donde|que (?:necesito|tengo que|debo))\b/.test(analysis.text),
+    });
+  }
+  return { reply: topic.answer, sections: [], actions: topic.actions };
+};
+
+const toResult = ({ context, topic, confidence = 1, matched = [], alternatives = [], body, authenticatedUser, contextUsed = false }) => ({
+  sessionId: context.sessionId || null,
+  intent: {
+    id: topic.id,
+    title: topic.title,
+    category: topic.category,
+    confidence: Number(confidence.toFixed(2)),
+    matches: matched,
+    alternatives: alternatives.map((item) => ({
+      id: item.topic.id,
+      title: item.topic.title,
+      category: item.topic.category,
+      score: Number(item.score.toFixed(2)),
+    })),
+  },
+  reply: body.reply,
+  sections: body.sections || [],
+  actions: dedupeActions(body.actions || []).slice(0, 4),
+  suggestions: (body.suggestions || topic.suggestions || []).slice(0, 4),
+  related: [],
+  meta: {
+    searchType: body.meta?.searchType || null,
+    searchTerms: body.meta?.searchTerms || [],
+    shownIds: body.meta?.shownIds || [],
+    deterministic: true,
+    source: "assistant-nlp",
+    contextUsed,
+    authenticated: Boolean(authenticatedUser?.id_usuario),
+  },
+});
+
+const buildResponse = async ({ message, context, authenticatedUser }) => {
+  const seed = message;
+  const scope = assessScope(message);
+  const vocab = await getVocabulary();
+  const analysis = analyze(scope.cleaned, vocab);
+  const ranked = rankIntents(analysis, INTENT_INDEX);
+  const best = ranked[0];
+  let confidence = confidenceOf(ranked);
+  const strongIntent = confidence >= 0.5 && best.coverage >= 0.5;
+  const result = (topic, body, extra = {}) =>
+    toResult({ context, topic, body, authenticatedUser, confidence, matched: best?.matched || [], ...extra });
+
+  // 1) Ofensas: si además hay una intención académica clara, se atiende con una nota.
+  let courtesyNote = "";
+  if (scope.offensive) {
+    if (!strongIntent || /\b(?:eres|estas)\b/.test(analysis.text)) {
+      const body = outOfScope("offensive", seed);
+      return result(body.topic, body, { confidence: 1 });
+    }
+    courtesyNote = "Te ayudo con gusto; solo te pido que cuidemos el lenguaje. ";
+  }
+
+  // 2) Conversación social (saludos, gracias, despedidas…).
+  const social = matchSocial(analysis);
+  if (social && !(social.id === "gratitude" && strongIntent)) {
+    return result(
+      { id: social.id, title: social.title, category: "Conversación" },
+      { reply: pick(social.replies, seed), actions: [], suggestions: social.suggestions || [] },
+      { confidence: 1 }
     );
   }
 
-  const response = {
-    sessionId: context.sessionId || null,
-    intent: {
-      id: base.topic.id,
-      title: base.topic.title,
-      category: base.topic.category,
-      confidence: Number(intent.confidence.toFixed(2)),
-      matches: intent.best?.matches || [],
-      alternatives: intent.alternatives.map((item) => ({
-        id: item.topic.id,
-        title: item.topic.title,
-        category: item.topic.category,
-        score: Number(item.score.toFixed(2)),
-      })),
-    },
-    reply: replyParts.join("\n\n"),
-    sections: [...(personalized?.sections || []), ...dynamic.sections],
-    actions: dedupeActions([...(base.actions || []), ...dynamicActions]).slice(0, 6),
-    suggestions: (base.suggestions || FALLBACK_SUGGESTIONS).slice(0, 5),
-    related: dynamic.related,
-    meta: {
-      searchTerm: dynamic.searchTerm,
-      deterministic: true,
-      source: "project-rules",
-      contextUsed: Boolean(intent.contextual),
-      authenticated: Boolean(authenticatedUser?.id_usuario),
-    },
-  };
+  // 3) Soporte, fallas o contacto con personas: fuera del alcance, salvo que
+  //    el mensaje sea sobre todo una consulta académica clara.
+  if (scope.malfunction || (scope.support && (!strongIntent || best.coverage < 0.75))) {
+    const body = outOfScope("support", seed);
+    return result(body.topic, body, { confidence: 1 });
+  }
 
-  await AssistantModel.saveInteraction({
-    sessionId: context.sessionId,
-    message,
-    intent: response.intent.id,
-    confidence: response.intent.confidence,
-    responsePreview: response.reply,
-    route: context.path || context.route,
-    role: context.role,
-    ip: reqMeta.ip,
-    userAgent: reqMeta.userAgent,
-  });
+  // 4) Datos personales.
+  const personal = await personalResponse(analysis, scope.cleaned, authenticatedUser);
+  if (personal) {
+    return result(personal.topic, { ...personal, reply: courtesyNote + personal.reply }, { confidence: 1 });
+  }
 
-  return response;
+  // 5) Seguimiento de la conversación («y de farmacología?», «dame más»).
+  const previous = previousTurn(context);
+  const previousTopic = previous ? TOPIC_BY_ID.get(previous.intentId) : null;
+  const more = Boolean(previous?.searchType) && MORE_REQUEST.test(analysis.text);
+  const followUpCue = FOLLOW_UP_START.test(analysis.text) || REFERENCE.test(analysis.text);
+  const sameTopic = Boolean(previousTopic) && best?.score > 0 && best.topic.id === previousTopic.id;
+  const isFollowUp = Boolean(previousTopic) && (
+    more ||
+    (followUpCue && (confidence < 0.55 || sameTopic)) ||
+    (analysis.stems.length <= 2 && confidence < 0.4)
+  );
+
+  let topic = best?.score > 0 ? best.topic : null;
+  let contextUsed = false;
+  if (isFollowUp) {
+    topic = previousTopic;
+    contextUsed = true;
+    confidence = Math.max(confidence, 0.6);
+  } else if (!strongIntent && confidence < 0.3) {
+    // Sin intención clara: la sección actual ayuda a desempatar.
+    const routeTopic = TOPIC_BY_ID.get(routeTopicId(context.path));
+    const routeRanked = routeTopic && ranked.find((item) => item.topic.id === routeTopic.id);
+    if (routeRanked?.score > 0) {
+      topic = routeTopic;
+      confidence = Math.max(confidence, 0.45);
+    }
+  }
+
+  // 6) Fuera de tema: solo si no hay una intención académica que lo explique.
+  if (scope.offTopic && !contextUsed && (confidence < 0.6 || best.coverage < 0.5)) {
+    const body = outOfScope("offTopic", seed);
+    return result(body.topic, body, { confidence: 1 });
+  }
+
+  // Información institucional que la plataforma no publica: se admite sin inventar.
+  if (UNAVAILABLE_INFO.test(analysis.text) && !contextUsed && best.coverage < 0.75) {
+    const body = outOfScope("unavailable", seed);
+    return result(body.topic, body, { confidence: 1 });
+  }
+
+  // 7) Pregunta frecuente publicada que coincide con lo que se pregunta.
+  const faq = await bestFaq(analysis);
+  if (faq && (faq.ratio >= 0.75 || confidence < 0.55)) {
+    return result(
+      { id: "faq", title: "Pregunta frecuente", category: "Ayuda" },
+      { reply: courtesyNote + compact(faq.faq.respuesta, 600), actions: topic?.actions || [], suggestions: topic?.suggestions || FALLBACK_SUGGESTIONS },
+      { confidence: Math.max(confidence, faq.ratio) }
+    );
+  }
+
+  // 8) Términos de búsqueda: lo que pide el mensaje sin el «cómo» ni el tipo de contenido.
+  const exclude = new Set([...topicStems(topic), ...GENERIC_SEARCH_STEMS]);
+  let terms = searchTermsFrom(analysis.content, exclude);
+  if (more || (contextUsed && !terms.length)) terms = previous?.searchTerms || [];
+
+  // 9) Intención poco clara: si hay términos, se buscan en biblioteca y materiales.
+  if (!topic || (confidence < 0.25 && !contextUsed)) {
+    if (terms.length) {
+      const [books, materials] = await Promise.all([
+        AssistantModel.searchBooks(terms.map(stem), { limit: 3 }),
+        AssistantModel.searchMaterials(terms.map(stem), { limit: 3 }),
+      ]);
+      if (books.length || materials.length) {
+        const sections = [];
+        if (books.length) sections.push({ title: "Libros", items: books.map(SEARCHERS.books.item) });
+        if (materials.length) sections.push({ title: "Materiales", items: materials.map(SEARCHERS.materials.item) });
+        return result(
+          { id: "academic_search", title: "Búsqueda académica", category: "Biblioteca" },
+          {
+            reply: `${courtesyNote}No estoy seguro de qué necesitas exactamente, pero esto es lo que hay sobre ${quote(terms)} en la plataforma:`,
+            sections,
+            actions: [SEARCHERS.books.action, SEARCHERS.materials.action],
+            suggestions: FALLBACK_SUGGESTIONS,
+            meta: { searchType: books.length ? "books" : "materials", searchTerms: terms, shownIds: (books.length ? books : materials).map((row) => row.id ?? row.id_material) },
+          },
+          { confidence: 0.4 }
+        );
+      }
+    }
+    const body = outOfScope("unknown", seed);
+    return result(body.topic, body, { confidence, alternatives: ranked.filter((item) => item.score > 1).slice(0, 3) });
+  }
+
+  // 10) Respuesta del tema con la información real disponible.
+  const body = await topicResponse({ topic, analysis, terms, seed, previous, more });
+  return result(
+    topic,
+    {
+      ...body,
+      reply: courtesyNote + body.reply,
+      actions: dedupeActions([...(body.actions || []), ...(topic.actions || [])]),
+      suggestions: topic.suggestions,
+    },
+    { contextUsed, alternatives: ranked.slice(1, 3).filter((item) => item.score > 1) }
+  );
 };
 
 export const AssistantService = {
   async answer({ message, context, authenticatedUser, reqMeta }) {
     const cleanMessage = compact(message, 1000);
+    const safeContext = sanitizeContext(context, authenticatedUser);
 
     if (!cleanMessage || cleanMessage.length < 2) {
-      return {
-        sessionId: context?.sessionId || null,
-        intent: {
-          id: "empty",
-          title: "Mensaje vacio",
-          category: "Ayuda",
-          confidence: 0,
-          matches: [],
-          alternatives: [],
-        },
-        reply: "Escribe una pregunta o una accion concreta y te guio dentro de la plataforma.",
-        sections: [],
-        actions: [routeAction("Inicio", "/inicio", "ph-house")],
-        suggestions: FALLBACK_SUGGESTIONS,
-        related: [],
-        meta: {
-          deterministic: true,
-          source: "project-rules",
-        },
-      };
+      return toResult({
+        context: safeContext,
+        topic: { id: "empty", title: "Mensaje vacío", category: "Asistente" },
+        body: { reply: "Escríbeme tu pregunta y te ayudo.", suggestions: FALLBACK_SUGGESTIONS },
+        confidence: 0,
+        authenticatedUser,
+      });
     }
 
-    return buildResponse({
+    const response = await buildResponse({
       message: cleanMessage,
-      context: sanitizeContext(context, authenticatedUser),
+      context: safeContext,
       authenticatedUser: authenticatedUser || null,
-      reqMeta: reqMeta || {},
     });
+
+    await AssistantModel.saveInteraction({
+      sessionId: safeContext.sessionId,
+      message: cleanMessage,
+      intent: response.intent.id,
+      confidence: response.intent.confidence,
+      responsePreview: response.reply,
+      route: safeContext.path,
+      role: safeContext.role,
+      ip: reqMeta?.ip,
+      userAgent: reqMeta?.userAgent,
+    });
+
+    return response;
   },
 
   getTopics() {
     const categories = ASSISTANT_TOPICS.reduce((acc, topic) => {
       if (!acc[topic.category]) acc[topic.category] = [];
-      acc[topic.category].push({
-        id: topic.id,
-        title: topic.title,
-        suggestions: topic.suggestions?.slice(0, 3) || [],
-      });
+      acc[topic.category].push({ id: topic.id, title: topic.title, suggestions: topic.suggestions?.slice(0, 3) || [] });
       return acc;
     }, {});
-
-    return {
-      starters: STARTER_PROMPTS,
-      categories,
-    };
+    return { starters: STARTER_PROMPTS, categories };
   },
 };
