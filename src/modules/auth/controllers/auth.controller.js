@@ -576,7 +576,6 @@ refreshToken: async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(" ")[1];
-      const { id_usuario } = req.body;
 
       if (!token)
         return res.status(400).json({ error: "Token no proporcionado." });
@@ -585,7 +584,9 @@ refreshToken: async (req, res) => {
       if (!decoded)
         return res.status(403).json({ error: "Token inválido o expirado." });
 
-      const userId = id_usuario || decoded.id;
+      // Siempre se cierra la sesión del dueño del token: el id_usuario del cuerpo se ignora
+      // para que nadie pueda cerrar la sesión de otra cuenta.
+      const userId = decoded.id || decoded.id_usuario;
 
       await SessionModel.close(userId);
       await RefreshModel.revoke(userId);

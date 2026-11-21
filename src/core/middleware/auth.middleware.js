@@ -8,6 +8,21 @@ const buildRequestUser = (decoded) => ({
   correo: decoded.correo,
 });
 
+/**
+ * Comprueba que la sesión del token siga activa. Devuelve true si se puede continuar;
+ * si no, ya respondió 401 (sesión cerrada) o 503 (no se pudo verificar).
+ */
+const ensureActiveSession = async (userId, res) => {
+  try {
+    if (await RefreshModel.hasActiveSession(userId)) return true;
+    res.status(401).json({ error: 'Sesion cerrada o expirada' });
+  } catch (error) {
+    console.error('No se pudo verificar la sesion:', error.message);
+    res.status(503).json({ error: 'Servicio no disponible. Intenta nuevamente.' });
+  }
+  return false;
+};
+
 const touchRefreshActivity = async (userId) => {
   try {
     await RefreshModel.touchActivity(userId);
@@ -30,6 +45,7 @@ export const verifyAuth = async (req, res, next) => {
   }
 
   req.user = buildRequestUser(decoded);
+  if (!(await ensureActiveSession(req.user.id_usuario, res))) return;
   await touchRefreshActivity(req.user.id_usuario);
   next();
 };
@@ -50,6 +66,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     req.user = buildRequestUser(decoded);
+    if (!(await ensureActiveSession(req.user.id_usuario, res))) return;
     await touchRefreshActivity(req.user.id_usuario);
     next();
   } catch (error) {
