@@ -9,8 +9,13 @@ import express from "express";
 
 process.env.JWT_SECRET = process.env.JWT_SECRET || "secreto-de-prueba";
 
+// Los tokens de prueba pertenecen a una sesión activa (el middleware la comprueba desde #217).
 mock.module("../src/config/db.config.js", {
-  namedExports: { poolPromise: { query: async () => [[]] } },
+  namedExports: {
+    poolPromise: {
+      query: async (sql) => (/SELECT 1\s+FROM tokensrefresh/.test(sql) ? [[{ 1: 1 }]] : [[]]),
+    },
+  },
 });
 
 // Los controladores reales consultan la base de datos; aquí solo responden quién llegó.
