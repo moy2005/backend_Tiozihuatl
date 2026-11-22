@@ -3,6 +3,7 @@ import cloudinary from '../../../config/cloudinary.js';
 import { successResponse, errorResponse } from '../../../core/utils/response.util.js';
 import { poolPromise } from '../../../config/db.config.js';
 import { Readable } from 'stream';
+import { PDF_STORAGE, toPublicMagazine } from '../services/magazine-files.js';
 
 const uploadBufferToCloudinary = (buffer, options) => {
   return new Promise((resolve, reject) => {
@@ -29,15 +30,8 @@ export const getCatalog = async (req, res) => {
   try {
 
     const magazines = await service.getCatalog();
-    const magazinesWithCover = magazines.map(m => {
-    const portada_url = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/pg_1,w_300,h_400,c_fill,f_jpg/${m.pdf_public_id}`;
-
-      return {
-        ...m,
-        portada_url
-      };
-
-    });
+    // Portada firmada y sin el identificador del PDF: el catálogo es público (#197).
+    const magazinesWithCover = magazines.map(toPublicMagazine);
 
     res.json({
       success: true,
@@ -159,10 +153,7 @@ export const updateMagazine = async (req, res) => {
     if (req.files && req.files.pdf) {
       // buffer en lugar de path
       const pdfBuffer = req.files.pdf[0].buffer;
-      const pdfResult = await uploadBufferToCloudinary(pdfBuffer, {
-        resource_type: 'image',
-        folder: 'magazines/revistas'
-      });
+      const pdfResult = await uploadBufferToCloudinary(pdfBuffer, PDF_STORAGE);
       pdf_public_id = pdfResult.public_id;
     }
 
@@ -200,10 +191,7 @@ export const uploadMagazine = async (req, res) => {
 
     //buffer en lugar de path
     const pdfBuffer = req.files.pdf[0].buffer;
-    const pdfResult = await uploadBufferToCloudinary(pdfBuffer, {
-      resource_type: 'image',
-      folder: 'magazines/revistas'
-    });
+    const pdfResult = await uploadBufferToCloudinary(pdfBuffer, PDF_STORAGE);
 
     await service.createMagazine({
       titulo,
@@ -229,8 +217,7 @@ export const getMyPurchases = async (req, res) => {
     const userId = req.user.id_usuario;
     const data = await service.getMyPurchases(userId);
 
-    console.log("Resultado:", data); // para verificar que filtra inactivas
-    res.json(data);
+    res.json(data.map(toPublicMagazine));
 
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -358,7 +345,7 @@ export const toggleMagazineStatus = async (req, res) => {
         return res.status(404).json({ message: 'Magazine not found' });
       }
 
-      res.json({ data: magazine });
+      res.json({ data: toPublicMagazine(magazine) });
 
     } catch (error) {
       console.error("Error en getMagazineById:", error);
@@ -569,7 +556,7 @@ export const filterMagazines = async (req, res) => {
         letter
       );
 
-    res.json({ ok: true, data: magazines });
+    res.json({ ok: true, data: magazines.map(toPublicMagazine) });
 
   } catch (error) {
     console.error(error);

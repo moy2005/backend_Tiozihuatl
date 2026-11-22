@@ -16,7 +16,8 @@
     "test:recommendations": "npm run recommendations:test-content",
     "test:assistant": "node --test --experimental-test-module-mocks tests/assistant.test.js",
     "test:auth": "node --test --experimental-test-module-mocks tests/auth-session.test.js",
-    "test:acceso": "node --test --experimental-test-module-mocks tests/acceso-biblioteca-materiales.test.js"
+    "test:acceso": "node --test --experimental-test-module-mocks tests/acceso-biblioteca-materiales.test.js",
+    "test:revistas": "node --test --experimental-test-module-mocks tests/revistas-pdf-protegido.test.js"
   },
   "keywords": [],
   "author": "",

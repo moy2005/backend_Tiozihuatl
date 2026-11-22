@@ -1,5 +1,5 @@
 import {poolPromise} from '../../../config/db.config.js';
-import cloudinary from '../../../config/cloudinary.js';
+import { signedPdfUrl } from './magazine-files.js';
 import { processPayment } from './payment.service.js';
 import { registerAudit } from './audit.service.js';
 
@@ -297,13 +297,8 @@ export const getSecurePdf = async (id_usuario, id_revista) => {
     throw new Error('Access denied');
   }
 
-  const pdfId = String(rows[0].pdf_public_id || '').replace(/\.pdf$/i, '');
-
-  return cloudinary.url(pdfId, {
-    resource_type: 'image',
-    secure: true,
-    format: 'pdf'
-  });
+  // Dirección firmada: el PDF está protegido en Cloudinary y no se abre sin esta firma (#197).
+  return signedPdfUrl(rows[0].pdf_public_id);
 };
 /*export const getSecurePdf = async (id_usuario, id_magazine) => {
   
