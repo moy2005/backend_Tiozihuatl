@@ -102,6 +102,27 @@ export const RefreshModel = {
     );
   },
 
+  /**
+   * Indica si el usuario tiene una sesión activa (no revocada ni expirada).
+   * El cierre de sesión y un nuevo inicio de sesión revocan la anterior, así que un
+   * token de acceso de una sesión cerrada deja de ser válido aunque su firma no haya caducado.
+   */
+  async hasActiveSession(id_usuario) {
+    if (!id_usuario) return false;
+
+    const [rows] = await poolPromise.query(
+      `SELECT 1
+       FROM tokensrefresh
+       WHERE id_usuario = ?
+         AND estado = 'Activo'
+         AND fecha_expiracion > UTC_TIMESTAMP()
+       LIMIT 1`,
+      [id_usuario]
+    );
+
+    return rows.length > 0;
+  },
+
   async revoke(id_usuario) {
     await poolPromise.query(
       `UPDATE tokensrefresh
