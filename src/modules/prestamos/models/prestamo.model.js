@@ -80,14 +80,16 @@ const buildObservacionesValue = (observaciones, fallback = null) => {
 };
 
 export const PrestamoModel = {
-  sincronizarVencidos: async (executor = poolPromise) => {
+  sincronizarVencidos: async (executor = poolPromise, usuarioId = null) => {
     await executor.query(
       `
         UPDATE prestamos
         SET estado = 'Vencido'
         WHERE estado = 'Activo'
           AND fecha_vencimiento <= ${LOCAL_NOW_SQL}
-      `
+          ${usuarioId === null ? "" : "AND id_usuario = ?"}
+      `,
+      usuarioId === null ? [] : [usuarioId]
     );
   },
 
@@ -134,6 +136,38 @@ export const PrestamoModel = {
     );
 
     return rows;
+  },
+
+  obtenerPaginaPorUsuario: async (usuarioId, estados, pagina, limite) => {
+    const conditions = `
+      FROM prestamos p
+      INNER JOIN libros l ON l.id = p.libro_id
+      WHERE p.id_usuario = ?
+        AND p.estado IN (${estados.map(() => "?").join(", ")})
+    `;
+    const params = [usuarioId, ...estados];
+    const [[{ total }]] = await poolPromise.query(`SELECT COUNT(*) AS total ${conditions}`, params);
+    const totalPaginas = Math.ceil(total / limite);
+    const page = Math.min(pagina, Math.max(totalPaginas, 1));
+    const [data] = await poolPromise.query(
+      `
+        SELECT p.id_prestamo, p.id_usuario, p.libro_id, p.estado, p.observaciones,
+          p.gestionado_por, l.titulo,
+          DATE_FORMAT(p.fecha_prestamo, '%Y-%m-%dT%H:%i:%s') AS fecha_prestamo,
+          DATE_FORMAT(p.fecha_vencimiento, '%Y-%m-%dT%H:%i:%s') AS fecha_vencimiento,
+          DATE_FORMAT(p.fecha_devolucion, '%Y-%m-%dT%H:%i:%s') AS fecha_devolucion,
+          EXISTS (
+            SELECT 1 FROM libro_formatos lf
+            WHERE lf.libro_id = l.id AND lf.tipo = 'DIGITAL' AND lf.pdf_url <> ''
+          ) AS tiene_digital
+        ${conditions}
+        ORDER BY p.fecha_prestamo DESC, p.id_prestamo DESC
+        LIMIT ? OFFSET ?
+      `,
+      [...params, limite, (page - 1) * limite]
+    );
+
+    return { data, paginacion: { pagina: page, limite, total, totalPaginas } };
   },
 
   obtenerPrestamoPorId: async (conn, id_prestamo) => {

@@ -25,6 +25,11 @@ const ensureStudentEligible = async (conn, usuario_id) => {
 };
 
 export const PublicPrestamoService = {
+  obtenerPagina: async (usuario_id, estados, pagina, limite) => {
+    await PrestamoModel.sincronizarVencidos(poolPromise, usuario_id);
+    return PrestamoModel.obtenerPaginaPorUsuario(usuario_id, estados, pagina, limite);
+  },
+
   obtenerMisPrestamos: async (usuario_id) => {
     await PrestamoModel.sincronizarVencidos();
     return await PrestamoModel.obtenerPorUsuario(usuario_id);
